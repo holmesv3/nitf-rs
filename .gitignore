@@ -1,6 +1,5 @@
 /target
 /.vscode
+/venv
 Cargo.lock
 *.py
-/venv
-src/main.rs
