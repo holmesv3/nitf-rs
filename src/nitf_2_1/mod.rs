@@ -19,7 +19,7 @@ impl Nitf {
         return Ok(nitf)
     }
 }
-// TODO
+
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Nitf {
     pub header: NitfHeader,
