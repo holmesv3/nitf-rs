@@ -1,0 +1,6 @@
+/target
+/.vscode
+Cargo.lock
+*.py
+/venv
+src/main.rs
