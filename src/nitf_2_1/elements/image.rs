@@ -62,7 +62,7 @@ impl Default for Iid2 {
 }
 
 /// Image Security Classification
-#[derive(Clone, Hash, Debug)]
+#[derive(Default, Clone, Hash, Debug)]
 pub struct ISClas {
     pub val: [u8; 1],
 }
@@ -188,7 +188,7 @@ impl Default for IsClTx {
 }
 
 /// Image Classification Authority Type
-#[derive(Clone, Hash, Debug)]
+#[derive(Default, Clone, Hash, Debug)]
 pub struct ISCATp {
     pub val: [u8; 1],
 }

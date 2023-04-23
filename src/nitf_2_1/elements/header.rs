@@ -369,7 +369,7 @@ impl Display for NumImageSegments {
 /// Image Segments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ImageSegments {
-    pub val: Vec<ImageSegment>,
+    pub val: Vec<ImageSegmentElem>,
 }
 impl Display for ImageSegments {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -383,11 +383,11 @@ impl Display for ImageSegments {
 
 /// Image Segment Info
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ImageSegment {
+pub struct ImageSegmentElem {
     pub subheader_size: [u8; 6],
     pub item_size: [u8; 10],
 }
-impl Display for ImageSegment {
+impl Display for ImageSegmentElem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let str1 = String::from_utf8(self.subheader_size.to_vec()).unwrap();
         let str2 = String::from_utf8(self.item_size.to_vec()).unwrap();
@@ -409,7 +409,7 @@ impl Display for NumGraphicSegment {
 /// Graphic Segments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct GraphicsSegments {
-    pub val: Vec<GraphicsSegment>,
+    pub val: Vec<GraphicsSegmentElem>,
 }
 impl Display for GraphicsSegments {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -423,11 +423,11 @@ impl Display for GraphicsSegments {
 
 /// Graphic Segment Info
 #[derive(Default, Clone, Hash, Debug)]
-pub struct GraphicsSegment {
+pub struct GraphicsSegmentElem {
     pub subheader_size: [u8; 4],
     pub item_size: [u8; 6],
 }
-impl Display for GraphicsSegment {
+impl Display for GraphicsSegmentElem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let str1 = String::from_utf8(self.subheader_size.to_vec()).unwrap();
         let str2 = String::from_utf8(self.item_size.to_vec()).unwrap();
@@ -460,7 +460,7 @@ impl Display for NumTextFiles {
 /// Text Segments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TextSegments {
-    pub val: Vec<TextSegment>,
+    pub val: Vec<TextSegmentElem>,
 }
 impl Display for TextSegments {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -474,11 +474,11 @@ impl Display for TextSegments {
 
 /// Text Segment Info
 #[derive(Default, Clone, Hash, Debug)]
-pub struct TextSegment {
+pub struct TextSegmentElem {
     pub subheader_size: [u8; 4],
     pub item_size: [u8; 5],
 }
-impl Display for TextSegment {
+impl Display for TextSegmentElem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let str1 = String::from_utf8(self.subheader_size.to_vec()).unwrap();
         let str2 = String::from_utf8(self.item_size.to_vec()).unwrap();
@@ -500,7 +500,7 @@ impl Display for Numdes {
 /// Data Extenstion Segments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct DataExtSegments {
-    pub val: Vec<DataExtSegment>,
+    pub val: Vec<DataExtSegmentElem>,
 }
 impl Display for DataExtSegments {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -514,11 +514,11 @@ impl Display for DataExtSegments {
 
 /// Data Extenstion Segment Info
 #[derive(Default, Clone, Hash, Debug)]
-pub struct DataExtSegment {
+pub struct DataExtSegmentElem {
     pub subheader_size: [u8; 4],
     pub item_size: [u8; 9],
 }
-impl Display for DataExtSegment {
+impl Display for DataExtSegmentElem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let str1 = String::from_utf8(self.subheader_size.to_vec()).unwrap();
         let str2 = String::from_utf8(self.item_size.to_vec()).unwrap();
@@ -540,7 +540,7 @@ impl Display for Numres {
 /// Reserved Extension Segments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ReservedSegments {
-    pub val: Vec<ReservedSegment>,
+    pub val: Vec<ReservedSegmentElem>,
 }
 impl Display for ReservedSegments {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -554,11 +554,11 @@ impl Display for ReservedSegments {
 
 /// Reserved Extension Segment Info
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ReservedSegment {
+pub struct ReservedSegmentElem {
     pub subheader_size: [u8; 4],
     pub item_size: [u8; 7],
 }
-impl Display for ReservedSegment {
+impl Display for ReservedSegmentElem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let str1 = String::from_utf8(self.subheader_size.to_vec()).unwrap();
         let str2 = String::from_utf8(self.item_size.to_vec()).unwrap();

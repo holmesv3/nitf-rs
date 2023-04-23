@@ -48,7 +48,7 @@ impl NitfHeader {
             .parse()
             .unwrap();
         for _ in 0..n_image {
-            let mut seg = ImageSegment::default();
+            let mut seg = ImageSegmentElem::default();
             reader.read(&mut seg.subheader_size).unwrap();
             reader.read(&mut seg.item_size).unwrap();        
             hdr.imheaders.val.push(seg);
@@ -60,7 +60,7 @@ impl NitfHeader {
             .parse()
             .unwrap();
         for _ in 0..n_gphx {
-            let mut seg = GraphicsSegment::default();
+            let mut seg = GraphicsSegmentElem::default();
             reader.read(&mut seg.subheader_size).unwrap();
             reader.read(&mut seg.item_size).unwrap();        
             hdr.graphheaders.val.push(seg);
@@ -73,7 +73,7 @@ impl NitfHeader {
             .parse()
             .unwrap();
         for _ in 0..n_txt {
-            let mut seg = TextSegment::default();
+            let mut seg = TextSegmentElem::default();
             reader.read(&mut seg.subheader_size).unwrap();
             reader.read(&mut seg.item_size).unwrap();        
             hdr.textfiles.val.push(seg);
@@ -85,7 +85,7 @@ impl NitfHeader {
             .parse()
             .unwrap();
         for _ in 0..n_dext {
-            let mut seg = DataExtSegment::default();
+            let mut seg = DataExtSegmentElem::default();
             reader.read(&mut seg.subheader_size).unwrap();
             reader.read(&mut seg.item_size).unwrap();        
             hdr.dextheaders.val.push(seg);
@@ -98,7 +98,7 @@ impl NitfHeader {
             .parse()
             .unwrap();
         for _ in 0..n_res {
-            let mut seg = ReservedSegment::default();
+            let mut seg = ReservedSegmentElem::default();
             reader.read(&mut seg.subheader_size).unwrap();
             reader.read(&mut seg.item_size).unwrap();        
             hdr.resheaders.val.push(seg);
