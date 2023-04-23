@@ -1,6 +1,7 @@
 //! Field definitions for NITF image segment subheader
 use std::fmt::Display;
 
+/// File Part Type
 #[derive(Default, Clone, Hash, Debug)]
 pub struct FilePartType {
     pub val: [u8; 2],
@@ -11,6 +12,7 @@ impl Display for FilePartType {
     }
 }
 
+/// Image Identifier 1
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Iid1 {
     pub val: [u8; 10],
@@ -21,6 +23,7 @@ impl Display for Iid1 {
     }
 }
 
+/// Image Date and Time
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IDaTim {
     pub val: [u8; 14],
@@ -31,6 +34,7 @@ impl Display for IDaTim {
     }
 }
 
+/// Target Identifier
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TgtID {
     pub val: [u8; 17],
@@ -41,6 +45,7 @@ impl Display for TgtID {
     }
 }
 
+/// Image Identifier 2
 #[derive(Clone, Hash, Debug)]
 pub struct Iid2 {
     pub val: [u8; 80],
@@ -56,6 +61,7 @@ impl Default for Iid2 {
     }
 }
 
+/// Image Security Classification
 #[derive(Clone, Hash, Debug)]
 pub struct ISClas {
     pub val: [u8; 1],
@@ -66,6 +72,7 @@ impl Display for ISClas {
     }
 }
 
+/// Image Classification Security System
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ISClSy {
     pub val: [u8; 2],
@@ -76,6 +83,7 @@ impl Display for ISClSy {
     }
 }
 
+/// Image Codewords
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ISCode {
     pub val: [u8; 11],
@@ -86,6 +94,7 @@ impl Display for ISCode {
     }
 }
 
+/// Image Control and Handling
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ISCtlH {
     pub val: [u8; 2],
@@ -96,6 +105,7 @@ impl Display for ISCtlH {
     }
 }
 
+/// Image Releasing Instructions
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ISRel {
     pub val: [u8; 20],
@@ -106,6 +116,7 @@ impl Display for ISRel {
     }
 }
 
+/// Image Declassification Type
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ISDcTp {
     pub val: [u8; 2],
@@ -116,6 +127,7 @@ impl Display for ISDcTp {
     }
 }
 
+/// Image Declassification Date
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IsDcDt {
     pub val: [u8; 8],
@@ -126,6 +138,7 @@ impl Display for IsDcDt {
     }
 }
 
+/// Image Declassification Exemption
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IsDcXm {
     pub val: [u8; 4],
@@ -136,6 +149,7 @@ impl Display for IsDcXm {
     }
 }
 
+/// Image Downgrade
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IsDg {
     pub val: [u8; 1],
@@ -146,6 +160,7 @@ impl Display for IsDg {
     }
 }
 
+/// Image Downgrade Date
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IsDgDt {
     pub val: [u8; 8],
@@ -156,6 +171,7 @@ impl Display for IsDgDt {
     }
 }
 
+/// Image Classification Text
 #[derive(Clone, Hash, Debug)]
 pub struct IsClTx {
     pub val: [u8; 43],
@@ -171,6 +187,7 @@ impl Default for IsClTx {
     }
 }
 
+/// Image Classification Authority Type
 #[derive(Clone, Hash, Debug)]
 pub struct ISCATp {
     pub val: [u8; 1],
@@ -181,6 +198,7 @@ impl Display for ISCATp {
     }
 }
 
+/// Image Classification Authority
 #[derive(Clone, Hash, Debug)]
 pub struct ISCAut {
     pub val: [u8; 40],
@@ -196,6 +214,7 @@ impl Default for ISCAut {
     }
 }
 
+/// Image Classification Reason
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ISCRsn {
     pub val: [u8; 1],
@@ -206,6 +225,7 @@ impl Display for ISCRsn {
     }
 }
 
+/// Image Security Source Date
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ISSrDt {
     pub val: [u8; 8],
@@ -216,6 +236,7 @@ impl Display for ISSrDt {
     }
 }
 
+/// Image Security Control Number
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ISCtlN {
     pub val: [u8; 15],
@@ -226,6 +247,7 @@ impl Display for ISCtlN {
     }
 }
 
+/// Encryption
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ENCRYP {
     pub val: [u8; 1],
@@ -236,6 +258,7 @@ impl Display for ENCRYP {
     }
 }
 
+/// Image Source
 #[derive(Clone, Hash, Debug)]
 pub struct ISorce {
     pub val: [u8; 42],
@@ -251,6 +274,7 @@ impl Default for ISorce {
     }
 }
 
+/// Number of Significant Rows in image
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NRows {
     pub val: [u8; 8],
@@ -261,6 +285,7 @@ impl Display for NRows {
     }
 }
 
+/// Number of Significant Columns in image
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NCols {
     pub val: [u8; 8],
@@ -271,6 +296,7 @@ impl Display for NCols {
     }
 }
 
+/// Pixel Value Type
 #[derive(Default, Clone, Hash, Debug)]
 pub struct PVType {
     pub val: [u8; 3],
@@ -281,6 +307,7 @@ impl Display for PVType {
     }
 }
 
+/// Image Representation
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IRep {
     pub val: [u8; 8],
@@ -291,6 +318,7 @@ impl Display for IRep {
     }
 }
 
+/// Image Category
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ICat {
     pub val: [u8; 8],
@@ -301,6 +329,7 @@ impl Display for ICat {
     }
 }
 
+/// Actual Bits-Per-Pixel Per Band
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ABPp {
     pub val: [u8; 2],
@@ -311,6 +340,7 @@ impl Display for ABPp {
     }
 }
 
+/// Pixel Justification
 #[derive(Default, Clone, Hash, Debug)]
 pub struct PJust {
     pub val: [u8; 1],
@@ -321,6 +351,7 @@ impl Display for PJust {
     }
 }
 
+/// Image Coordinate Representation
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ICords {
     pub val: [u8; 1],
@@ -331,6 +362,7 @@ impl Display for ICords {
     }
 }
 
+/// Number of Image Comments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NICom {
     pub val: [u8; 1],
@@ -341,6 +373,7 @@ impl Display for NICom {
     }
 }
 
+/// Image Comments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IComs {
     pub val: Vec<ICom>,
@@ -354,6 +387,7 @@ impl Display for IComs {
         write!(f, "IComs: [{}]", out_str)    }
 }
 
+/// Image Comment
 #[derive(Clone, Hash, Debug)]
 pub struct ICom {
     pub val: [u8; 80],
@@ -369,6 +403,7 @@ impl Default for ICom {
     }
 }
 
+/// Image Compression
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IC {
     pub val: [u8; 2],
@@ -379,6 +414,7 @@ impl Display for IC {
     }
 }
 
+/// Number of Bands
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NBands {
     pub val: [u8; 1],
@@ -389,6 +425,7 @@ impl Display for NBands {
     }
 }
 
+/// 1st Band Representation
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IRepBand1 {
     pub val: [u8; 2],
@@ -399,6 +436,7 @@ impl Display for IRepBand1 {
     }
 }
 
+/// 1st Band Subcategory
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ISubCat1 {
     pub val: [u8; 6],
@@ -409,6 +447,7 @@ impl Display for ISubCat1 {
     }
 }
 
+/// 1st Band Image Filter Condition
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IFC1 {
     pub val: [u8; 1],
@@ -419,6 +458,7 @@ impl Display for IFC1 {
     }
 }
 
+/// 1st Band Standard Image Filter Code
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IMFlt1 {
     pub val: [u8; 3],
@@ -429,6 +469,7 @@ impl Display for IMFlt1 {
     }
 }
 
+/// Number of LUTs for the 1st Image Band
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NLUTs1 {
     pub val: [u8; 1],
@@ -439,6 +480,7 @@ impl Display for NLUTs1 {
     }
 }
 
+/// Image Sync Code
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ISync {
     pub val: [u8; 1],
@@ -449,6 +491,7 @@ impl Display for ISync {
     }
 }
 
+/// Image Mode
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IMode {
     pub val: [u8; 1],
@@ -459,6 +502,7 @@ impl Display for IMode {
     }
 }
 
+/// Number of Blocks per Row
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NBPR {
     pub val: [u8; 4],
@@ -469,6 +513,7 @@ impl Display for NBPR {
     }
 }
 
+/// Number of Blocks per Column
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NBPC {
     pub val: [u8; 4],
@@ -479,6 +524,7 @@ impl Display for NBPC {
     }
 }
 
+/// Number of Pixels Per Block Horizontal
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NPPBH {
     pub val: [u8; 4],
@@ -489,6 +535,7 @@ impl Display for NPPBH {
     }
 }
 
+/// Number of Pixels Per Block Vertical
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NPPBV {
     pub val: [u8; 4],
@@ -499,6 +546,7 @@ impl Display for NPPBV {
     }
 }
 
+/// Number of Bits Per Pixel
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NBPP {
     pub val: [u8; 2],
@@ -509,6 +557,7 @@ impl Display for NBPP {
     }
 }
 
+/// Image Display Level
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IDLvl {
     pub val: [u8; 3],
@@ -519,6 +568,7 @@ impl Display for IDLvl {
     }
 }
 
+/// Image Attachment Level
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IALvl {
     pub val: [u8; 3],
@@ -529,6 +579,7 @@ impl Display for IALvl {
     }
 }
 
+/// Image Location
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ILoc {
     pub val: [u8; 10],
@@ -539,6 +590,7 @@ impl Display for ILoc {
     }
 }
 
+/// Image Magnification
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IMag {
     pub val: [u8; 4],
@@ -549,6 +601,7 @@ impl Display for IMag {
     }
 }
 
+/// User Defined Image Data Length
 #[derive(Default, Clone, Hash, Debug)]
 pub struct UDIDL {
     pub val: [u8; 5],
@@ -559,6 +612,7 @@ impl Display for UDIDL {
     }
 }
 
+/// Image Extended Subheader Data Length
 #[derive(Default, Clone, Hash, Debug)]
 pub struct IXSHDL {
     pub val: [u8; 5],

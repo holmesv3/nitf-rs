@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-// File Part Type 
+/// File Part Type 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TE {
     pub val: [u8; 2]
@@ -11,7 +11,7 @@ impl Display for TE {
     }
 }
 
-// Text Identifier 
+/// Text Identifier 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TextID {
     pub val: [u8; 7]
@@ -22,7 +22,7 @@ impl Display for TextID {
     }
 }
 
-// Text Attachment Level 
+/// Text Attachment Level 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TxtALvl {
     pub val: [u8; 3]
@@ -33,7 +33,7 @@ impl Display for TxtALvl {
     }
 }
 
-// Text Date and Time 
+/// Text Date and Time 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TxtDT {
     pub val: [u8; 14]
@@ -44,7 +44,7 @@ impl Display for TxtDT {
     }
 }
 
-// Text Title 
+/// Text Title 
 #[derive(Clone, Hash, Debug)]
 pub struct TxtTitl {
     pub val: [u8; 80]
@@ -61,7 +61,7 @@ impl Default for TxtTitl {
     }
 }
 
-// Text Security Classification 
+/// Text Security Classification 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TSClas {
     pub val: [u8; 1]
@@ -72,7 +72,7 @@ impl Display for TSClas {
     }
 }
 
-// Text Classification Security System 
+/// Text Classification Security System 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TSClSy {
     pub val: [u8; 2]
@@ -83,7 +83,7 @@ impl Display for TSClSy {
     }
 }
 
-// Text Codewords 
+/// Text Codewords 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TSCode {
     pub val: [u8; 11]
@@ -94,7 +94,7 @@ impl Display for TSCode {
     }
 }
 
-// Text Control and Handling 
+/// Text Control and Handling 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TSCtlH {
     pub val: [u8; 2]
@@ -105,7 +105,7 @@ impl Display for TSCtlH {
     }
 }
 
-// Text Releasing Instructions 
+/// Text Releasing Instructions 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TSRel {
     pub val: [u8; 20]
@@ -116,7 +116,7 @@ impl Display for TSRel {
     }
 }
 
-// Text Declassification Type 
+/// Text Declassification Type 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TSDcTp {
     pub val: [u8; 2]
@@ -127,7 +127,7 @@ impl Display for TSDcTp {
     }
 }
 
-// Text Declassification Date 
+/// Text Declassification Date 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TSDcDt {
     pub val: [u8; 8]
@@ -138,7 +138,7 @@ impl Display for TSDcDt {
     }
 }
 
-// Text Declassification Exemption 
+/// Text Declassification Exemption 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TSDcXm {
     pub val: [u8; 4]
@@ -149,7 +149,7 @@ impl Display for TSDcXm {
     }
 }
 
-// Text Downgrade 
+/// Text Downgrade 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TSDg {
     pub val: [u8; 1]
@@ -160,7 +160,7 @@ impl Display for TSDg {
     }
 }
 
-// Text Downgrade Date 
+/// Text Downgrade Date 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TSDgDt {
     pub val: [u8; 8]
@@ -171,7 +171,7 @@ impl Display for TSDgDt {
     }
 }
 
-// Text Classification Text 
+/// Text Classification Text 
 #[derive(Clone, Hash, Debug)]
 pub struct TSCltTx {
     pub val: [u8; 43]
@@ -188,7 +188,7 @@ impl Default for TSCltTx {
     }
 }
 
-// Text Classification Authority Type 
+/// Text Classification Authority Type 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TSCATp {
     pub val: [u8; 1]
@@ -199,7 +199,7 @@ impl Display for TSCATp {
     }
 }
 
-// Text Classification Authority 
+/// Text Classification Authority 
 #[derive(Clone, Hash, Debug)]
 pub struct TSCAut {
     pub val: [u8; 40]
@@ -216,7 +216,7 @@ impl Default for TSCAut {
     }
 }
 
-// Text Classification Reason 
+/// Text Classification Reason 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TSCsn {
     pub val: [u8; 1]
@@ -227,7 +227,7 @@ impl Display for TSCsn {
     }
 }
 
-// Text Security Source Date 
+/// Text Security Source Date 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TSSrDt {
     pub val: [u8; 8]
@@ -238,7 +238,7 @@ impl Display for TSSrDt {
     }
 }
 
-// Text Security Control Number 
+/// Text Security Control Number 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TSCtlN {
     pub val: [u8; 15]
@@ -249,7 +249,7 @@ impl Display for TSCtlN {
     }
 }
 
-// Encryption 
+/// Encryption 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Encryp {
     pub val: [u8; 1]
@@ -260,7 +260,7 @@ impl Display for Encryp {
     }
 }
 
-// Text Format 
+/// Text Format 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TxtFmt {
     pub val: [u8; 3]
@@ -271,7 +271,7 @@ impl Display for TxtFmt {
     }
 }
 
-// Text Extended Subheader Data Length 
+/// Text Extended Subheader Data Length 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TXSHDL {
     pub val: [u8; 5]

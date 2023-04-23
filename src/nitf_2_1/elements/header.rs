@@ -1,7 +1,7 @@
 //! Field definitions for NITF header
 use std::fmt::Display;
 
-// FHDR
+/// File Profile Name
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fhdr {
     pub val: [u8; 4],
@@ -11,7 +11,7 @@ impl Display for Fhdr {
         write!(f, "Fhdr: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
-// FVER
+/// File Version
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fver {
     pub val: [u8; 5],
@@ -22,7 +22,7 @@ impl Display for Fver {
     }
 }
 
-// CLEVEL
+/// Complexity Level
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Clevel {
     pub val: [u8; 2],
@@ -33,7 +33,7 @@ impl Display for Clevel {
     }
 }
 
-// STYPE
+/// Standard Type
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Stype {
     pub val: [u8; 4],
@@ -44,7 +44,7 @@ impl Display for Stype {
     }
 }
 
-// OSTAID
+/// Originating Station ID
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Ostaid {
     pub val: [u8; 10],
@@ -55,7 +55,7 @@ impl Display for Ostaid {
     }
 }
 
-// FDT
+/// File Date and Time
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fdt {
     pub val: [u8; 14],
@@ -66,7 +66,7 @@ impl Display for Fdt {
     }
 }
 
-// FTITLE
+/// File Title
 #[derive(Clone, Hash, Debug)]
 pub struct Ftitle {
     pub val: [u8; 80],
@@ -80,9 +80,8 @@ pub struct Ftitle {
     }
 }
 
-// Security Types
 
-// FSCLAS
+/// File Security Classification
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fsclas {
     pub val: [u8; 1]
@@ -93,7 +92,7 @@ impl Display for Fsclas {
     }
 }
 
-// FSCLSY
+/// File Classification Security System
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fsclsy {
     pub val: [u8; 2]
@@ -104,7 +103,7 @@ impl Display for Fsclsy {
     }
 }
 
-// FSCODE
+/// File Codewords
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fscode {
     pub val: [u8; 11]
@@ -115,7 +114,7 @@ impl Display for Fscode {
     }
 }
 
-// FSCTLH
+/// File Control and Handling
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fsctlh {
     pub val: [u8; 2]
@@ -126,7 +125,7 @@ impl Display for Fsctlh {
     }
 }
 
-// FSREL
+/// File Releasing Instructions
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fsrel {
     pub val: [u8; 20]
@@ -137,7 +136,7 @@ impl Display for Fsrel {
     }
 }
 
-// FSDCTP
+/// File Declassification Type
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fsdctp {
     pub val: [u8; 2]
@@ -148,7 +147,7 @@ impl Display for Fsdctp {
     }
 }
 
-// FSDCDT
+/// File Declassification Date
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fsdcdt {
     pub val: [u8; 8]
@@ -159,7 +158,7 @@ impl Display for Fsdcdt {
     }
 }
 
-// FSDCXM
+/// File Declassification Exemption
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fsdcxm {
     pub val: [u8; 4]
@@ -170,7 +169,7 @@ impl Display for Fsdcxm {
     }
 }
 
-// FSDG
+/// File Downgrade
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fsdg {
     pub val: [u8; 1]
@@ -181,7 +180,7 @@ impl Display for Fsdg {
     }
 }
 
-// FSDGDT
+/// File Downgrade Date
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fsdgdt {
     pub val: [u8; 8]
@@ -192,7 +191,7 @@ impl Display for Fsdgdt {
     }
 }
 
-// FSCLTX
+/// File Classification Text
 #[derive(Clone, Hash, Debug)]
 pub struct Fscltx {
     pub val: [u8; 43]
@@ -208,7 +207,7 @@ impl Default for Fscltx {
     }
 }
 
-// FSCATP
+/// File Classification Authority Type
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fscatp {
     pub val: [u8; 1]
@@ -219,7 +218,7 @@ impl Display for Fscatp {
     }
 }
 
-// FSCAUT
+/// File Classification Authority
 #[derive(Clone, Hash, Debug)]
 pub struct Fscaut {
     pub val: [u8; 40]
@@ -230,7 +229,7 @@ impl Display for Fscaut {
     }
 }
 
-// FSCRSN
+/// File Classification Reason
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fscrsn {
     pub val: [u8; 1]
@@ -246,7 +245,7 @@ impl Default for Fscaut {
     }
 }
 
-// FSSRDT
+/// File Security Source Date
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fssrdt {
     pub val: [u8; 8]
@@ -257,7 +256,7 @@ impl Display for Fssrdt {
     }
 }
 
-// FSCTLN
+/// File Security Control Number
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fsctln {
     pub val: [u8; 15]
@@ -268,7 +267,7 @@ impl Display for Fsctln {
     }
 }
 
-// FSCOP
+/// File Copy Number
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fscop {
     pub val: [u8; 5],
@@ -279,7 +278,7 @@ impl Display for Fscop {
     }
 }
 
-// FSCPYS
+/// File Number of Copies
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fscpys {
     pub val: [u8; 5],
@@ -290,7 +289,7 @@ impl Display for Fscpys {
     }
 }
 
-// ENCRYP
+/// Encryption
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Encryp {
     pub val: [u8; 1],
@@ -301,7 +300,7 @@ impl Display for Encryp {
     }
 }
 
-// FBKGC
+/// File Background Color
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fbkgc {
     pub val: [u8; 3],
@@ -312,7 +311,7 @@ impl Display for Fbkgc {
     }
 }
 
-// ONAME
+/// Originator's Name
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Oname {
     pub val: [u8; 24],
@@ -323,7 +322,7 @@ impl Display for Oname {
     }
 }
 
-// OPHONE
+/// Originator's Phone Number
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Ophone {
     pub val: [u8; 18],
@@ -334,7 +333,7 @@ impl Display for Ophone {
     }
 }
 
-// FL
+/// File Length
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Fl {
     pub val: [u8; 12],
@@ -345,7 +344,7 @@ impl Display for Fl {
     }
 }
 
-// HL
+/// NITF File Header Length
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Hl {
     pub val: [u8; 6],
@@ -356,7 +355,7 @@ impl Display for Hl {
     }
 }
 
-// NUMIMAGESEGMENTS
+/// Number of Image Segments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NumImageSegments {
     pub val: [u8; 3],
@@ -367,7 +366,7 @@ impl Display for NumImageSegments {
     }
 }
 
-// IMAGESEGMENTS
+/// Image Segments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ImageSegments {
     pub val: Vec<ImageSegment>,
@@ -382,7 +381,7 @@ impl Display for ImageSegments {
     }
 }
 
-// IMAGESEGMENT
+/// Image Segment Info
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ImageSegment {
     pub subheader_size: [u8; 6],
@@ -396,7 +395,7 @@ impl Display for ImageSegment {
     }
 }
 
-// NUMGRAPHICSEGMENT
+/// Number of Graphics Segments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NumGraphicSegment {
     pub val: [u8; 3],
@@ -407,7 +406,7 @@ impl Display for NumGraphicSegment {
     }
 }
 
-// GRAPHICSSEGMENTS
+/// Graphic Segments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct GraphicsSegments {
     pub val: Vec<GraphicsSegment>,
@@ -422,7 +421,7 @@ impl Display for GraphicsSegments {
     }
 }
 
-// GRAPHICSSEGMENT
+/// Graphic Segment Info
 #[derive(Default, Clone, Hash, Debug)]
 pub struct GraphicsSegment {
     pub subheader_size: [u8; 4],
@@ -436,7 +435,7 @@ impl Display for GraphicsSegment {
     }
 }
 
-// NUMX
+/// Reserved for future use
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Numx {
     pub val: [u8; 3],
@@ -447,7 +446,7 @@ impl Display for Numx {
     }
 }
 
-// NUMTEXTFILES
+/// Number of Text Files
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NumTextFiles {
     pub val: [u8; 3],
@@ -458,7 +457,7 @@ impl Display for NumTextFiles {
     }
 }
 
-// TEXTSEGMENTS
+/// Text Segments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TextSegments {
     pub val: Vec<TextSegment>,
@@ -473,7 +472,7 @@ impl Display for TextSegments {
     }
 }
 
-// TEXTSEGMENT
+/// Text Segment Info
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TextSegment {
     pub subheader_size: [u8; 4],
@@ -487,7 +486,7 @@ impl Display for TextSegment {
     }
 }
 
-// NUMDES
+/// Number of Data Extension Segments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Numdes {
     pub val: [u8; 3],
@@ -498,7 +497,7 @@ impl Display for Numdes {
     }
 }
 
-// DATAEXTSEGMENTS
+/// Data Extenstion Segments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct DataExtSegments {
     pub val: Vec<DataExtSegment>,
@@ -513,7 +512,7 @@ impl Display for DataExtSegments {
     }
 }
 
-// DATAEXTSEGMENT
+/// Data Extenstion Segment Info
 #[derive(Default, Clone, Hash, Debug)]
 pub struct DataExtSegment {
     pub subheader_size: [u8; 4],
@@ -527,7 +526,7 @@ impl Display for DataExtSegment {
     }
 }
 
-// NUMRES
+/// Number of Reserved Extension Segments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Numres {
     pub val: [u8; 3],
@@ -538,7 +537,7 @@ impl Display for Numres {
     }
 }
 
-// RESERVEDSEGMENTS
+/// Reserved Extension Segments
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ReservedSegments {
     pub val: Vec<ReservedSegment>,
@@ -553,7 +552,7 @@ impl Display for ReservedSegments {
     }
 }
 
-// RESERVEDSEGMENT
+/// Reserved Extension Segment Info
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ReservedSegment {
     pub subheader_size: [u8; 4],
@@ -567,7 +566,7 @@ impl Display for ReservedSegment {
     }
 }
 
-// UDHDL
+/// User Defined Header Data Length
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Udhdl {
     pub val: [u8; 5],
@@ -578,7 +577,7 @@ impl Display for Udhdl {
     }
 }
 
-// XHDL
+/// Extended Header Data Length
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Xhdl {
     pub val: [u8; 5],
@@ -588,3 +587,5 @@ impl Display for Xhdl {
         write!(f, "Xhdl: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
+
+

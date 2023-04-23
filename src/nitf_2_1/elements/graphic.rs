@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+/// File Part Type
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Sy {
     pub val: [u8; 2]
@@ -10,6 +11,7 @@ impl Display for Sy {
     }
 }
 
+/// Graphic Identifier
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SId {
     pub val: [u8;10]
@@ -20,6 +22,7 @@ impl Display for SId {
     }
 }
 
+/// Graphic Name
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SName {
     pub val: [u8; 20]
@@ -30,6 +33,7 @@ impl Display for SName {
     }
 }
 
+/// Graphic Security Classification
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SSClas {
     pub val: [u8; 1]
@@ -40,6 +44,7 @@ impl Display for SSClas {
     }
 }
 
+/// Graphic Classification Security System
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SSClSy {
     pub val: [u8; 2]
@@ -50,6 +55,7 @@ impl Display for SSClSy {
     }
 }
 
+/// Graphic Codewords
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SSCode {
     pub val: [u8; 11]
@@ -60,6 +66,7 @@ impl Display for SSCode {
     }
 }
 
+/// Graphic Control and Handling
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SSCtlH {
     pub val: [u8; 2]
@@ -70,6 +77,7 @@ impl Display for SSCtlH {
     }
 }
 
+/// Graphic Releasing Instructions
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SSRel {
     pub val: [u8; 20]
@@ -80,6 +88,7 @@ impl Display for SSRel {
     }
 }
 
+/// Graphic Declassification Type
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SSDcTp {
     pub val: [u8; 2]
@@ -90,6 +99,7 @@ impl Display for SSDcTp {
     }
 }
 
+/// Graphic Declassification Date
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SSDcDt {
     pub val: [u8; 8]
@@ -100,6 +110,7 @@ impl Display for SSDcDt {
     }
 }
 
+/// Graphic Declassification Exemption
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SSDcXm {
     pub val: [u8; 4]
@@ -110,6 +121,7 @@ impl Display for SSDcXm {
     }
 }
 
+/// Graphic Downgrade
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SSDg {
     pub val: [u8; 1]
@@ -120,6 +132,7 @@ impl Display for SSDg {
     }
 }
 
+/// Graphic Downgrade Date
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SSDgDt {
     pub val: [u8; 8]
@@ -130,6 +143,7 @@ impl Display for SSDgDt {
     }
 }
 
+/// Graphic Classification Text
 #[derive(Clone, Hash, Debug)]
 pub struct SSClTx {
     pub val: [u8; 43]
@@ -145,6 +159,7 @@ impl Default for SSClTx {
     }
 }
 
+/// Graphic Classification Authority Type
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SSCATp {
     pub val: [u8; 1]
@@ -155,6 +170,7 @@ impl Display for SSCATp {
     }
 }
 
+/// Graphic Classification Authority
 #[derive(Clone, Hash, Debug)]
 pub struct SSCAut {
     pub val: [u8; 40]
@@ -170,6 +186,7 @@ impl Default for SSCAut {
     }
 }
 
+/// Graphic Classification Reason
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SSCRsn {
     pub val: [u8; 1]
@@ -180,6 +197,7 @@ impl Display for SSCRsn {
     }
 }
 
+/// Graphic Security Source Date
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SSSrDt {
     pub val: [u8; 8]
@@ -190,6 +208,7 @@ impl Display for SSSrDt {
     }
 }
 
+/// Graphic Security Control Number
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Ssctln {
     pub val: [u8; 15]
@@ -200,6 +219,7 @@ impl Display for Ssctln {
     }
 }
 
+/// Encryption
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Encryp {
     pub val: [u8; 1]
@@ -210,6 +230,7 @@ impl Display for Encryp {
     }
 }
 
+/// Graphic Type
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SFmt {
     pub val: [u8; 1]
@@ -220,6 +241,7 @@ impl Display for SFmt {
     }
 }
 
+/// Reserved for Future Use
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SStruct {
     pub val: [u8; 13]
@@ -230,6 +252,7 @@ impl Display for SStruct {
     }
 }
 
+/// Graphic Display Level
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SDLvl {
     pub val: [u8; 3]
@@ -240,6 +263,7 @@ impl Display for SDLvl {
     }
 }
 
+/// Graphic Attachment Level
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SALvl {
     pub val: [u8; 3]
@@ -250,6 +274,7 @@ impl Display for SALvl {
     }
 }
 
+/// Graphic Location
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SLoc {
     pub val: [u8; 10]
@@ -260,6 +285,7 @@ impl Display for SLoc {
     }
 }
 
+/// First Graphic Bound Location
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SBnd1 {
     pub val: [u8; 10]
@@ -270,6 +296,7 @@ impl Display for SBnd1 {
     }
 }
 
+/// Graphic Color
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SColor {
     pub val: [u8; 1]
@@ -280,6 +307,7 @@ impl Display for SColor {
     }
 }
 
+/// Second Graphic Bound Location
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SBnd2 {
     pub val: [u8; 10]
@@ -290,6 +318,7 @@ impl Display for SBnd2 {
     }
 }
 
+/// Reserved for Future Use
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SRes2 {
     pub val: [u8; 2]
@@ -300,6 +329,7 @@ impl Display for SRes2 {
     }
 }
 
+/// Graphic Extended Subheader Data Length
 #[derive(Default, Clone, Hash, Debug)]
 pub struct SXSHDL {
     pub val: [u8; 5]
