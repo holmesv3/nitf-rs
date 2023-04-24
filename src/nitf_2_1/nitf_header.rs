@@ -108,6 +108,7 @@ impl NitfHeader {
         Ok(hdr)
     }
 }
+
 // Struct definition
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NitfHeader {
@@ -158,50 +159,51 @@ pub struct NitfHeader {
 }
 impl Display for NitfHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.fhdr).unwrap();
-        write!(f, "{}", self.fver).unwrap();
-        write!(f, "{}", self.clevel).unwrap();
-        write!(f, "{}", self.stype).unwrap();
-        write!(f, "{}", self.ostaid).unwrap();
-        write!(f, "{}", self.fdt).unwrap();
-        write!(f, "{}", self.ftitle).unwrap();
-        write!(f, "{}", self.fsclas).unwrap();
-        write!(f, "{}", self.fsclsy).unwrap();
-        write!(f, "{}", self.fscode).unwrap();
-        write!(f, "{}", self.fsctlh).unwrap();
-        write!(f, "{}", self.fsrel).unwrap();
-        write!(f, "{}", self.fsdctp).unwrap();
-        write!(f, "{}", self.fsdcdt).unwrap();
-        write!(f, "{}", self.fsdcxm).unwrap();
-        write!(f, "{}", self.fsdg).unwrap();
-        write!(f, "{}", self.fsdgdt).unwrap();
-        write!(f, "{}", self.fscltx).unwrap();
-        write!(f, "{}", self.fscatp).unwrap();
-        write!(f, "{}", self.fscaut).unwrap();
-        write!(f, "{}", self.fscrsn).unwrap();
-        write!(f, "{}", self.fssrdt).unwrap();
-        write!(f, "{}", self.fsctln).unwrap();
-        write!(f, "{}", self.fscop).unwrap();
-        write!(f, "{}", self.fscpys).unwrap();
-        write!(f, "{}", self.encryp).unwrap();
-        write!(f, "{}", self.fbkgc).unwrap();
-        write!(f, "{}", self.oname).unwrap();
-        write!(f, "{}", self.ophone).unwrap();
-        write!(f, "{}", self.fl).unwrap();
-        write!(f, "{}", self.hl).unwrap();
-        write!(f, "{}", self.numi).unwrap();
-        write!(f, "{}", self.imheaders).unwrap();
-        write!(f, "{}", self.nums).unwrap();
-        write!(f, "{}", self.graphheaders).unwrap();
-        write!(f, "{}", self.numx).unwrap();
-        write!(f, "{}", self.numt).unwrap();
-        write!(f, "{}", self.textfiles).unwrap();
-        write!(f, "{}", self.numdes).unwrap();
-        write!(f, "{}", self.dextheaders).unwrap();
-        write!(f, "{}", self.numres).unwrap();
-        write!(f, "{}", self.resheaders).unwrap();
-        write!(f, "{}", self.udhdl).unwrap();
-        write!(f, "{}", self.xhdl).unwrap();
-        Ok(())
+        let mut out_str = String::default();
+        out_str += format!("{}", self.fhdr).as_ref();
+        out_str += format!("{}", self.fver).as_ref();
+        out_str += format!("{}", self.clevel).as_ref();
+        out_str += format!("{}", self.stype).as_ref();
+        out_str += format!("{}", self.ostaid).as_ref();
+        out_str += format!("{}", self.fdt).as_ref();
+        out_str += format!("{}", self.ftitle).as_ref();
+        out_str += format!("{}", self.fsclas).as_ref();
+        out_str += format!("{}", self.fsclsy).as_ref();
+        out_str += format!("{}", self.fscode).as_ref();
+        out_str += format!("{}", self.fsctlh).as_ref();
+        out_str += format!("{}", self.fsrel).as_ref();
+        out_str += format!("{}", self.fsdctp).as_ref();
+        out_str += format!("{}", self.fsdcdt).as_ref();
+        out_str += format!("{}", self.fsdcxm).as_ref();
+        out_str += format!("{}", self.fsdg).as_ref();
+        out_str += format!("{}", self.fsdgdt).as_ref();
+        out_str += format!("{}", self.fscltx).as_ref();
+        out_str += format!("{}", self.fscatp).as_ref();
+        out_str += format!("{}", self.fscaut).as_ref();
+        out_str += format!("{}", self.fscrsn).as_ref();
+        out_str += format!("{}", self.fssrdt).as_ref();
+        out_str += format!("{}", self.fsctln).as_ref();
+        out_str += format!("{}", self.fscop).as_ref();
+        out_str += format!("{}", self.fscpys).as_ref();
+        out_str += format!("{}", self.encryp).as_ref();
+        out_str += format!("{}", self.fbkgc).as_ref();
+        out_str += format!("{}", self.oname).as_ref();
+        out_str += format!("{}", self.ophone).as_ref();
+        out_str += format!("{}", self.fl).as_ref();
+        out_str += format!("{}", self.hl).as_ref();
+        out_str += format!("{}", self.numi).as_ref();
+        out_str += format!("{}", self.imheaders).as_ref();
+        out_str += format!("{}", self.nums).as_ref();
+        out_str += format!("{}", self.graphheaders).as_ref();
+        out_str += format!("{}", self.numx).as_ref();
+        out_str += format!("{}", self.numt).as_ref();
+        out_str += format!("{}", self.textfiles).as_ref();
+        out_str += format!("{}", self.numdes).as_ref();
+        out_str += format!("{}", self.dextheaders).as_ref();
+        out_str += format!("{}", self.numres).as_ref();
+        out_str += format!("{}", self.resheaders).as_ref();
+        out_str += format!("{}", self.udhdl).as_ref();
+        out_str += format!("{}", self.xhdl).as_ref();
+        write!(f, "NitfHeader: [{}]", out_str)
     }
 }

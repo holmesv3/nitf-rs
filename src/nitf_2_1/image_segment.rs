@@ -41,9 +41,15 @@ impl ImageSegment {
         reader.read(&mut imseg.icords.val).unwrap();
         // Image comments
         reader.read(&mut imseg.nicom.val).unwrap();
-        let n_com =  imseg.nicom.val;
-        reader.read(&mut imseg.icoms.val).unwrap();
-        reader.read(&mut imseg.icom.val).unwrap();
+        let n_com : usize=  String::from_utf8(imseg.nicom.val.to_vec())
+            .unwrap()
+            .parse()
+            .unwrap();
+        for _ in 0..n_com {
+            let mut comment = ICom::default();
+            reader.read(&mut comment.val).unwrap();
+            imseg.icoms.val.push(comment);
+        }
         reader.read(&mut imseg.ic.val).unwrap();
         reader.read(&mut imseg.nbands.val).unwrap();
         reader.read(&mut imseg.irepband1.val).unwrap();
@@ -64,6 +70,7 @@ impl ImageSegment {
         reader.read(&mut imseg.imag.val).unwrap();
         reader.read(&mut imseg.udidl.val).unwrap();
         reader.read(&mut imseg.ixshdl.val).unwrap();
+        Ok(imseg)
     }
 }
 
@@ -124,7 +131,6 @@ pub struct ImageSegment {
     udidl: UDIDL,
     ixshdl: IXSHDL,
 }
-
 impl Display for ImageSegment {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
