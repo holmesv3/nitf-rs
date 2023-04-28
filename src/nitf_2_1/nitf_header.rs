@@ -48,7 +48,7 @@ impl NitfHeader {
             .parse()
             .unwrap();
         for _ in 0..n_image {
-            let mut seg = ImageSegmentElem::default();
+            let mut seg = IMAGESEGMENTELEM::default();
             reader.read(&mut seg.subheader_size).unwrap();
             reader.read(&mut seg.item_size).unwrap();        
             hdr.imheaders.val.push(seg);
@@ -60,7 +60,7 @@ impl NitfHeader {
             .parse()
             .unwrap();
         for _ in 0..n_gphx {
-            let mut seg = GraphicsSegmentElem::default();
+            let mut seg = GRAPHICSSEGMENTELEM::default();
             reader.read(&mut seg.subheader_size).unwrap();
             reader.read(&mut seg.item_size).unwrap();        
             hdr.graphheaders.val.push(seg);
@@ -73,7 +73,7 @@ impl NitfHeader {
             .parse()
             .unwrap();
         for _ in 0..n_txt {
-            let mut seg = TextSegmentElem::default();
+            let mut seg = TEXTSEGMENTELEM::default();
             reader.read(&mut seg.subheader_size).unwrap();
             reader.read(&mut seg.item_size).unwrap();        
             hdr.textfiles.val.push(seg);
@@ -85,7 +85,7 @@ impl NitfHeader {
             .parse()
             .unwrap();
         for _ in 0..n_dext {
-            let mut seg = DataExtSegmentElem::default();
+            let mut seg = DATAEXTSEGMENTELEM::default();
             reader.read(&mut seg.subheader_size).unwrap();
             reader.read(&mut seg.item_size).unwrap();        
             hdr.dextheaders.val.push(seg);
@@ -98,7 +98,7 @@ impl NitfHeader {
             .parse()
             .unwrap();
         for _ in 0..n_res {
-            let mut seg = ReservedSegmentElem::default();
+            let mut seg = RESERVEDSEGMENTELEM::default();
             reader.read(&mut seg.subheader_size).unwrap();
             reader.read(&mut seg.item_size).unwrap();        
             hdr.resheaders.val.push(seg);
@@ -112,50 +112,50 @@ impl NitfHeader {
 // Struct definition
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NitfHeader {
-    pub fhdr: Fhdr,
-    pub fver: Fver,
-    pub clevel: Clevel,
-    pub stype: Stype,
-    pub ostaid: Ostaid,
-    pub fdt: Fdt,
-    pub ftitle: Ftitle,
-    pub fsclas: Fsclas,
-    pub fsclsy: Fsclsy,
-    pub fscode: Fscode,
-    pub fsctlh: Fsctlh,
-    pub fsrel: Fsrel,
-    pub fsdctp: Fsdctp,
-    pub fsdcdt: Fsdcdt,
-    pub fsdcxm: Fsdcxm,
-    pub fsdg: Fsdg,
-    pub fsdgdt: Fsdgdt,
-    pub fscltx: Fscltx,
-    pub fscatp: Fscatp,
-    pub fscaut: Fscaut,
-    pub fscrsn: Fscrsn,
-    pub fssrdt: Fssrdt,
-    pub fsctln: Fsctln,
-    pub fscop: Fscop,
-    pub fscpys: Fscpys,
-    pub encryp: Encryp,
-    pub fbkgc: Fbkgc,
-    pub oname: Oname,
-    pub ophone: Ophone,
-    pub fl: Fl,
-    pub hl: Hl,
-    pub numi: NumImageSegments,
-    pub imheaders: ImageSegments,
-    pub nums: NumGraphicSegment,
-    pub graphheaders: GraphicsSegments,
-    pub numx: Numx,
-    pub numt: NumTextFiles,
-    pub textfiles: TextSegments,
-    pub numdes: Numdes,
-    pub dextheaders: DataExtSegments,
-    pub numres: Numres,
-    pub resheaders: ReservedSegments,
-    pub udhdl: Udhdl,
-    pub xhdl: Xhdl,
+    pub fhdr: FHDR,
+    pub fver: FVER,
+    pub clevel: CLEVEL,
+    pub stype: STYPE,
+    pub ostaid: OSTAID,
+    pub fdt: FDT,
+    pub ftitle: FTITLE,
+    pub fsclas: FSCLAS,
+    pub fsclsy: FSCLSY,
+    pub fscode: FSCODE,
+    pub fsctlh: FSCTLH,
+    pub fsrel: FSREL,
+    pub fsdctp: FSDCTP,
+    pub fsdcdt: FSDCDT,
+    pub fsdcxm: FSDCXM,
+    pub fsdg: FSDG,
+    pub fsdgdt: FSDGDT,
+    pub fscltx: FSCLTX,
+    pub fscatp: FSCATP,
+    pub fscaut: FSCAUT,
+    pub fscrsn: FSCRSN,
+    pub fssrdt: FSSRDT,
+    pub fsctln: FSCTLN,
+    pub fscop: FSCOP,
+    pub fscpys: FSCPYS,
+    pub encryp: ENCRYP,
+    pub fbkgc: FBKGC,
+    pub oname: ONAME,
+    pub ophone: OPHONE,
+    pub fl: FL,
+    pub hl: HL,
+    pub numi: NUMIMAGESEGMENTS,
+    pub imheaders: IMAGESEGMENTS,
+    pub nums: NUMGRAPHICSEGMENT,
+    pub graphheaders: GRAPHICSSEGMENTS,
+    pub numx: NUMX,
+    pub numt: NUMTEXTFILES,
+    pub textfiles: TEXTSEGMENTS,
+    pub numdes: NUMDES,
+    pub dextheaders: DATAEXTSEGMENTS,
+    pub numres: NUMRES,
+    pub resheaders: RESERVEDSEGMENTS,
+    pub udhdl: UDHDL,
+    pub xhdl: XHDL,
 }
 impl Display for NitfHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

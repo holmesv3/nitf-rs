@@ -3,59 +3,59 @@ use std::fmt::Display;
 
 /// File Part Type
 #[derive(Default, Clone, Hash, Debug)]
-pub struct FilePartType {
+pub struct FILEPARTTYPE {
     pub val: [u8; 2],
 }
-impl Display for FilePartType {
+impl Display for FILEPARTTYPE {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "FilePart: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FILEPART: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Identifier 1
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Iid1 {
+pub struct IID1 {
     pub val: [u8; 10],
 }
-impl Display for Iid1 {
+impl Display for IID1 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Iid1: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "IID1: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Date and Time
 #[derive(Default, Clone, Hash, Debug)]
-pub struct IDaTim {
+pub struct IDATIM {
     pub val: [u8; 14],
 }
-impl Display for IDaTim {
+impl Display for IDATIM {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "IDaTim: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "IDATIM: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Target Identifier
 #[derive(Default, Clone, Hash, Debug)]
-pub struct TgtID {
+pub struct TGTID {
     pub val: [u8; 17],
 }
-impl Display for TgtID {
+impl Display for TGTID {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "TgtID: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "TGTID: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Identifier 2
 #[derive(Clone, Hash, Debug)]
-pub struct Iid2 {
+pub struct IID2 {
     pub val: [u8; 80],
 }
-impl Display for Iid2 {
+impl Display for IID2 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Iid2: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "IID2: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
-impl Default for Iid2 {
+impl Default for IID2 {
     fn default() -> Self {
         Self { val: [0u8; 80]}
     }
@@ -63,125 +63,125 @@ impl Default for Iid2 {
 
 /// Image Security Classification
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ISClas {
+pub struct ISCLAS {
     pub val: [u8; 1],
 }
-impl Display for ISClas {
+impl Display for ISCLAS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ISClas: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISCLAS: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Classification Security System
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ISClSy {
+pub struct ISCLSY {
     pub val: [u8; 2],
 }
-impl Display for ISClSy {
+impl Display for ISCLSY {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ISClSy: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISCLSY: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Codewords
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ISCode {
+pub struct ISCODE {
     pub val: [u8; 11],
 }
-impl Display for ISCode {
+impl Display for ISCODE {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ISCode: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISCODE: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Control and Handling
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ISCtlH {
+pub struct ISCTLH {
     pub val: [u8; 2],
 }
-impl Display for ISCtlH {
+impl Display for ISCTLH {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ISCtlH: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISCTLH: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Releasing Instructions
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ISRel {
+pub struct ISREL {
     pub val: [u8; 20],
 }
-impl Display for ISRel {
+impl Display for ISREL {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ISRel: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISREL: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Declassification Type
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ISDcTp {
+pub struct ISDCTP {
     pub val: [u8; 2],
 }
-impl Display for ISDcTp {
+impl Display for ISDCTP {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ISDcTp: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISDCTP: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Declassification Date
 #[derive(Default, Clone, Hash, Debug)]
-pub struct IsDcDt {
+pub struct ISDCDT {
     pub val: [u8; 8],
 }
-impl Display for IsDcDt {
+impl Display for ISDCDT {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "IsDcDt: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISDCDT: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Declassification Exemption
 #[derive(Default, Clone, Hash, Debug)]
-pub struct IsDcXm {
+pub struct ISDCXM {
     pub val: [u8; 4],
 }
-impl Display for IsDcXm {
+impl Display for ISDCXM {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "IsDcXm: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISDCXM: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Downgrade
 #[derive(Default, Clone, Hash, Debug)]
-pub struct IsDg {
+pub struct ISDG {
     pub val: [u8; 1],
 }
-impl Display for IsDg {
+impl Display for ISDG {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "IsDg: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISDG: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Downgrade Date
 #[derive(Default, Clone, Hash, Debug)]
-pub struct IsDgDt {
+pub struct ISDGDT {
     pub val: [u8; 8],
 }
-impl Display for IsDgDt {
+impl Display for ISDGDT {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "IsDgDt: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISDGDT: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Classification Text
 #[derive(Clone, Hash, Debug)]
-pub struct IsClTx {
+pub struct ISCLTX {
     pub val: [u8; 43],
 }
-impl Display for IsClTx {
+impl Display for ISCLTX {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "IsClTx: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISCLTX: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
-impl Default for IsClTx {
+impl Default for ISCLTX {
     fn default() -> Self {
         Self { val: [0u8; 43]}
     }
@@ -189,26 +189,26 @@ impl Default for IsClTx {
 
 /// Image Classification Authority Type
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ISCATp {
+pub struct ISCATP {
     pub val: [u8; 1],
 }
-impl Display for ISCATp {
+impl Display for ISCATP {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ISCATp: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISCATP: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Classification Authority
 #[derive(Clone, Hash, Debug)]
-pub struct ISCAut {
+pub struct ISCAUT {
     pub val: [u8; 40],
 }
-impl Display for ISCAut {
+impl Display for ISCAUT {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ISCAut: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISCAUT: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
-impl Default for ISCAut { 
+impl Default for ISCAUT { 
     fn default() -> Self {
         Self {val: [0u8; 40]}
     }
@@ -216,34 +216,34 @@ impl Default for ISCAut {
 
 /// Image Classification Reason
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ISCRsn {
+pub struct ISCRSN {
     pub val: [u8; 1],
 }
-impl Display for ISCRsn {
+impl Display for ISCRSN {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ISCRsn: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISCRSN: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Security Source Date
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ISSrDt {
+pub struct ISSRDT {
     pub val: [u8; 8],
 }
-impl Display for ISSrDt {
+impl Display for ISSRDT {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ISSrDt: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISSRDT: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Security Control Number
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ISCtlN {
+pub struct ISCTLN {
     pub val: [u8; 15],
 }
-impl Display for ISCtlN {
+impl Display for ISCTLN {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ISCtlN: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISCTLN: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
@@ -260,15 +260,15 @@ impl Display for ENCRYP {
 
 /// Image Source
 #[derive(Clone, Hash, Debug)]
-pub struct ISorce {
+pub struct ISORCE {
     pub val: [u8; 42],
 }
-impl Display for ISorce {
+impl Display for ISORCE {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ISorce: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISORCE: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
-impl Default for ISorce {
+impl Default for ISORCE {
     fn default() -> Self {
         Self { val: [0u8; 42]}
     }
@@ -276,109 +276,109 @@ impl Default for ISorce {
 
 /// Number of Significant Rows in image
 #[derive(Default, Clone, Hash, Debug)]
-pub struct NRows {
+pub struct NROWS {
     pub val: [u8; 8],
 }
-impl Display for NRows {
+impl Display for NROWS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "NRows: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "NROWS: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Number of Significant Columns in image
 #[derive(Default, Clone, Hash, Debug)]
-pub struct NCols {
+pub struct NCOLS {
     pub val: [u8; 8],
 }
-impl Display for NCols {
+impl Display for NCOLS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "NCols: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "NCOLS: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Pixel Value Type
 #[derive(Default, Clone, Hash, Debug)]
-pub struct PVType {
+pub struct PVTYPE {
     pub val: [u8; 3],
 }
-impl Display for PVType {
+impl Display for PVTYPE {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "PVType: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "PVTYPE: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Representation
 #[derive(Default, Clone, Hash, Debug)]
-pub struct IRep {
+pub struct IREP {
     pub val: [u8; 8],
 }
-impl Display for IRep {
+impl Display for IREP {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "IRep: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "IREP: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Category
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ICat {
+pub struct ICAT {
     pub val: [u8; 8],
 }
-impl Display for ICat {
+impl Display for ICAT {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ICat: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ICAT: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Actual Bits-Per-Pixel Per Band
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ABPp {
+pub struct ABPP {
     pub val: [u8; 2],
 }
-impl Display for ABPp {
+impl Display for ABPP {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ABPp: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ABPP: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Pixel Justification
 #[derive(Default, Clone, Hash, Debug)]
-pub struct PJust {
+pub struct PJUST {
     pub val: [u8; 1],
 }
-impl Display for PJust {
+impl Display for PJUST {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "PJust: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "PJUST: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Coordinate Representation
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ICords {
+pub struct ICORDS {
     pub val: [u8; 1],
 }
-impl Display for ICords {
+impl Display for ICORDS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ICords: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ICORDS: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Number of Image Comments
 #[derive(Default, Clone, Hash, Debug)]
-pub struct NICom {
+pub struct NICOM {
     pub val: [u8; 1],
 }
-impl Display for NICom {
+impl Display for NICOM {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "NICom: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "NICOM: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Comments
 #[derive(Default, Clone, Hash, Debug)]
-pub struct IComs {
-    pub val: Vec<ICom>,
+pub struct ICOMS {
+    pub val: Vec<ICOM>,
 }
-impl Display for IComs {
+impl Display for ICOMS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         for com in self.val.iter() {
@@ -389,15 +389,15 @@ impl Display for IComs {
 
 /// Image Comment
 #[derive(Clone, Hash, Debug)]
-pub struct ICom {
+pub struct ICOM {
     pub val: [u8; 80],
 }
-impl Display for ICom {
+impl Display for ICOM {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ICom: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ICOM: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
-impl Default for ICom {
+impl Default for ICOM {
     fn default() -> Self {
         Self {val: [0u8; 80]}
     }
@@ -416,34 +416,34 @@ impl Display for IC {
 
 /// Number of Bands
 #[derive(Default, Clone, Hash, Debug)]
-pub struct NBands {
+pub struct NBANDS {
     pub val: [u8; 1],
 }
-impl Display for NBands {
+impl Display for NBANDS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "NBands: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "NBANDS: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// 1st Band Representation
 #[derive(Default, Clone, Hash, Debug)]
-pub struct IRepBand1 {
+pub struct IREPBAND1 {
     pub val: [u8; 2],
 }
-impl Display for IRepBand1 {
+impl Display for IREPBAND1 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "IRepBand1: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "IREPBAND1: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// 1st Band Subcategory
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ISubCat1 {
+pub struct ISUBCAT1 {
     pub val: [u8; 6],
 }
-impl Display for ISubCat1 {
+impl Display for ISUBCAT1 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ISubCat1: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISUBCAT1: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
@@ -460,45 +460,45 @@ impl Display for IFC1 {
 
 /// 1st Band Standard Image Filter Code
 #[derive(Default, Clone, Hash, Debug)]
-pub struct IMFlt1 {
+pub struct IMFLT1 {
     pub val: [u8; 3],
 }
-impl Display for IMFlt1 {
+impl Display for IMFLT1 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "IMFlt1: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "IMFLT1: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Number of LUTs for the 1st Image Band
 #[derive(Default, Clone, Hash, Debug)]
-pub struct NLUTs1 {
+pub struct NLUTS1 {
     pub val: [u8; 1],
 }
-impl Display for NLUTs1 {
+impl Display for NLUTS1 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "NLUTs1: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "NLUTS1: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Sync Code
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ISync {
+pub struct ISYNC {
     pub val: [u8; 1],
 }
-impl Display for ISync {
+impl Display for ISYNC {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ISync: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ISYNC: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Mode
 #[derive(Default, Clone, Hash, Debug)]
-pub struct IMode {
+pub struct IMODE {
     pub val: [u8; 1],
 }
-impl Display for IMode {
+impl Display for IMODE {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "IMode: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "IMODE: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
@@ -559,45 +559,45 @@ impl Display for NBPP {
 
 /// Image Display Level
 #[derive(Default, Clone, Hash, Debug)]
-pub struct IDLvl {
+pub struct IDLVL {
     pub val: [u8; 3],
 }
-impl Display for IDLvl {
+impl Display for IDLVL {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "IDLvl: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "IDLVL: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Attachment Level
 #[derive(Default, Clone, Hash, Debug)]
-pub struct IALvl {
+pub struct IALVL {
     pub val: [u8; 3],
 }
-impl Display for IALvl {
+impl Display for IALVL {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "IALvl: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "IALVL: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Location
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ILoc {
+pub struct ILOC {
     pub val: [u8; 10],
 }
-impl Display for ILoc {
+impl Display for ILOC {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ILoc: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ILOC: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Magnification
 #[derive(Default, Clone, Hash, Debug)]
-pub struct IMag {
+pub struct IMAG {
     pub val: [u8; 4],
 }
-impl Display for IMag {
+impl Display for IMAG {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "IMag: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "IMAG: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 

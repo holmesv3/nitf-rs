@@ -3,78 +3,78 @@ use std::fmt::Display;
 
 /// File Profile Name
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fhdr {
+pub struct FHDR {
     pub val: [u8; 4],
 }
-impl Display for Fhdr {
+impl Display for FHDR {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fhdr: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FHDR: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 /// File Version
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fver {
+pub struct FVER {
     pub val: [u8; 5],
 }
-impl Display for Fver {
+impl Display for FVER {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fver: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FVER: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Complexity Level
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Clevel {
+pub struct CLEVEL {
     pub val: [u8; 2],
 }
-impl Display for Clevel {
+impl Display for CLEVEL {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Clevel: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "CLEVEL: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Standard Type
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Stype {
+pub struct STYPE {
     pub val: [u8; 4],
 }
-impl Display for Stype {
+impl Display for STYPE {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Stype: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "STYPE: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Originating Station ID
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Ostaid {
+pub struct OSTAID {
     pub val: [u8; 10],
 }
-impl Display for Ostaid {
+impl Display for OSTAID {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Ostaid: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "OSTAID: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Date and Time
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fdt {
+pub struct FDT {
     pub val: [u8; 14],
 }
-impl Display for Fdt {
+impl Display for FDT {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fdt: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FDT: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Title
 #[derive(Clone, Hash, Debug)]
-pub struct Ftitle {
+pub struct FTITLE {
     pub val: [u8; 80],
-}impl Display for Ftitle {
+}impl Display for FTITLE {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Ftitle: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FTITLE: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
-}impl Default for Ftitle {
+}impl Default for FTITLE {
     fn default() -> Self {
         Self { val: [0u8; 80] }
     }
@@ -83,125 +83,125 @@ pub struct Ftitle {
 
 /// File Security Classification
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fsclas {
+pub struct FSCLAS {
     pub val: [u8; 1]
 }
-impl Display for Fsclas {
+impl Display for FSCLAS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fsclas: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSCLAS: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Classification Security System
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fsclsy {
+pub struct FSCLSY {
     pub val: [u8; 2]
 }
-impl Display for Fsclsy {
+impl Display for FSCLSY {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fsclsy: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSCLSY: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Codewords
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fscode {
+pub struct FSCODE {
     pub val: [u8; 11]
 }
-impl Display for Fscode {
+impl Display for FSCODE {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fscode: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSCODE: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Control and Handling
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fsctlh {
+pub struct FSCTLH {
     pub val: [u8; 2]
 }
-impl Display for Fsctlh {
+impl Display for FSCTLH {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fsctlh: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSCTLH: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Releasing Instructions
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fsrel {
+pub struct FSREL {
     pub val: [u8; 20]
 }
-impl Display for Fsrel {
+impl Display for FSREL {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fsrel: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSREL: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Declassification Type
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fsdctp {
+pub struct FSDCTP {
     pub val: [u8; 2]
 }
-impl Display for Fsdctp {
+impl Display for FSDCTP {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fsdctp: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSDCTP: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Declassification Date
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fsdcdt {
+pub struct FSDCDT {
     pub val: [u8; 8]
 }
-impl Display for Fsdcdt {
+impl Display for FSDCDT {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fsdcdt: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSDCDT: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Declassification Exemption
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fsdcxm {
+pub struct FSDCXM {
     pub val: [u8; 4]
 }
-impl Display for Fsdcxm {
+impl Display for FSDCXM {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fsdcxm: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSDCXM: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Downgrade
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fsdg {
+pub struct FSDG {
     pub val: [u8; 1]
 }
-impl Display for Fsdg {
+impl Display for FSDG {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fsdg: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSDG: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Downgrade Date
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fsdgdt {
+pub struct FSDGDT {
     pub val: [u8; 8]
 }
-impl Display for Fsdgdt {
+impl Display for FSDGDT {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fsdgdt: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSDGDT: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Classification Text
 #[derive(Clone, Hash, Debug)]
-pub struct Fscltx {
+pub struct FSCLTX {
     pub val: [u8; 43]
 }
-impl Display for Fscltx {
+impl Display for FSCLTX {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fscltx: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSCLTX: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
-impl Default for Fscltx {
+impl Default for FSCLTX {
     fn default() -> Self {
         Self { val: ([0u8; 43]) }
     }
@@ -209,37 +209,37 @@ impl Default for Fscltx {
 
 /// File Classification Authority Type
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fscatp {
+pub struct FSCATP {
     pub val: [u8; 1]
 }
-impl Display for Fscatp {
+impl Display for FSCATP {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fscatp: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSCATP: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Classification Authority
 #[derive(Clone, Hash, Debug)]
-pub struct Fscaut {
+pub struct FSCAUT {
     pub val: [u8; 40]
 }
-impl Display for Fscaut {
+impl Display for FSCAUT {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fscaut: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSCAUT: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Classification Reason
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fscrsn {
+pub struct FSCRSN {
     pub val: [u8; 1]
 }
-impl Display for Fscrsn {
+impl Display for FSCRSN {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fscrsn: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSCRSN: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
-impl Default for Fscaut {
+impl Default for FSCAUT {
     fn default() -> Self {
         Self { val: ([0u8; 40]) }
     }
@@ -247,131 +247,131 @@ impl Default for Fscaut {
 
 /// File Security Source Date
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fssrdt {
+pub struct FSSRDT {
     pub val: [u8; 8]
 }
-impl Display for Fssrdt {
+impl Display for FSSRDT {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fssrdt: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSSRDT: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Security Control Number
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fsctln {
+pub struct FSCTLN {
     pub val: [u8; 15]
 }
-impl Display for Fsctln {
+impl Display for FSCTLN {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fsctln: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSCTLN: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Copy Number
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fscop {
+pub struct FSCOP {
     pub val: [u8; 5],
 }
-impl Display for Fscop {
+impl Display for FSCOP {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fscop: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSCOP: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Number of Copies
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fscpys {
+pub struct FSCPYS {
     pub val: [u8; 5],
 }
-impl Display for Fscpys {
+impl Display for FSCPYS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fscpys: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FSCPYS: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Encryption
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Encryp {
+pub struct ENCRYP {
     pub val: [u8; 1],
 }
-impl Display for Encryp {
+impl Display for ENCRYP {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Encryp: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ENCRYP: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Background Color
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fbkgc {
+pub struct FBKGC {
     pub val: [u8; 3],
 }
-impl Display for Fbkgc {
+impl Display for FBKGC {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fbkgc: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FBKGC: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Originator's Name
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Oname {
+pub struct ONAME {
     pub val: [u8; 24],
 }
-impl Display for Oname {
+impl Display for ONAME {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Oname: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "ONAME: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Originator's Phone Number
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Ophone {
+pub struct OPHONE {
     pub val: [u8; 18],
 }
-impl Display for Ophone {
+impl Display for OPHONE {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Ophone: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "OPHONE: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// File Length
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Fl {
+pub struct FL {
     pub val: [u8; 12],
 }
-impl Display for Fl {
+impl Display for FL {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Fl: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "FL: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// NITF File Header Length
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Hl {
+pub struct HL {
     pub val: [u8; 6],
 }
-impl Display for Hl {
+impl Display for HL {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Hl: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "HL: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Number of Image Segments
 #[derive(Default, Clone, Hash, Debug)]
-pub struct NumImageSegments {
+pub struct NUMIMAGESEGMENTS {
     pub val: [u8; 3],
 }
-impl Display for NumImageSegments {
+impl Display for NUMIMAGESEGMENTS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "NumImageSegments: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "NUMIMAGESEGMENTS: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Image Segments
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ImageSegments {
-    pub val: Vec<ImageSegmentElem>,
+pub struct IMAGESEGMENTS {
+    pub val: Vec<IMAGESEGMENTELEM>,
 }
-impl Display for ImageSegments {
+impl Display for IMAGESEGMENTS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         for seg in self.val.iter() {
@@ -383,11 +383,11 @@ impl Display for ImageSegments {
 
 /// Image Segment Info
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ImageSegmentElem {
+pub struct IMAGESEGMENTELEM {
     pub subheader_size: [u8; 6],
     pub item_size: [u8; 10],
 }
-impl Display for ImageSegmentElem {
+impl Display for IMAGESEGMENTELEM {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let str1 = String::from_utf8(self.subheader_size.to_vec()).unwrap();
         let str2 = String::from_utf8(self.item_size.to_vec()).unwrap();
@@ -397,21 +397,21 @@ impl Display for ImageSegmentElem {
 
 /// Number of Graphics Segments
 #[derive(Default, Clone, Hash, Debug)]
-pub struct NumGraphicSegment {
+pub struct NUMGRAPHICSEGMENT {
     pub val: [u8; 3],
 }
-impl Display for NumGraphicSegment {
+impl Display for NUMGRAPHICSEGMENT {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "NumGraphicSegment: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "NUMGRAPHICSEGMENT: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Graphic Segments
 #[derive(Default, Clone, Hash, Debug)]
-pub struct GraphicsSegments {
-    pub val: Vec<GraphicsSegmentElem>,
+pub struct GRAPHICSSEGMENTS {
+    pub val: Vec<GRAPHICSSEGMENTELEM>,
 }
-impl Display for GraphicsSegments {
+impl Display for GRAPHICSSEGMENTS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         for seg in self.val.iter() {
@@ -423,11 +423,11 @@ impl Display for GraphicsSegments {
 
 /// Graphic Segment Info
 #[derive(Default, Clone, Hash, Debug)]
-pub struct GraphicsSegmentElem {
+pub struct GRAPHICSSEGMENTELEM {
     pub subheader_size: [u8; 4],
     pub item_size: [u8; 6],
 }
-impl Display for GraphicsSegmentElem {
+impl Display for GRAPHICSSEGMENTELEM {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let str1 = String::from_utf8(self.subheader_size.to_vec()).unwrap();
         let str2 = String::from_utf8(self.item_size.to_vec()).unwrap();
@@ -437,32 +437,32 @@ impl Display for GraphicsSegmentElem {
 
 /// Reserved for future use
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Numx {
+pub struct NUMX {
     pub val: [u8; 3],
 }
-impl Display for Numx {
+impl Display for NUMX {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Numx: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "NUMX: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Number of Text Files
 #[derive(Default, Clone, Hash, Debug)]
-pub struct NumTextFiles {
+pub struct NUMTEXTFILES {
     pub val: [u8; 3],
 }
-impl Display for NumTextFiles {
+impl Display for NUMTEXTFILES {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "NumTextFiles: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "NUMTEXTFILES: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Text Segments
 #[derive(Default, Clone, Hash, Debug)]
-pub struct TextSegments {
-    pub val: Vec<TextSegmentElem>,
+pub struct TEXTSEGMENTS {
+    pub val: Vec<TEXTSEGMENTELEM>,
 }
-impl Display for TextSegments {
+impl Display for TEXTSEGMENTS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         for seg in self.val.iter() {
@@ -474,11 +474,11 @@ impl Display for TextSegments {
 
 /// Text Segment Info
 #[derive(Default, Clone, Hash, Debug)]
-pub struct TextSegmentElem {
+pub struct TEXTSEGMENTELEM {
     pub subheader_size: [u8; 4],
     pub item_size: [u8; 5],
 }
-impl Display for TextSegmentElem {
+impl Display for TEXTSEGMENTELEM {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let str1 = String::from_utf8(self.subheader_size.to_vec()).unwrap();
         let str2 = String::from_utf8(self.item_size.to_vec()).unwrap();
@@ -488,21 +488,21 @@ impl Display for TextSegmentElem {
 
 /// Number of Data Extension Segments
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Numdes {
+pub struct NUMDES {
     pub val: [u8; 3],
 }
-impl Display for Numdes {
+impl Display for NUMDES {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Numdes: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "NUMDES: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Data Extenstion Segments
 #[derive(Default, Clone, Hash, Debug)]
-pub struct DataExtSegments {
-    pub val: Vec<DataExtSegmentElem>,
+pub struct DATAEXTSEGMENTS {
+    pub val: Vec<DATAEXTSEGMENTELEM>,
 }
-impl Display for DataExtSegments {
+impl Display for DATAEXTSEGMENTS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         for seg in self.val.iter() {
@@ -514,11 +514,11 @@ impl Display for DataExtSegments {
 
 /// Data Extenstion Segment Info
 #[derive(Default, Clone, Hash, Debug)]
-pub struct DataExtSegmentElem {
+pub struct DATAEXTSEGMENTELEM {
     pub subheader_size: [u8; 4],
     pub item_size: [u8; 9],
 }
-impl Display for DataExtSegmentElem {
+impl Display for DATAEXTSEGMENTELEM {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let str1 = String::from_utf8(self.subheader_size.to_vec()).unwrap();
         let str2 = String::from_utf8(self.item_size.to_vec()).unwrap();
@@ -528,21 +528,21 @@ impl Display for DataExtSegmentElem {
 
 /// Number of Reserved Extension Segments
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Numres {
+pub struct NUMRES {
     pub val: [u8; 3],
 }
-impl Display for Numres {
+impl Display for NUMRES {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Numres: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "NUMRES: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Reserved Extension Segments
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ReservedSegments {
-    pub val: Vec<ReservedSegmentElem>,
+pub struct RESERVEDSEGMENTS {
+    pub val: Vec<RESERVEDSEGMENTELEM>,
 }
-impl Display for ReservedSegments {
+impl Display for RESERVEDSEGMENTS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         for seg in self.val.iter() {
@@ -554,11 +554,11 @@ impl Display for ReservedSegments {
 
 /// Reserved Extension Segment Info
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ReservedSegmentElem {
+pub struct RESERVEDSEGMENTELEM {
     pub subheader_size: [u8; 4],
     pub item_size: [u8; 7],
 }
-impl Display for ReservedSegmentElem {
+impl Display for RESERVEDSEGMENTELEM {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let str1 = String::from_utf8(self.subheader_size.to_vec()).unwrap();
         let str2 = String::from_utf8(self.item_size.to_vec()).unwrap();
@@ -568,23 +568,23 @@ impl Display for ReservedSegmentElem {
 
 /// User Defined Header Data Length
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Udhdl {
+pub struct UDHDL {
     pub val: [u8; 5],
 }
-impl Display for Udhdl {
+impl Display for UDHDL {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Udhdl: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "UDHDL: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
 /// Extended Header Data Length
 #[derive(Default, Clone, Hash, Debug)]
-pub struct Xhdl {
+pub struct XHDL {
     pub val: [u8; 5],
 }
-impl Display for Xhdl {
+impl Display for XHDL {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Xhdl: {}", String::from_utf8(self.val.to_vec()).unwrap())
+        write!(f, "XHDL: {}", String::from_utf8(self.val.to_vec()).unwrap())
     }
 }
 
