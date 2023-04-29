@@ -13,13 +13,9 @@ use std::io::Read;
 use std::fmt::Display;
 use std::string::FromUtf8Error;
 
-impl NitfSegment for Nitf {
-    fn read(reader: &mut impl Read) -> Result<Nitf, FromUtf8Error> {
-        let res = NitfHeader::from_reader(reader);
-        let header = match res {
-            Ok(header) => header,
-            Err(e) => return Err(e),
-        };
+impl Nitf {
+    pub fn from_reader(reader: &mut impl Read) -> Result<Self, FromUtf8Error> {
+        let header = NitfHeader::from_reader(reader).unwrap();
         let nitf = Self { header };
         return Ok(nitf)
     }
@@ -30,7 +26,7 @@ pub struct Nitf {
     pub header: NitfHeader,
 }
 impl Display for Nitf {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{}", self.header)
     }
 }
