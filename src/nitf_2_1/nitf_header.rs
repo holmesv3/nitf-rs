@@ -1,5 +1,5 @@
-//! Header Definition
-use std::io::Read;
+//! Header definition
+use std::io::{Read, Seek};
 use std::fmt::Display;
 use std::string::FromUtf8Error;
 

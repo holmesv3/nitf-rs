@@ -1,10 +1,9 @@
-//! Text Segment Definition
+//! Text segment definition
 use std::io::Read;
 use std::fmt::Display;
 use std::string::FromUtf8Error;
 
 use super::elements::text::*;
-
 
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TextSegment {
@@ -60,6 +59,37 @@ impl Display for TextSegment {
         out_str += format!("{}", self.encryp).as_ref();
         out_str += format!("{}", self.txtfmt).as_ref();
         out_str += format!("{}", self.txshdl).as_ref();
-        write!(f, "{}", out_str)
+        write!(f, "TextSegment: [{}]", out_str)
+    }
+}
+
+impl TextSegment {
+    pub fn  from_reader(reader: &mut impl Read) -> Result<Self, FromUtf8Error> {
+        let mut txt_seg = TextSegment::default(); 
+        reader.read(&mut txt_seg.te.val).unwrap();
+        reader.read(&mut txt_seg.textid.val).unwrap();
+        reader.read(&mut txt_seg.txtalvl.val).unwrap();
+        reader.read(&mut txt_seg.txtdt.val).unwrap();
+        reader.read(&mut txt_seg.txttitl.val).unwrap();
+        reader.read(&mut txt_seg.tsclas.val).unwrap();
+        reader.read(&mut txt_seg.tsclsy.val).unwrap();
+        reader.read(&mut txt_seg.tscode.val).unwrap();
+        reader.read(&mut txt_seg.tsctlh.val).unwrap();
+        reader.read(&mut txt_seg.tsrel.val).unwrap();
+        reader.read(&mut txt_seg.tsdctp.val).unwrap();
+        reader.read(&mut txt_seg.tsdcdt.val).unwrap();
+        reader.read(&mut txt_seg.tsdcxm.val).unwrap();
+        reader.read(&mut txt_seg.tsdg.val).unwrap();
+        reader.read(&mut txt_seg.tsdgdt.val).unwrap();
+        reader.read(&mut txt_seg.tsclttx.val).unwrap();
+        reader.read(&mut txt_seg.tscatp.val).unwrap();
+        reader.read(&mut txt_seg.tscaut.val).unwrap();
+        reader.read(&mut txt_seg.tscsn.val).unwrap();
+        reader.read(&mut txt_seg.tssrdt.val).unwrap();
+        reader.read(&mut txt_seg.tsctln.val).unwrap();
+        reader.read(&mut txt_seg.encryp.val).unwrap();
+        reader.read(&mut txt_seg.txtfmt.val).unwrap();
+        reader.read(&mut txt_seg.txshdl.val).unwrap();
+        Ok(txt_seg)
     }
 }
