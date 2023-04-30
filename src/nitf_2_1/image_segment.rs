@@ -1,4 +1,4 @@
-//! Image Segment Definition
+//! Image header definition
 use std::io::Read;
 use std::fmt::Display;
 use std::string::FromUtf8Error;

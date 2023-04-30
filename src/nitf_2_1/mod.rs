@@ -9,12 +9,12 @@ pub mod prelude;
 
 use nitf_header::NitfHeader;
 
-use std::io::Read;
+use std::io::{Read, Seek};
 use std::fmt::Display;
 use std::string::FromUtf8Error;
 
 impl Nitf {
-    pub fn from_reader(reader: &mut impl Read) -> Result<Self, FromUtf8Error> {
+    pub fn from_reader(reader: &mut (impl Read + Seek)) -> Result<Self, FromUtf8Error> {
         let header = NitfHeader::from_reader(reader).unwrap();
         let nitf = Self { header };
         return Ok(nitf)

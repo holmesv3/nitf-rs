@@ -1,12 +1,12 @@
-//! Header Definition
-use std::io::Read;
+//! Header definition
+use std::io::{Read, Seek};
 use std::fmt::Display;
 use std::string::FromUtf8Error;
 
 use super::elements::header::*;
 
 impl NitfHeader {
-    pub fn from_reader(reader: &mut impl Read) -> Result<Self, FromUtf8Error> {
+    pub fn from_reader(reader: &mut (impl Read + Seek)) -> Result<Self, FromUtf8Error> {
         let mut hdr = Self::default();
         reader.read(&mut hdr.fhdr.val).unwrap();
         reader.read(&mut hdr.fver.val).unwrap();
