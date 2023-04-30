@@ -3,100 +3,100 @@ use std::io::{Read, Seek};
 use std::fmt::Display;
 use std::string::FromUtf8Error;
 
-use super::elements::*;
+use crate::common::nitf_types::*;
 
 // Struct definition
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NitfHeader {
     /// File Profile Name
-    pub FHDR: NitfElement,
+    pub FHDR: NitfField,
     /// File Version
-    pub FVER: NitfElement,
+    pub FVER: NitfField,
     /// Complexity Level
-    pub CLEVEL: NitfElement,
+    pub CLEVEL: NitfField,
     /// Standard Type
-    pub STYPE: NitfElement,
+    pub STYPE: NitfField,
     /// Originating Station ID
-    pub OSTAID: NitfElement,
+    pub OSTAID: NitfField,
     /// File Date and Time
-    pub FDT: NitfElement,
+    pub FDT: NitfField,
     /// File Title
-    pub FTITLE: NitfElement,
+    pub FTITLE: NitfField,
     /// File Security Classification
-    pub FSCLAS: NitfElement,
+    pub FSCLAS: NitfField,
     /// File Classification Security System
-    pub FSCLSY: NitfElement,
+    pub FSCLSY: NitfField,
     /// File Codewords
-    pub FSCODE: NitfElement,
+    pub FSCODE: NitfField,
     /// File Control and Handling
-    pub FSCTLH: NitfElement,
+    pub FSCTLH: NitfField,
     /// File Releasing Instructions
-    pub FSREL: NitfElement,
+    pub FSREL: NitfField,
     /// File Declassification Type
-    pub FSDCTP: NitfElement,
+    pub FSDCTP: NitfField,
     /// File Declassification Date
-    pub FSDCDT: NitfElement,
+    pub FSDCDT: NitfField,
     /// File Declassification Exemption
-    pub FSDCXM: NitfElement,
+    pub FSDCXM: NitfField,
     /// File Downgrade
-    pub FSDG: NitfElement,
+    pub FSDG: NitfField,
     /// File Downgrade Date
-    pub FSDGDT: NitfElement,
+    pub FSDGDT: NitfField,
     /// File Classification Text
-    pub FSCLTX: NitfElement,
+    pub FSCLTX: NitfField,
     /// File Classification Authority Type
-    pub FSCATP: NitfElement,
+    pub FSCATP: NitfField,
     /// File Classification Authority
-    pub FSCAUT: NitfElement,
+    pub FSCAUT: NitfField,
     /// File Classification Reason
-    pub FSCRSN: NitfElement,
+    pub FSCRSN: NitfField,
     /// File Security Source Date
-    pub FSSRDT: NitfElement,
+    pub FSSRDT: NitfField,
     /// File Security Control Number
-    pub FSCTLN: NitfElement,
+    pub FSCTLN: NitfField,
     /// File Copy Number
-    pub FSCOP: NitfElement,
+    pub FSCOP: NitfField,
     /// File Number of Copies
-    pub FSCPYS: NitfElement,
+    pub FSCPYS: NitfField,
     /// Encryption
-    pub ENCRYP: NitfElement,
+    pub ENCRYP: NitfField,
     /// File Background Color
-    pub FBKGC: NitfElement,
+    pub FBKGC: NitfField,
     /// Originator's Name
-    pub ONAME: NitfElement,
+    pub ONAME: NitfField,
     /// Originator's Phone Number
-    pub OPHONE: NitfElement,
+    pub OPHONE: NitfField,
     /// File Length
-    pub FL: NitfElement,
+    pub FL: NitfField,
     /// NITF File Header Length
-    pub HL: NitfElement,
+    pub HL: NitfField,
     /// Number of Image Segments
-    pub NUMI: NitfElement,
+    pub NUMI: NitfField,
     /// Image Segments
-    pub IMHEADERS: NitfSubHeader,
+    pub IMHEADERS: NitfSubHeaderVec,
     /// Number of Graphics Segments
-    pub NUMS: NitfElement,
+    pub NUMS: NitfField,
     /// Graphic Segments
-    pub GRAPHHEADERS: NitfSubHeader,
+    pub GRAPHHEADERS: NitfSubHeaderVec,
     /// Reserved for future use
-    pub NUMX: NitfElement,
+    pub NUMX: NitfField,
     /// Number of Text Files
-    pub NUMT: NitfElement,
+    pub NUMT: NitfField,
     /// Text Segments
-    pub TEXTFILES: NitfSubHeader,
+    pub TEXTFILES: NitfSubHeaderVec,
     /// Number of Data Extension Segments
-    pub NUMDES: NitfElement,
+    pub NUMDES: NitfField,
     /// Data Extenstion Segments
-    pub DEXTHEADERS: NitfSubHeader,
+    pub DEXTHEADERS: NitfSubHeaderVec,
     /// Number of Reserved Extension Segments
-    pub NUMRES: NitfElement,
+    pub NUMRES: NitfField,
     /// Reserved Extension Segments
-    pub RESHEADERS: NitfSubHeader,
+    pub RESHEADERS: NitfSubHeaderVec,
     /// User Defined Header Data Length
-    pub UDHDL: NitfElement,
+    pub UDHDL: NitfField,
     /// Extended Header Data Length
-    pub XHDL: NitfElement,
+    pub XHDL: NitfField,
 }
 impl Display for NitfHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -148,11 +148,9 @@ impl Display for NitfHeader {
         write!(f, "NitfHeader: [{}]", out_str)
     }
 }
-
-// Struct functions
 impl NitfHeader {
     pub fn from_reader(
-        reader: &mut impl Read
+        reader: &mut (impl Read + Seek)
     ) -> Result<Self, FromUtf8Error> {
         let mut hdr = Self::default();
         hdr.FHDR.read(reader, 4);

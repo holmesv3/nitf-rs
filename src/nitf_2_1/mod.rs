@@ -4,7 +4,6 @@ pub mod nitf_header;
 pub mod image_segment;
 pub mod graphic_segment;
 pub mod text_segment;
-pub mod elements;
 pub mod prelude;
 
 use nitf_header::NitfHeader;

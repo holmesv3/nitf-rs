@@ -1,95 +1,119 @@
 //! Text segment definition
-use std::io::Read;
+use std::io::{Read, Seek};
 use std::fmt::Display;
 use std::string::FromUtf8Error;
 
-use super::elements::text::*;
+use crate::common::nitf_types::NitfField;
 
+#[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TextSegment {
-    pub te: TE,
-    pub textid: TEXTID,
-    pub txtalvl: TXTALVL,
-    pub txtdt: TXTDT,
-    pub txttitl: TXTTITL,
-    pub tsclas: TSCLAS,
-    pub tsclsy: TSCLSY,
-    pub tscode: TSCODE,
-    pub tsctlh: TSCTLH,
-    pub tsrel: TSREL,
-    pub tsdctp: TSDCTP,
-    pub tsdcdt: TSDCDT,
-    pub tsdcxm: TSDCXM,
-    pub tsdg: TSDG,
-    pub tsdgdt: TSDGDT,
-    pub tsclttx: TSCLTTX,
-    pub tscatp: TSCATP,
-    pub tscaut: TSCAUT,
-    pub tscsn: TSCSN,
-    pub tssrdt: TSSRDT,
-    pub tsctln: TSCTLN,
-    pub encryp: ENCRYP,
-    pub txtfmt: TXTFMT,
-    pub txshdl: TXSHDL,
+    /// File Part Type 
+    pub TE: NitfField,
+    /// Text Identifier 
+    pub TEXTID: NitfField,
+    /// Text Attachment Level 
+    pub TXTALVL: NitfField,
+    /// Text Date and Time 
+    pub TXTDT: NitfField,
+    /// Text Title 
+    pub TXTTITL: NitfField,
+    /// Text Security Classification 
+    pub TSCLAS: NitfField,
+    /// Text Classification Security System 
+    pub TSCLSY: NitfField,
+    /// Text Codewords 
+    pub TSCODE: NitfField,
+    /// Text Control and Handling 
+    pub TSCTLH: NitfField,
+    /// Text Releasing Instructions 
+    pub TSREL: NitfField,
+    /// Text Declassification Type 
+    pub TSDCTP: NitfField,
+    /// Text Declassification Date 
+    pub TSDCDT: NitfField,
+    /// Text Declassification Exemption 
+    pub TSDCXM: NitfField,
+    /// Text Downgrade 
+    pub TSDG: NitfField,
+    /// Text Downgrade Date 
+    pub TSDGDT: NitfField,
+    /// Text Classification Text 
+    pub TSCLTTX: NitfField,
+    /// Text Classification Authority Type 
+    pub TSCATP: NitfField,
+    /// Text Classification Authority 
+    pub TSCAUT: NitfField,
+    /// Text Classification Reason 
+    pub TSCSN: NitfField,
+    /// Text Security Source Date 
+    pub TSSRDT: NitfField,
+    /// Text Security Control Number 
+    pub TSCTLN: NitfField,
+    /// Encryption 
+    pub ENCRYP: NitfField,
+    /// Text Format 
+    pub TXTFMT: NitfField,
+    /// Text Extended Subheader Data Length 
+    pub TXSHDL: NitfField,
 }
 impl Display for TextSegment {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("{}", self.te).as_ref();
-        out_str += format!("{}", self.textid).as_ref();
-        out_str += format!("{}", self.txtalvl).as_ref();
-        out_str += format!("{}", self.txtdt).as_ref();
-        out_str += format!("{}", self.txttitl).as_ref();
-        out_str += format!("{}", self.tsclas).as_ref();
-        out_str += format!("{}", self.tsclsy).as_ref();
-        out_str += format!("{}", self.tscode).as_ref();
-        out_str += format!("{}", self.tsctlh).as_ref();
-        out_str += format!("{}", self.tsrel).as_ref();
-        out_str += format!("{}", self.tsdctp).as_ref();
-        out_str += format!("{}", self.tsdcdt).as_ref();
-        out_str += format!("{}", self.tsdcxm).as_ref();
-        out_str += format!("{}", self.tsdg).as_ref();
-        out_str += format!("{}", self.tsdgdt).as_ref();
-        out_str += format!("{}", self.tsclttx).as_ref();
-        out_str += format!("{}", self.tscatp).as_ref();
-        out_str += format!("{}", self.tscaut).as_ref();
-        out_str += format!("{}", self.tscsn).as_ref();
-        out_str += format!("{}", self.tssrdt).as_ref();
-        out_str += format!("{}", self.tsctln).as_ref();
-        out_str += format!("{}", self.encryp).as_ref();
-        out_str += format!("{}", self.txtfmt).as_ref();
-        out_str += format!("{}", self.txshdl).as_ref();
+        out_str += format!("\nTE: {}", self.TE).as_ref();
+        out_str += format!("\nTEXTID: {}", self.TEXTID).as_ref();
+        out_str += format!("\nTXTALVL: {}", self.TXTALVL).as_ref();
+        out_str += format!("\nTXTDT: {}", self.TXTDT).as_ref();
+        out_str += format!("\nTXTTITL: {}", self.TXTTITL).as_ref();
+        out_str += format!("\nTSCLAS: {}", self.TSCLAS).as_ref();
+        out_str += format!("\nTSCLSY: {}", self.TSCLSY).as_ref();
+        out_str += format!("\nTSCODE: {}", self.TSCODE).as_ref();
+        out_str += format!("\nTSCTLH: {}", self.TSCTLH).as_ref();
+        out_str += format!("\nTSREL: {}", self.TSREL).as_ref();
+        out_str += format!("\nTSDCTP: {}", self.TSDCTP).as_ref();
+        out_str += format!("\nTSDCDT: {}", self.TSDCDT).as_ref();
+        out_str += format!("\nTSDCXM: {}", self.TSDCXM).as_ref();
+        out_str += format!("\nTSDG: {}", self.TSDG).as_ref();
+        out_str += format!("\nTSDGDT: {}", self.TSDGDT).as_ref();
+        out_str += format!("\nTSCLTTX: {}", self.TSCLTTX).as_ref();
+        out_str += format!("\nTSCATP: {}", self.TSCATP).as_ref();
+        out_str += format!("\nTSCAUT: {}", self.TSCAUT).as_ref();
+        out_str += format!("\nTSCSN: {}", self.TSCSN).as_ref();
+        out_str += format!("\nTSSRDT: {}", self.TSSRDT).as_ref();
+        out_str += format!("\nTSCTLN: {}", self.TSCTLN).as_ref();
+        out_str += format!("\nENCRYP: {}", self.ENCRYP).as_ref();
+        out_str += format!("\nTXTFMT: {}", self.TXTFMT).as_ref();
+        out_str += format!("\nTXSHDL: {}", self.TXSHDL).as_ref();
         write!(f, "TextSegment: [{}]", out_str)
     }
 }
-
 impl TextSegment {
-    pub fn  from_reader(reader: &mut impl Read) -> Result<Self, FromUtf8Error> {
+    pub fn  from_reader(reader: &mut (impl Read + Seek)) -> Result<Self, FromUtf8Error> {
         let mut txt_seg = TextSegment::default(); 
-        reader.read(&mut txt_seg.te.val).unwrap();
-        reader.read(&mut txt_seg.textid.val).unwrap();
-        reader.read(&mut txt_seg.txtalvl.val).unwrap();
-        reader.read(&mut txt_seg.txtdt.val).unwrap();
-        reader.read(&mut txt_seg.txttitl.val).unwrap();
-        reader.read(&mut txt_seg.tsclas.val).unwrap();
-        reader.read(&mut txt_seg.tsclsy.val).unwrap();
-        reader.read(&mut txt_seg.tscode.val).unwrap();
-        reader.read(&mut txt_seg.tsctlh.val).unwrap();
-        reader.read(&mut txt_seg.tsrel.val).unwrap();
-        reader.read(&mut txt_seg.tsdctp.val).unwrap();
-        reader.read(&mut txt_seg.tsdcdt.val).unwrap();
-        reader.read(&mut txt_seg.tsdcxm.val).unwrap();
-        reader.read(&mut txt_seg.tsdg.val).unwrap();
-        reader.read(&mut txt_seg.tsdgdt.val).unwrap();
-        reader.read(&mut txt_seg.tsclttx.val).unwrap();
-        reader.read(&mut txt_seg.tscatp.val).unwrap();
-        reader.read(&mut txt_seg.tscaut.val).unwrap();
-        reader.read(&mut txt_seg.tscsn.val).unwrap();
-        reader.read(&mut txt_seg.tssrdt.val).unwrap();
-        reader.read(&mut txt_seg.tsctln.val).unwrap();
-        reader.read(&mut txt_seg.encryp.val).unwrap();
-        reader.read(&mut txt_seg.txtfmt.val).unwrap();
-        reader.read(&mut txt_seg.txshdl.val).unwrap();
+        txt_seg.TE.read(reader, 2);
+        txt_seg.TEXTID.read(reader, 7);
+        txt_seg.TXTALVL.read(reader, 3);
+        txt_seg.TXTDT.read(reader, 14);
+        txt_seg.TXTTITL.read(reader, 80);
+        txt_seg.TSCLAS.read(reader, 1);
+        txt_seg.TSCLSY.read(reader, 2);
+        txt_seg.TSCODE.read(reader, 11);
+        txt_seg.TSCTLH.read(reader, 2);
+        txt_seg.TSREL.read(reader, 20);
+        txt_seg.TSDCTP.read(reader, 2);
+        txt_seg.TSDCDT.read(reader, 8);
+        txt_seg.TSDCXM.read(reader, 4);
+        txt_seg.TSDG.read(reader, 1);
+        txt_seg.TSDGDT.read(reader, 8);
+        txt_seg.TSCLTTX.read(reader, 43);
+        txt_seg.TSCATP.read(reader, 1);
+        txt_seg.TSCAUT.read(reader, 40);
+        txt_seg.TSCSN.read(reader, 1);
+        txt_seg.TSSRDT.read(reader, 8);
+        txt_seg.TSCTLN.read(reader, 15);
+        txt_seg.ENCRYP.read(reader, 1);
+        txt_seg.TXTFMT.read(reader, 3);
+        txt_seg.TXSHDL.read(reader, 5);
         Ok(txt_seg)
     }
 }

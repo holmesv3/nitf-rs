@@ -11,6 +11,7 @@ use std::path::Path;
 use std::string::FromUtf8Error;
 
 pub mod nitf_2_1;
+pub mod common;
 
 use nitf_2_1::nitf_header::NitfHeader;
 use nitf_2_1::Nitf;

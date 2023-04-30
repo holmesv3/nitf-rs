@@ -3,3 +3,6 @@
 /venv
 *.py
 Cargo.lock
+
+# Ignore the executable I like to keep :3
+main.rs
