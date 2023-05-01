@@ -6,12 +6,13 @@
 // Meaning: after the main header, each sub-segment starts with 2 characters. 
 // Need to implement reading these in some arbitrary order, storing starting bytes, offsets, etc.
 
+mod types;
+
 use std::fs::File;
 use std::path::Path;
 use std::string::FromUtf8Error;
 
 pub mod nitf_2_1;
-pub mod common;
 
 use nitf_2_1::nitf_header::NitfHeader;
 use nitf_2_1::Nitf;

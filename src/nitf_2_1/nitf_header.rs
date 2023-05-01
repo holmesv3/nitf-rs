@@ -3,7 +3,7 @@ use std::io::{Read, Seek};
 use std::fmt::Display;
 use std::string::FromUtf8Error;
 
-use crate::common::nitf_types::*;
+use crate::types::*;
 
 // Struct definition
 #[allow(non_snake_case)]

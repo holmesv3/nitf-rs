@@ -3,7 +3,7 @@ use std::io::{Read, Seek};
 use std::fmt::Display;
 use std::string::FromUtf8Error;
 
-use crate::common::nitf_types::*;
+use crate::types::*;
 
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
@@ -174,8 +174,8 @@ impl Display for ImageSegment {
         write!(f, "ImageSegment: [{}]", out_str)
     }
 }
-impl ImageSegment {
-    pub fn from_reader(reader: &mut (impl Read + Seek)) -> Result<Self, FromUtf8Error> {
+impl Segment<ImageSegment> for ImageSegment {
+    fn from_reader(reader: &mut (impl Read + Seek)) -> Result<Self, std::io::Error> {
         let mut imseg = ImageSegment::default();
         imseg.FILEPARTTYPE.read(reader, 2);
         imseg.IID1.read(reader, 10);
