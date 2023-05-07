@@ -7,7 +7,11 @@ use std::string::FromUtf8Error;
 ///     // Vector of bytes
 ///     pub val: Vec<u8>, 
 ///     // Byte offset in file
-///     pub offset: u64
+///     pub offset: u64,
+///     // String representation of field
+///     pub string: String,
+///     // Length of byte vector
+///     length: usize,
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NitfField{
     /// Vector of bytes
@@ -75,7 +79,7 @@ impl Display for NitfFieldVec {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         for seg in self.val.iter() {
-            out_str += format!("\t{}", seg).as_ref()
+            out_str += format!("{}, ", seg).as_ref()
         }
         write!(f, "{}", out_str)
     }
@@ -154,13 +158,18 @@ impl Display for NitfSubHeaderVec {
 /// Provide implementation for `read()`, `from_reader` defined automatically.
 pub trait NitfSegmentHeader where Self: Sized + Default {
     
+    /// Read the segment info from stream
+    /// 
+    /// # Parameters
+    /// 
+    /// reader: Stream from which to read header information
     #[allow(unused)]
     fn read(&mut self, reader: &mut (impl Read + Seek)) {todo!("Didn't implement read() method")}
     
-    fn from_reader(reader: &mut (impl Read + Seek)) -> Result<Self, FromUtf8Error> {
+    fn from_reader(reader: &mut (impl Read + Seek)) -> Self {
         let mut hdr = Self::default();
         hdr.read(reader);
-        Ok(hdr)
+        return hdr
     }
 }
 
@@ -291,7 +300,6 @@ impl Display for Security {
         return write!(f, "{}", out_str)
     }
 }
-
 impl Security {
     pub fn read(&mut self, reader: &mut (impl Read + Seek)) {
         self.CLAS.read(reader, 1);
