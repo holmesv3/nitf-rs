@@ -1,11 +1,8 @@
 //! Text segment definition
 use std::io::{Read, Seek};
 use std::fmt::Display;
-use std::string::FromUtf8Error;
 
-use crate::nitf_2_1::types::NitfField;
-
-use super::types::NitfSegmentHeader;
+use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
 
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
@@ -20,38 +17,8 @@ pub struct TextSegment {
     pub TXTDT: NitfField,
     /// Text Title 
     pub TXTTITL: NitfField,
-    /// Text Security Classification 
-    pub TSCLAS: NitfField,
-    /// Text Classification Security System 
-    pub TSCLSY: NitfField,
-    /// Text Codewords 
-    pub TSCODE: NitfField,
-    /// Text Control and Handling 
-    pub TSCTLH: NitfField,
-    /// Text Releasing Instructions 
-    pub TSREL: NitfField,
-    /// Text Declassification Type 
-    pub TSDCTP: NitfField,
-    /// Text Declassification Date 
-    pub TSDCDT: NitfField,
-    /// Text Declassification Exemption 
-    pub TSDCXM: NitfField,
-    /// Text Downgrade 
-    pub TSDG: NitfField,
-    /// Text Downgrade Date 
-    pub TSDGDT: NitfField,
-    /// Text Classification Text 
-    pub TSCLTTX: NitfField,
-    /// Text Classification Authority Type 
-    pub TSCATP: NitfField,
-    /// Text Classification Authority 
-    pub TSCAUT: NitfField,
-    /// Text Classification Reason 
-    pub TSCSN: NitfField,
-    /// Text Security Source Date 
-    pub TSSRDT: NitfField,
-    /// Text Security Control Number 
-    pub TSCTLN: NitfField,
+    /// Security information
+    pub SECURITY: Security,
     /// Encryption 
     pub ENCRYP: NitfField,
     /// Text Format 
@@ -62,30 +29,15 @@ pub struct TextSegment {
 impl Display for TextSegment {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("\nTE: {}", self.TE).as_ref();
-        out_str += format!("\nTEXTID: {}", self.TEXTID).as_ref();
-        out_str += format!("\nTXTALVL: {}", self.TXTALVL).as_ref();
-        out_str += format!("\nTXTDT: {}", self.TXTDT).as_ref();
-        out_str += format!("\nTXTTITL: {}", self.TXTTITL).as_ref();
-        out_str += format!("\nTSCLAS: {}", self.TSCLAS).as_ref();
-        out_str += format!("\nTSCLSY: {}", self.TSCLSY).as_ref();
-        out_str += format!("\nTSCODE: {}", self.TSCODE).as_ref();
-        out_str += format!("\nTSCTLH: {}", self.TSCTLH).as_ref();
-        out_str += format!("\nTSREL: {}", self.TSREL).as_ref();
-        out_str += format!("\nTSDCTP: {}", self.TSDCTP).as_ref();
-        out_str += format!("\nTSDCDT: {}", self.TSDCDT).as_ref();
-        out_str += format!("\nTSDCXM: {}", self.TSDCXM).as_ref();
-        out_str += format!("\nTSDG: {}", self.TSDG).as_ref();
-        out_str += format!("\nTSDGDT: {}", self.TSDGDT).as_ref();
-        out_str += format!("\nTSCLTTX: {}", self.TSCLTTX).as_ref();
-        out_str += format!("\nTSCATP: {}", self.TSCATP).as_ref();
-        out_str += format!("\nTSCAUT: {}", self.TSCAUT).as_ref();
-        out_str += format!("\nTSCSN: {}", self.TSCSN).as_ref();
-        out_str += format!("\nTSSRDT: {}", self.TSSRDT).as_ref();
-        out_str += format!("\nTSCTLN: {}", self.TSCTLN).as_ref();
-        out_str += format!("\nENCRYP: {}", self.ENCRYP).as_ref();
-        out_str += format!("\nTXTFMT: {}", self.TXTFMT).as_ref();
-        out_str += format!("\nTXSHDL: {}", self.TXSHDL).as_ref();
+        out_str += format!("TE: {}, ", self.TE).as_ref();
+        out_str += format!("TEXTID: {}, ", self.TEXTID).as_ref();
+        out_str += format!("TXTALVL: {}, ", self.TXTALVL).as_ref();
+        out_str += format!("TXTDT: {}, ", self.TXTDT).as_ref();
+        out_str += format!("TXTTITL: {}, ", self.TXTTITL).as_ref();
+        out_str += format!("SECURITY: [{}], ", self.SECURITY).as_ref();
+        out_str += format!("ENCRYP: {}, ", self.ENCRYP).as_ref();
+        out_str += format!("TXTFMT: {}, ", self.TXTFMT).as_ref();
+        out_str += format!("TXSHDL: {}", self.TXSHDL).as_ref();
         write!(f, "TextSegment: [{}]", out_str)
     }
 }
@@ -96,22 +48,7 @@ impl NitfSegmentHeader for TextSegment {
         self.TXTALVL.read(reader, 3);
         self.TXTDT.read(reader, 14);
         self.TXTTITL.read(reader, 80);
-        self.TSCLAS.read(reader, 1);
-        self.TSCLSY.read(reader, 2);
-        self.TSCODE.read(reader, 11);
-        self.TSCTLH.read(reader, 2);
-        self.TSREL.read(reader, 20);
-        self.TSDCTP.read(reader, 2);
-        self.TSDCDT.read(reader, 8);
-        self.TSDCXM.read(reader, 4);
-        self.TSDG.read(reader, 1);
-        self.TSDGDT.read(reader, 8);
-        self.TSCLTTX.read(reader, 43);
-        self.TSCATP.read(reader, 1);
-        self.TSCAUT.read(reader, 40);
-        self.TSCSN.read(reader, 1);
-        self.TSSRDT.read(reader, 8);
-        self.TSCTLN.read(reader, 15);
+        self.SECURITY.read(reader);
         self.ENCRYP.read(reader, 1);
         self.TXTFMT.read(reader, 3);
         self.TXSHDL.read(reader, 5);
