@@ -53,7 +53,7 @@ pub struct NitfHeader {
     /// Number of Text Files
     pub NUMT: NitfField,
     /// Text Segments
-    pub TEXTFILES: NitfSubHeaderVec,
+    pub TEXTHEADERS: NitfSubHeaderVec,
     /// Number of Data Extension Segments
     pub NUMDES: NitfField,
     /// Data Extenstion Segments
@@ -87,16 +87,16 @@ impl Display for NitfHeader {
         out_str += format!("FL: {}, ", self.FL).as_ref();
         out_str += format!("HL: {}, ", self.HL).as_ref();
         out_str += format!("NUMI: {}, ", self.NUMI).as_ref();
-        out_str += format!("IMHEADERS: {}, ", self.IMHEADERS).as_ref();
+        out_str += format!("IMHEADERS: [{}], ", self.IMHEADERS).as_ref();
         out_str += format!("NUMS: {}, ", self.NUMS).as_ref();
-        out_str += format!("GRAPHHEADERS: {}, ", self.GRAPHHEADERS).as_ref();
+        out_str += format!("GRAPHHEADERS: [{}], ", self.GRAPHHEADERS).as_ref();
         out_str += format!("NUMX: {}, ", self.NUMX).as_ref();
         out_str += format!("NUMT: {}, ", self.NUMT).as_ref();
-        out_str += format!("TEXTFILES: {}, ", self.TEXTFILES).as_ref();
+        out_str += format!("TEXTHEADERS: {}, ", self.TEXTHEADERS).as_ref();
         out_str += format!("NUMDES: {}, ", self.NUMDES).as_ref();
-        out_str += format!("DEXTHEADERS: {}, ", self.DEXTHEADERS).as_ref();
+        out_str += format!("DEXTHEADERS: [{}], ", self.DEXTHEADERS).as_ref();
         out_str += format!("NUMRES: {}, ", self.NUMRES).as_ref();
-        out_str += format!("RESHEADERS: {}, ", self.RESHEADERS).as_ref();
+        out_str += format!("RESHEADERS: [{}], ", self.RESHEADERS).as_ref();
         out_str += format!("UDHDL: {}, ", self.UDHDL).as_ref();
         out_str += format!("XHDL: {}", self.XHDL).as_ref();
         write!(f, "NitfHeader: [{}]", out_str)
@@ -134,7 +134,7 @@ impl NitfSegmentHeader for NitfHeader {
             6);
         self.NUMX.read(reader, 3);
         self.NUMT.read(reader, 3);
-        self.TEXTFILES.read(
+        self.TEXTHEADERS.read(
             reader, 
             &self.NUMT, 
             4, 

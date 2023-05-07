@@ -35,11 +35,11 @@ impl Nitf {
     pub fn from_reader(reader: &mut (impl Read + Seek)) -> Result<Self, FromUtf8Error> {
         let mut nitf = Self::default();
         nitf.nitf_header.read(reader, 0, 0);
-        let n_image: usize = String::from_utf8(nitf.nitf_header.meta.NUMI.bytes.to_vec()).unwrap().parse().unwrap();
+        let n_image: usize = nitf.nitf_header.meta.NUMI.string.parse().unwrap();
         for i_seg in 0..n_image {
             let seg_info = &nitf.nitf_header.meta.IMHEADERS.val[i_seg];
-            let header_size = String::from_utf8(seg_info.subheader_size.bytes.to_vec()).unwrap().parse().unwrap();
-            let data_size = String::from_utf8(seg_info.item_size.bytes.to_vec()).unwrap().parse().unwrap();
+            let header_size = seg_info.subheader_size.string.parse().unwrap();
+            let data_size = seg_info.item_size.string.parse().unwrap();
             let seg: Segment<ImageSegment, Vec<u8>> = Segment::from_reader(reader, header_size, data_size).unwrap();
             nitf.image_headers.push(seg);
         }
@@ -50,21 +50,21 @@ impl Nitf {
 impl Display for Nitf {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("{}", self.nitf_header).as_ref();
+        out_str += format!("[{}]", self.nitf_header).as_ref();
         for segment in &self.image_headers {
-            out_str += format!("{}", segment).as_ref();
+            out_str += format!("[{}]", segment).as_ref();
         }
         for segment in &self.graphics_headers {
-            out_str += format!("{}", segment).as_ref();
+            out_str += format!("[{}]", segment).as_ref();
         }
         for segment in &self.text_header {
-            out_str += format!("{}", segment).as_ref();
+            out_str += format!("[{}]", segment).as_ref();
         }
         for segment in &self.data_extension_headers {
-            out_str += format!("{}", segment).as_ref();
+            out_str += format!("[{}]", segment).as_ref();
         }
         for segment in &self.reserved_extension_header {
-            out_str += format!("{}", segment).as_ref();
+            out_str += format!("[{}]", segment).as_ref();
         }
         write!(f, "{}", out_str)
     }
