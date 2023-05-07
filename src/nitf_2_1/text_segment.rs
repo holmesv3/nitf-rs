@@ -3,7 +3,9 @@ use std::io::{Read, Seek};
 use std::fmt::Display;
 use std::string::FromUtf8Error;
 
-use crate::types::NitfField;
+use crate::nitf_2_1::types::NitfField;
+
+use super::types::NitfSegmentHeader;
 
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
@@ -87,33 +89,31 @@ impl Display for TextSegment {
         write!(f, "TextSegment: [{}]", out_str)
     }
 }
-impl TextSegment {
-    pub fn  from_reader(reader: &mut (impl Read + Seek)) -> Result<Self, FromUtf8Error> {
-        let mut txt_seg = TextSegment::default(); 
-        txt_seg.TE.read(reader, 2);
-        txt_seg.TEXTID.read(reader, 7);
-        txt_seg.TXTALVL.read(reader, 3);
-        txt_seg.TXTDT.read(reader, 14);
-        txt_seg.TXTTITL.read(reader, 80);
-        txt_seg.TSCLAS.read(reader, 1);
-        txt_seg.TSCLSY.read(reader, 2);
-        txt_seg.TSCODE.read(reader, 11);
-        txt_seg.TSCTLH.read(reader, 2);
-        txt_seg.TSREL.read(reader, 20);
-        txt_seg.TSDCTP.read(reader, 2);
-        txt_seg.TSDCDT.read(reader, 8);
-        txt_seg.TSDCXM.read(reader, 4);
-        txt_seg.TSDG.read(reader, 1);
-        txt_seg.TSDGDT.read(reader, 8);
-        txt_seg.TSCLTTX.read(reader, 43);
-        txt_seg.TSCATP.read(reader, 1);
-        txt_seg.TSCAUT.read(reader, 40);
-        txt_seg.TSCSN.read(reader, 1);
-        txt_seg.TSSRDT.read(reader, 8);
-        txt_seg.TSCTLN.read(reader, 15);
-        txt_seg.ENCRYP.read(reader, 1);
-        txt_seg.TXTFMT.read(reader, 3);
-        txt_seg.TXSHDL.read(reader, 5);
-        Ok(txt_seg)
+impl NitfSegmentHeader for TextSegment {
+    fn read(&mut self, reader: &mut (impl Read + Seek)) {
+        self.TE.read(reader, 2);
+        self.TEXTID.read(reader, 7);
+        self.TXTALVL.read(reader, 3);
+        self.TXTDT.read(reader, 14);
+        self.TXTTITL.read(reader, 80);
+        self.TSCLAS.read(reader, 1);
+        self.TSCLSY.read(reader, 2);
+        self.TSCODE.read(reader, 11);
+        self.TSCTLH.read(reader, 2);
+        self.TSREL.read(reader, 20);
+        self.TSDCTP.read(reader, 2);
+        self.TSDCDT.read(reader, 8);
+        self.TSDCXM.read(reader, 4);
+        self.TSDG.read(reader, 1);
+        self.TSDGDT.read(reader, 8);
+        self.TSCLTTX.read(reader, 43);
+        self.TSCATP.read(reader, 1);
+        self.TSCAUT.read(reader, 40);
+        self.TSCSN.read(reader, 1);
+        self.TSSRDT.read(reader, 8);
+        self.TSCTLN.read(reader, 15);
+        self.ENCRYP.read(reader, 1);
+        self.TXTFMT.read(reader, 3);
+        self.TXSHDL.read(reader, 5);
     }
 }

@@ -73,8 +73,11 @@
 // ††9 
 use std::io::{Read, Seek};
 use std::fmt::Display;
+use std::string::FromUtf8Error;
 
-use crate::types::NitfField;
+use crate::nitf_2_1::types::NitfField;
+
+use super::types::NitfSegmentHeader;
 
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
@@ -127,29 +130,56 @@ pub struct ReservedExtensionSegment {
 impl Display for ReservedExtensionSegment {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("{}", self.RE).as_ref();
-        out_str += format!("{}", self.RESID).as_ref();
-        out_str += format!("{}", self.RESVER).as_ref();
-        out_str += format!("{}", self.RECLAS).as_ref();
-        out_str += format!("{}", self.RECLSY).as_ref();
-        out_str += format!("{}", self.RECODE).as_ref();
-        out_str += format!("{}", self.RECTLH).as_ref();
-        out_str += format!("{}", self.REREL).as_ref();
-        out_str += format!("{}", self.REDCTP).as_ref();
-        out_str += format!("{}", self.REDCDT).as_ref();
-        out_str += format!("{}", self.REDCXM).as_ref();
-        out_str += format!("{}", self.REDG).as_ref();
-        out_str += format!("{}", self.REDGDT).as_ref();
-        out_str += format!("{}", self.RECLTX).as_ref();
-        out_str += format!("{}", self.RECATP).as_ref();
-        out_str += format!("{}", self.RECAUT).as_ref();
-        out_str += format!("{}", self.RECRSN).as_ref();
-        out_str += format!("{}", self.RESRDT).as_ref();
-        out_str += format!("{}", self.RECTLN).as_ref();
-        out_str += format!("{}", self.RESSHL).as_ref();
-        out_str += format!("{}", self.RESSHF).as_ref();
-        out_str += format!("{}", self.RESDATA).as_ref();
+        out_str += format!("\nRE: {}", self.RE).as_ref();
+        out_str += format!("\nRESID: {}", self.RESID).as_ref();
+        out_str += format!("\nRESVER: {}", self.RESVER).as_ref();
+        out_str += format!("\nRECLAS: {}", self.RECLAS).as_ref();
+        out_str += format!("\nRECLSY: {}", self.RECLSY).as_ref();
+        out_str += format!("\nRECODE: {}", self.RECODE).as_ref();
+        out_str += format!("\nRECTLH: {}", self.RECTLH).as_ref();
+        out_str += format!("\nREREL: {}", self.REREL).as_ref();
+        out_str += format!("\nREDCTP: {}", self.REDCTP).as_ref();
+        out_str += format!("\nREDCDT: {}", self.REDCDT).as_ref();
+        out_str += format!("\nREDCXM: {}", self.REDCXM).as_ref();
+        out_str += format!("\nREDG: {}", self.REDG).as_ref();
+        out_str += format!("\nREDGDT: {}", self.REDGDT).as_ref();
+        out_str += format!("\nRECLTX: {}", self.RECLTX).as_ref();
+        out_str += format!("\nRECATP: {}", self.RECATP).as_ref();
+        out_str += format!("\nRECAUT: {}", self.RECAUT).as_ref();
+        out_str += format!("\nRECRSN: {}", self.RECRSN).as_ref();
+        out_str += format!("\nRESRDT: {}", self.RESRDT).as_ref();
+        out_str += format!("\nRECTLN: {}", self.RECTLN).as_ref();
+        out_str += format!("\nRESSHL: {}", self.RESSHL).as_ref();
+        out_str += format!("\nRESSHF: {}", self.RESSHF).as_ref();
+        out_str += format!("\nRESDATA: {}", self.RESDATA).as_ref();
         write!(f, "ReservedExtensionSegment: [{}]", out_str)
+    }
+}
+impl NitfSegmentHeader for ReservedExtensionSegment {
+    fn read(&mut self, reader: &mut (impl Read + Seek)) {
+        self.RE.read(reader, 2);
+        self.RESID.read(reader, 25);
+        self.RESVER.read(reader, 2);
+        self.RECLAS.read(reader, 1);
+        self.RECLSY.read(reader, 2);
+        self.RECODE.read(reader, 11);
+        self.RECTLH.read(reader, 2);
+        self.REREL.read(reader, 20);
+        self.REDCTP.read(reader, 2);
+        self.REDCDT.read(reader, 8);
+        self.REDCXM.read(reader, 4);
+        self.REDG.read(reader, 1);
+        self.REDGDT.read(reader, 8);
+        self.RECLTX.read(reader, 43);
+        self.RECATP.read(reader, 1);
+        self.RECAUT.read(reader, 40);
+        self.RECRSN.read(reader, 1);
+        self.RESRDT.read(reader, 8);
+        self.RECTLN.read(reader, 15);
+        self.RESSHL.read(reader, 4);
+        let header_length: usize = String::from_utf8(self.RESSHL.bytes.to_vec()).unwrap().parse().unwrap();
+        self.RESSHF.read(reader, header_length);
+        // self.RESDATA.read(reader, data_length);
     }
 }
 

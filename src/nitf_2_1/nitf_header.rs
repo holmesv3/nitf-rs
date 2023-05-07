@@ -3,7 +3,7 @@ use std::io::{Read, Seek};
 use std::fmt::Display;
 use std::string::FromUtf8Error;
 
-use crate::types::*;
+use crate::nitf_2_1::types::*;
 
 // Struct definition
 #[allow(non_snake_case)]
@@ -148,77 +148,74 @@ impl Display for NitfHeader {
         write!(f, "NitfHeader: [{}]", out_str)
     }
 }
-impl NitfHeader {
-    pub fn from_reader(
-        reader: &mut (impl Read + Seek)
-    ) -> Result<Self, FromUtf8Error> {
-        let mut hdr = Self::default();
-        hdr.FHDR.read(reader, 4);
-        hdr.FVER.read(reader, 5);
-        hdr.CLEVEL.read(reader, 2);
-        hdr.STYPE.read(reader, 4);
-        hdr.OSTAID.read(reader, 10);
-        hdr.FDT.read(reader, 14);
-        hdr.FTITLE.read(reader, 80);
-        hdr.FSCLAS.read(reader, 1);
-        hdr.FSCLSY.read(reader, 2);
-        hdr.FSCODE.read(reader, 11);
-        hdr.FSCTLH.read(reader, 2);
-        hdr.FSREL.read(reader, 20);
-        hdr.FSDCTP.read(reader, 2);
-        hdr.FSDCDT.read(reader, 8);
-        hdr.FSDCXM.read(reader, 4);
-        hdr.FSDG.read(reader, 1);
-        hdr.FSDGDT.read(reader, 8);
-        hdr.FSCLTX.read(reader, 43);
-        hdr.FSCATP.read(reader, 1);
-        hdr.FSCAUT.read(reader, 40);
-        hdr.FSCRSN.read(reader, 1);
-        hdr.FSSRDT.read(reader, 8);
-        hdr.FSCTLN.read(reader, 15);
-        hdr.FSCOP.read(reader, 5);
-        hdr.FSCPYS.read(reader, 5);
-        hdr.ENCRYP.read(reader, 1);
-        hdr.FBKGC.read(reader, 3);
-        hdr.ONAME.read(reader, 24);
-        hdr.OPHONE.read(reader, 18);
-        hdr.FL.read(reader, 12);
-        hdr.HL.read(reader, 6);
-        hdr.NUMI.read(reader, 3);
-        hdr.IMHEADERS.read(
+impl NitfSegmentHeader for NitfHeader {
+    fn read(&mut self, reader: &mut (impl Read + Seek)) {
+        self.FHDR.read(reader, 4);
+        self.FVER.read(reader, 5);
+        self.CLEVEL.read(reader, 2);
+        self.STYPE.read(reader, 4);
+        self.OSTAID.read(reader, 10);
+        self.FDT.read(reader, 14);
+        self.FTITLE.read(reader, 80);
+        self.FSCLAS.read(reader, 1);
+        self.FSCLSY.read(reader, 2);
+        self.FSCODE.read(reader, 11);
+        self.FSCTLH.read(reader, 2);
+        self.FSREL.read(reader, 20);
+        self.FSDCTP.read(reader, 2);
+        self.FSDCDT.read(reader, 8);
+        self.FSDCXM.read(reader, 4);
+        self.FSDG.read(reader, 1);
+        self.FSDGDT.read(reader, 8);
+        self.FSCLTX.read(reader, 43);
+        self.FSCATP.read(reader, 1);
+        self.FSCAUT.read(reader, 40);
+        self.FSCRSN.read(reader, 1);
+        self.FSSRDT.read(reader, 8);
+        self.FSCTLN.read(reader, 15);
+        self.FSCOP.read(reader, 5);
+        self.FSCPYS.read(reader, 5);
+        self.ENCRYP.read(reader, 1);
+        self.FBKGC.read(reader, 3);
+        self.ONAME.read(reader, 24);
+        self.OPHONE.read(reader, 18);
+        self.FL.read(reader, 12);
+        self.HL.read(reader, 6);
+        self.NUMI.read(reader, 3);
+        self.IMHEADERS.read(
             reader, 
-            &hdr.NUMI, 
+            &self.NUMI, 
             6, 
             10);
-        hdr.NUMS.read(reader, 3);
-        hdr.GRAPHHEADERS.read(
+        self.NUMS.read(reader, 3);
+        self.GRAPHHEADERS.read(
             reader, 
-            &hdr.NUMS, 
+            &self.NUMS, 
             4, 
             6);
-        hdr.NUMX.read(reader, 3);
-        hdr.NUMT.read(reader, 3);
-        hdr.TEXTFILES.read(
+        self.NUMX.read(reader, 3);
+        self.NUMT.read(reader, 3);
+        self.TEXTFILES.read(
             reader, 
-            &hdr.NUMT, 
+            &self.NUMT, 
             4, 
             5);
-        hdr.NUMDES.read(reader, 3);
-        hdr.DEXTHEADERS.read(
+        self.NUMDES.read(reader, 3);
+        self.DEXTHEADERS.read(
             reader, 
-            &hdr.NUMDES, 
+            &self.NUMDES, 
             4, 
             9);
-        hdr.NUMRES.read(reader, 3);
-        hdr.RESHEADERS.read(
+        self.NUMRES.read(reader, 3);
+        self.RESHEADERS.read(
             reader, 
-            &hdr.NUMRES, 
+            &self.NUMRES, 
             4, 
             7);
-        hdr.UDHDL.read(reader, 5);
-        hdr.XHDL.read(reader, 5);
-        Ok(hdr)
+        self.UDHDL.read(reader, 5);
+        self.XHDL.read(reader, 5);
     }
 }
+
 
 

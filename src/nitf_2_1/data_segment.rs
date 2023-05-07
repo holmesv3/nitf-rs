@@ -1,7 +1,9 @@
 use std::io::{Read, Seek};
 use std::fmt::Display;
 
-use crate::types::NitfField;
+use crate::nitf_2_1::types::NitfField;
+
+use super::types::NitfSegmentHeader;
 
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
@@ -85,34 +87,32 @@ impl Display for DataExtensionSegment {
         write!(f, "DataExtension: [{}]", out_str)
     }
 }
-impl DataExtensionSegment {
-    pub fn from_reader(reader: &mut (impl Read + Seek)) -> Result<Self, std::io::Error> {
-        let mut data_ext = DataExtensionSegment::default();
-        data_ext.DE.read(reader, 2);
-        data_ext.DESID.read(reader, 25);
-        data_ext.DESVER.read(reader, 2);
-        data_ext.DECLAS.read(reader, 1);
-        data_ext.DESCLSY.read(reader, 2);
-        data_ext.DESCODE.read(reader, 11);
-        data_ext.DESCTLH.read(reader, 2);
-        data_ext.DESREL.read(reader, 20);
-        data_ext.DESDCTP.read(reader, 2);
-        data_ext.DESDCDT.read(reader, 8);
-        data_ext.DESDCXM.read(reader, 4);
-        data_ext.DESDG.read(reader, 1);
-        data_ext.DESDGDT.read(reader, 8);
-        data_ext.DESCLTX.read(reader, 43);
-        data_ext.DESCATP.read(reader, 1);
-        data_ext.DESCAUT.read(reader, 40);
-        data_ext.DESCRSN.read(reader, 1);
-        data_ext.DESSRDT.read(reader, 8);
-        data_ext.DESCTLN.read(reader, 15);
-        data_ext.DESOFLW.read(reader, 6);
-        data_ext.DESITEM.read(reader, 3);
-        data_ext.DESSHL.read(reader, 4);
-        // Todo, first is from above, second is from input (from nitf header value I think)
-        // data_ext.DESSHF.read(reader, );
-        // data_ext.DESDATA.read(reader, );
-        Ok(data_ext)
+impl NitfSegmentHeader for DataExtensionSegment {
+    fn read(&mut self, reader: &mut (impl Read + Seek)) {
+        self.DE.read(reader, 2);
+        self.DESID.read(reader, 25);
+        self.DESVER.read(reader, 2);
+        self.DECLAS.read(reader, 1);
+        self.DESCLSY.read(reader, 2);
+        self.DESCODE.read(reader, 11);
+        self.DESCTLH.read(reader, 2);
+        self.DESREL.read(reader, 20);
+        self.DESDCTP.read(reader, 2);
+        self.DESDCDT.read(reader, 8);
+        self.DESDCXM.read(reader, 4);
+        self.DESDG.read(reader, 1);
+        self.DESDGDT.read(reader, 8);
+        self.DESCLTX.read(reader, 43);
+        self.DESCATP.read(reader, 1);
+        self.DESCAUT.read(reader, 40);
+        self.DESCRSN.read(reader, 1);
+        self.DESSRDT.read(reader, 8);
+        self.DESCTLN.read(reader, 15);
+        self.DESOFLW.read(reader, 6);
+        self.DESITEM.read(reader, 3);
+        self.DESSHL.read(reader, 4);
+        let header_length: usize = String::from_utf8(self.DESSHL.bytes.to_vec()).unwrap().parse().unwrap();
+        self.DESSHF.read(reader, header_length);
+        // self.DESDATA.read(reader, data_length);
     }
 }

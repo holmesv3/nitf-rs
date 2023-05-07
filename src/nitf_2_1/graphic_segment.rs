@@ -3,7 +3,7 @@ use std::io::{Read, Seek};
 use std::fmt::Display;
 use std::string::FromUtf8Error;
 
-use crate::types::NitfField;
+use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader};
 
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
@@ -105,39 +105,37 @@ impl Display for GraphicSegment {
         write!(f, "Graphic Segment: [{}]", out_str)
     }
 }
-impl GraphicSegment {
-    pub fn from_reader(reader: &mut (impl Read + Seek)) -> Result<Self, FromUtf8Error> {
-        let mut gphx = GraphicSegment::default(); 
-        gphx.SY.read(reader, 2);
-        gphx.SID.read(reader, 10);
-        gphx.SNAME.read(reader, 20);
-        gphx.SSCLAS.read(reader, 1);
-        gphx.SSCLSY.read(reader, 2);
-        gphx.SSCODE.read(reader, 11);
-        gphx.SSCTLH.read(reader, 2);
-        gphx.SSREL.read(reader, 20);
-        gphx.SSDCTP.read(reader, 2);
-        gphx.SSDCDT.read(reader, 8);
-        gphx.SSDCXM.read(reader, 4);
-        gphx.SSDG.read(reader, 1);
-        gphx.SSDGDT.read(reader, 8);
-        gphx.SSCLTX.read(reader, 43);
-        gphx.SSCATP.read(reader, 1);
-        gphx.SSCAUT.read(reader, 40);
-        gphx.SSCRSN.read(reader, 1);
-        gphx.SSSRDT.read(reader, 8);
-        gphx.SSCTLN.read(reader, 15);
-        gphx.ENCRYP.read(reader, 1);
-        gphx.SFMT.read(reader, 1);
-        gphx.SSTRUCT.read(reader, 13);
-        gphx.SDLVL.read(reader, 3);
-        gphx.SALVL.read(reader, 3);
-        gphx.SLOC.read(reader, 10);
-        gphx.SBND1.read(reader, 10);
-        gphx.SCOLOR.read(reader, 1);
-        gphx.SBND2.read(reader, 10);
-        gphx.SRES2.read(reader, 2);
-        gphx.SXSHDL.read(reader, 5);
-        Ok(gphx)
+impl NitfSegmentHeader for GraphicSegment {
+    fn read(&mut self, reader: &mut (impl Read + Seek)) {
+        self.SY.read(reader, 2);
+        self.SID.read(reader, 10);
+        self.SNAME.read(reader, 20);
+        self.SSCLAS.read(reader, 1);
+        self.SSCLSY.read(reader, 2);
+        self.SSCODE.read(reader, 11);
+        self.SSCTLH.read(reader, 2);
+        self.SSREL.read(reader, 20);
+        self.SSDCTP.read(reader, 2);
+        self.SSDCDT.read(reader, 8);
+        self.SSDCXM.read(reader, 4);
+        self.SSDG.read(reader, 1);
+        self.SSDGDT.read(reader, 8);
+        self.SSCLTX.read(reader, 43);
+        self.SSCATP.read(reader, 1);
+        self.SSCAUT.read(reader, 40);
+        self.SSCRSN.read(reader, 1);
+        self.SSSRDT.read(reader, 8);
+        self.SSCTLN.read(reader, 15);
+        self.ENCRYP.read(reader, 1);
+        self.SFMT.read(reader, 1);
+        self.SSTRUCT.read(reader, 13);
+        self.SDLVL.read(reader, 3);
+        self.SALVL.read(reader, 3);
+        self.SLOC.read(reader, 10);
+        self.SBND1.read(reader, 10);
+        self.SCOLOR.read(reader, 1);
+        self.SBND2.read(reader, 10);
+        self.SRES2.read(reader, 2);
+        self.SXSHDL.read(reader, 5);
     }
 }
