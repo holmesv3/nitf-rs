@@ -21,7 +21,7 @@ pub fn read_nitf(path: Option<&Path>) -> Result<Nitf, FromUtf8Error> {
     match path {
         Some(path) => {
             let mut reader = File::open(path).unwrap();
-            return Nitf::from_reader(&mut reader)
+            return Nitf::from_file(&mut reader)
         }
         None => return Ok(Nitf::default())
     }

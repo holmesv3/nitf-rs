@@ -1,6 +1,9 @@
 use std::io::{Read, Seek};
+use std::fs::File;
 use std::fmt::Display;
+use std::slice::SliceIndex;
 use std::string::FromUtf8Error;
+use memmap2::Mmap;
 
 /// Inidividual element type
 /// 
@@ -173,18 +176,30 @@ pub trait NitfSegmentHeader where Self: Sized + Default {
     }
 }
 
-/// Nitf segment header interface definition
+/// Nitf segment data interface definition
 pub trait NitfSegmentData where Self: Sized {
     fn read(&mut self, reader: &mut (impl Read + Seek));
 }
 
+impl NitfSegmentData for Vec<u8> {
+    #[allow(unused)]
+    fn read(&mut self, reader: &mut (impl Read + Seek)) {
+        todo!()
+    }
+}
+impl NitfSegmentData for Mmap {
+    #[allow(unused)]
+    fn read(&mut self, reader: &mut (impl Read + Seek)) {
+        todo!()
+    }
+}
 
 /// Segment structure definition
 /// 
 ///     // Header metadata fields defined in module
 ///     pub meta: T
-///     // Segment data, probably should use mem-map thingy
-///     pub data: Vec<u8>
+///     // Segment data
+///     data: Vec<u8>
 ///     // Byte offset of header start
 ///     pub header_offset: u64
 ///     // Byte size of header
@@ -193,12 +208,12 @@ pub trait NitfSegmentData where Self: Sized {
 ///     pub data_offset: u64
 ///     // Data size in bytes
 ///     pub data_size: usize
-#[derive(Default, Clone, Hash, Debug)]
+#[derive(Default, Debug)]
 pub struct Segment<T, U> {
     /// Header fields defined in module
     pub meta: T,
-    /// Segment data, probably should use mem-map thingy
-    pub data: U,
+    /// Segment data, must define function interface for access
+    data: U,
     /// Byte offset of header start
     pub header_offset: u64,
     /// Byte size of header
@@ -217,10 +232,9 @@ where
         write!(f, "{}", self.meta)
     }
 } 
-impl<T, U> Segment<T, U> 
+impl<T> Segment<T, Vec<u8>> 
 where 
     T: NitfSegmentHeader + Default,
-    U: NitfSegmentData + Default
 {
     pub fn from_reader(reader: &mut (impl Read + Seek), header_size: usize, data_size: usize,) -> Result<Self, FromUtf8Error> {
         let mut seg = Self::default();
@@ -230,7 +244,7 @@ where
         seg.data_offset = seg.header_offset + (header_size as u64);
 
         seg.meta.read(reader);
-        // TODO: Read data
+        // seg.data = 
         Ok(seg)
     }
     pub fn read(&mut self, reader: &mut (impl Read + Seek), header_size: usize, data_size: usize) {
@@ -242,6 +256,41 @@ where
         if header_size == 0 {
             self.header_size = (reader.stream_position().unwrap() - self.header_offset) as usize; 
         }
+    }
+}
+impl<T> Segment<T, Mmap> 
+where 
+    T: NitfSegmentHeader + Default,
+{  
+    pub fn from_file(reader: &mut File, header_size: usize, data_size: usize,) -> Result<Self, FromUtf8Error> {
+        let header_offset = reader.stream_position().unwrap();
+        let data_offset = header_offset + (header_size as u64);
+        let seg = Self { 
+            meta: T::from_reader(reader), 
+            data: Self::make_mmap(reader), 
+            header_offset, 
+            header_size, 
+            data_offset, 
+            data_size, 
+        };
+        return Ok(seg)
+    }
+    pub fn read(&mut self, reader: &mut (impl Read + Seek), header_size: usize, data_size: usize) {
+        self.header_size = header_size;
+        self.data_size = data_size;
+        self.header_offset = reader.stream_position().unwrap();
+        self.data_offset = self.header_offset + (header_size as u64);
+        self.meta.read(reader);
+        if header_size == 0 {
+            self.header_size = (reader.stream_position().unwrap() - self.header_offset) as usize; 
+            self.data_offset = reader.stream_position().unwrap(); 
+        }
+    }
+    fn make_mmap(file: &File) -> Mmap {
+        unsafe {Mmap::map(file).unwrap()}
+    }
+    pub fn read_data(&self) -> Vec<u8> {
+        self.data[..].to_vec()
     }
 }
 

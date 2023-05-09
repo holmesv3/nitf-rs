@@ -1,5 +1,20 @@
 //! Functions to interface with NITF Header
 
+use std::fs::File;
+use std::io::{Read, Seek, SeekFrom};
+use std::fmt::Display;
+use std::string::FromUtf8Error;
+
+use  memmap2::Mmap;
+
+use nitf_header::NitfHeader;
+use image_segment::ImageSegment;
+use graphic_segment::GraphicSegment;
+use text_segment::TextSegment;
+use data_segment::DataExtensionSegment;
+use reserved_segment::ReservedExtensionSegment;
+use types::Segment;
+
 pub mod types;
 pub mod nitf_header;
 pub mod image_segment;
@@ -8,31 +23,23 @@ pub mod text_segment;
 pub mod data_segment;
 pub mod reserved_segment;
 
-use nitf_header::NitfHeader;
-use image_segment::ImageSegment;
-use graphic_segment::GraphicSegment;
-use text_segment::TextSegment;
-use data_segment::DataExtensionSegment;
-use reserved_segment::ReservedExtensionSegment;
-
-use types::{Segment, NitfSegmentData};
-
-use std::io::{Read, Seek, SeekFrom};
-use std::fmt::Display;
-use std::string::FromUtf8Error;
-
-#[derive(Default, Clone, Hash, Debug)]
+#[derive(Default, Debug)]
 pub struct Nitf {
     pub nitf_header: Segment<NitfHeader, Vec<u8>>,
-    pub image_headers: Vec<Segment<ImageSegment, Vec<u8>>>,
+    pub image_headers: Vec<Segment<ImageSegment, Mmap>>,
     pub graphics_headers: Vec<Segment<GraphicSegment, Vec<u8>>>,
     pub text_header: Vec<Segment<TextSegment, Vec<u8>>>,
     pub data_extension_headers: Vec<Segment<DataExtensionSegment, Vec<u8>>>,
     pub reserved_extension_header: Vec<Segment<ReservedExtensionSegment, Vec<u8>>>,
 }
 
+impl From<&mut File> for Nitf {
+    fn from(value: &mut File) -> Self {
+        Self::from_file(value).unwrap()
+    }
+}
 impl Nitf {
-    pub fn from_reader(reader: &mut (impl Read + Seek)) -> Result<Self, FromUtf8Error> {
+    pub fn from_file(reader: &mut File) -> Result<Self, FromUtf8Error> {
         let mut nitf = Self::default();
         nitf.nitf_header.read(reader, 0, 0);
         let n_image: usize = nitf.nitf_header.meta.NUMI.string.parse().unwrap();
@@ -40,7 +47,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.IMHEADERS.val[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
             let data_size = seg_info.item_size.string.parse().unwrap();
-            let seg: Segment<ImageSegment, Vec<u8>> = Segment::from_reader(reader, header_size, data_size).unwrap();
+            let seg: Segment<ImageSegment, Mmap> = Segment::from_file(reader, header_size, data_size).unwrap();
             nitf.image_headers.push(seg);
         }
         Ok(nitf)
@@ -67,13 +74,6 @@ impl Display for Nitf {
             out_str += format!("[{}]", segment).as_ref();
         }
         write!(f, "{}", out_str)
-    }
-}
-
-impl NitfSegmentData for Vec<u8> {
-    #[allow(unused)]
-    fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        todo!()
     }
 }
 
