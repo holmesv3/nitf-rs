@@ -1,5 +1,5 @@
 use std::io::{Read, Seek};
-use std::ops::RangeBounds;
+use std::ops::{RangeBounds, Deref};
 use std::ops::Bound;
 use std::fs::File;
 use std::fmt::Display;
@@ -119,7 +119,7 @@ where
         let data_offset = header_offset + (header_size as u64);
         let seg = Self { 
             meta: T::from_reader(reader), 
-            data: Self::make_mmap(reader), 
+            data: unsafe {Mmap::map(reader.deref()).unwrap()}, 
             header_offset, 
             header_size, 
             data_offset, 
@@ -138,9 +138,9 @@ where
             self.data_offset = reader.stream_position().unwrap(); 
         }
     }
-    fn make_mmap(file: &File) -> Mmap {
-        unsafe {Mmap::map(file).unwrap()}
-    }
+
+        
+
     pub fn read_data_bytes(&self, index: impl RangeBounds<usize>) -> &[u8] {
         let data_start = self.data_offset as usize;
         let data_end = self.data_size + data_start;

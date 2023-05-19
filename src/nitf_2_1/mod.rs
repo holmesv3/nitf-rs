@@ -1,4 +1,4 @@
-//! Functions to interface with NITF Header
+//! Functions to interface with NITF
 
 /// TODO
 pub mod types{
@@ -23,11 +23,11 @@ pub mod data_segment;
 pub mod reserved_segment;
 
 use std::fs::File;
-use std::io::{Read, Seek, SeekFrom};
+use std::io::{Read, Seek, SeekFrom::Current};
 use std::fmt::Display;
 use std::string::FromUtf8Error;
 
-use  memmap2::Mmap;
+use memmap2::Mmap;
 
 use nitf_header::NitfHeader;
 use image_segment::ImageSegment;
@@ -93,11 +93,11 @@ impl Display for Nitf {
 }
 
 /// Read first two bytes of next segment,  rewind pointer
-fn get_next_segment(reader: &mut (impl Read + Seek)) -> String {
+fn _get_next_segment(reader: &mut (impl Read + Seek)) -> String {
     let mut val = vec![0u8, 0u8];
     // Read two bytes
     reader.read(&mut val).unwrap();
     // Rewind the two bytes
-    reader.seek(SeekFrom::Current(-2)).unwrap();
+    reader.seek(Current(-2)).unwrap();
     String::from_utf8(val).unwrap().parse().unwrap()
 }

@@ -1,6 +1,7 @@
 use std::io::{Read, Seek};
 use std::fmt::Display;
 
+// TODO: Consider making this generic, use enums to ensure fields are valid.
 /// Inidividual element type
 /// 
 ///     // Vector of bytes
