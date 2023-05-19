@@ -1,5 +1,27 @@
 //! Functions to interface with NITF Header
 
+/// TODO
+pub mod types{
+    // This style makes all of the structs and traits 
+    // visible, without the module in the middle
+    mod field;
+    mod security;
+    mod segment;
+    mod subheader;
+
+    pub use field::*;
+    pub use security::*;
+    pub use segment::*;
+    pub use subheader::*;    
+}
+
+pub mod nitf_header;
+pub mod image_segment;
+pub mod graphic_segment;
+pub mod text_segment;
+pub mod data_segment;
+pub mod reserved_segment;
+
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 use std::fmt::Display;
@@ -15,13 +37,6 @@ use data_segment::DataExtensionSegment;
 use reserved_segment::ReservedExtensionSegment;
 use types::Segment;
 
-pub mod types;
-pub mod nitf_header;
-pub mod image_segment;
-pub mod graphic_segment;
-pub mod text_segment;
-pub mod data_segment;
-pub mod reserved_segment;
 
 #[derive(Default, Debug)]
 pub struct Nitf {
