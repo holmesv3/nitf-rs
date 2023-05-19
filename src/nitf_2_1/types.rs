@@ -290,7 +290,10 @@ where
         unsafe {Mmap::map(file).unwrap()}
     }
     pub fn read_data(&self) -> Vec<u8> {
-        self.data[..].to_vec()
+        let data_start = self.data_offset as usize;
+        let data_end = self.data_size + data_start;
+        let data_range = data_start..data_end;
+        self.data[data_range].to_vec()
     }
 }
 
