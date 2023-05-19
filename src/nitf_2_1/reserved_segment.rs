@@ -1,22 +1,21 @@
-use std::io::{Read, Seek};
 use std::fmt::Display;
+use std::io::{Read, Seek};
 
 use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
-
 
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ReservedExtensionSegment {
     /// File Part Type
-    pub RE: NitfField, 
+    pub RE: NitfField,
     /// Unique RES Type Identifier
-    pub RESID: NitfField, 
+    pub RESID: NitfField,
     /// Version of the Data Definition
-    pub RESVER: NitfField, 
+    pub RESVER: NitfField,
     /// Security information
     pub SECURITY: Security,
     /// User-defined Subheader Length
-    pub RESSHL: NitfField, 
+    pub RESSHL: NitfField,
     /// User-Defined Subheader Fields
     pub RESSHF: NitfField,
     /// User-Defined Data
@@ -47,23 +46,3 @@ impl NitfSegmentHeader for ReservedExtensionSegment {
         // self.RESDATA.read(reader, data_length);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

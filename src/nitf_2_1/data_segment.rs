@@ -1,8 +1,7 @@
-use std::io::{Read, Seek};
 use std::fmt::Display;
+use std::io::{Read, Seek};
 
-use crate::nitf_2_1::types::{NitfField, Security, NitfSegmentHeader};
-
+use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
 
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
@@ -50,7 +49,10 @@ impl NitfSegmentHeader for DataExtensionSegment {
         self.DESOFLW.read(reader, 6);
         self.DESITEM.read(reader, 3);
         self.DESSHL.read(reader, 4);
-        let header_length: usize = String::from_utf8(self.DESSHL.bytes.to_vec()).unwrap().parse().unwrap();
+        let header_length: usize = String::from_utf8(self.DESSHL.bytes.to_vec())
+            .unwrap()
+            .parse()
+            .unwrap();
         self.DESSHF.read(reader, header_length);
         // self.DESDATA.read(reader, data_length);
     }

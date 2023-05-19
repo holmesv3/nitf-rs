@@ -1,8 +1,8 @@
 //! Functions to interface with NITF
 
 /// TODO
-pub mod types{
-    // This style makes all of the structs and traits 
+pub mod types {
+    // This style makes all of the structs and traits
     // visible, without the module in the middle
     mod field;
     mod security;
@@ -12,31 +12,30 @@ pub mod types{
     pub use field::*;
     pub use security::*;
     pub use segment::*;
-    pub use subheader::*;    
+    pub use subheader::*;
 }
 
-pub mod nitf_header;
-pub mod image_segment;
-pub mod graphic_segment;
-pub mod text_segment;
 pub mod data_segment;
+pub mod graphic_segment;
+pub mod image_segment;
+pub mod nitf_header;
 pub mod reserved_segment;
+pub mod text_segment;
 
+use std::fmt::Display;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom::Current};
-use std::fmt::Display;
 use std::string::FromUtf8Error;
 
 use memmap2::Mmap;
 
-use nitf_header::NitfHeader;
-use image_segment::ImageSegment;
-use graphic_segment::GraphicSegment;
-use text_segment::TextSegment;
 use data_segment::DataExtensionSegment;
+use graphic_segment::GraphicSegment;
+use image_segment::ImageSegment;
+use nitf_header::NitfHeader;
 use reserved_segment::ReservedExtensionSegment;
+use text_segment::TextSegment;
 use types::Segment;
-
 
 #[derive(Default, Debug)]
 pub struct Nitf {
@@ -62,11 +61,12 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.IMHEADERS.val[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
             let data_size = seg_info.item_size.string.parse().unwrap();
-            let seg: Segment<ImageSegment, Mmap> = Segment::from_file(reader, header_size, data_size).unwrap();
+            let seg: Segment<ImageSegment, Mmap> =
+                Segment::from_file(reader, header_size, data_size).unwrap();
             nitf.image_headers.push(seg);
         }
         Ok(nitf)
-    }   
+    }
 }
 
 impl Display for Nitf {

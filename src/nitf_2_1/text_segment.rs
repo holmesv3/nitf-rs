@@ -1,29 +1,29 @@
 //! Text segment definition
-use std::io::{Read, Seek};
 use std::fmt::Display;
+use std::io::{Read, Seek};
 
 use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
 
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TextSegment {
-    /// File Part Type 
+    /// File Part Type
     pub TE: NitfField,
-    /// Text Identifier 
+    /// Text Identifier
     pub TEXTID: NitfField,
-    /// Text Attachment Level 
+    /// Text Attachment Level
     pub TXTALVL: NitfField,
-    /// Text Date and Time 
+    /// Text Date and Time
     pub TXTDT: NitfField,
-    /// Text Title 
+    /// Text Title
     pub TXTTITL: NitfField,
     /// Security information
     pub SECURITY: Security,
-    /// Encryption 
+    /// Encryption
     pub ENCRYP: NitfField,
-    /// Text Format 
+    /// Text Format
     pub TXTFMT: NitfField,
-    /// Text Extended Subheader Data Length 
+    /// Text Extended Subheader Data Length
     pub TXSHDL: NitfField,
 }
 impl Display for TextSegment {

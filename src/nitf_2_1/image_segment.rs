@@ -1,6 +1,6 @@
 //! Image header definition
-use std::io::{Read, Seek};
 use std::fmt::Display;
+use std::io::{Read, Seek};
 
 use crate::nitf_2_1::types::*;
 
@@ -135,7 +135,7 @@ impl Display for ImageSegment {
         out_str += format!("IXSHDL: {}, ", self.IXSHDL).as_ref();
         out_str += format!("IXSOFL: {}, ", self.IXSOFL).as_ref();
         out_str += format!("IXSHD: {}", self.IXSHD).as_ref();
-        return write!(f, "ImageSegment: [{}]", out_str)
+        return write!(f, "ImageSegment: [{}]", out_str);
     }
 }
 impl NitfSegmentHeader for ImageSegment {
@@ -158,7 +158,7 @@ impl NitfSegmentHeader for ImageSegment {
         self.ICORDS.read(reader, 1);
         self.IGEOLO.read(reader, 60);
         self.NICOM.read(reader, 1);
-        self.ICOMS.read_vec(reader,&self.NICOM, 80);
+        self.ICOMS.read_vec(reader, &self.NICOM, 80);
         self.IC.read(reader, 2);
         self.NBANDS.read(reader, 1);
         // If NBANDS = 0, use XBANDS
@@ -214,7 +214,7 @@ impl Display for Band {
         out_str += format!("NLUTS: {}, ", self.NLUTS).as_ref();
         out_str += format!("NELUT: {}, ", self.NELUT).as_ref();
         out_str += format!("LUTD: [{}]", self.LUTD).as_ref();
-        return write!(f, "{}", out_str)
+        return write!(f, "{}", out_str);
     }
 }
 impl Band {
@@ -224,7 +224,7 @@ impl Band {
         self.IFC.read(reader, 1);
         self.IMFLT.read(reader, 3);
         self.NLUTS.read(reader, 1);
-        if self.NLUTS.string != "0" { 
+        if self.NLUTS.string != "0" {
             self.NELUT.read(reader, 5);
             self.LUTD.read_vec(reader, &self.NLUTS, 1);
         }
@@ -232,10 +232,13 @@ impl Band {
 }
 
 fn bands_from_reader(elem: &NitfField, reader: &mut (impl Read + Seek)) -> Vec<Band> {
-    let n_band: usize = String::from_utf8(elem.bytes.to_vec()).unwrap().parse().unwrap();
+    let n_band: usize = String::from_utf8(elem.bytes.to_vec())
+        .unwrap()
+        .parse()
+        .unwrap();
     let mut bands: Vec<Band> = vec![Band::default(); n_band];
     for band in &mut bands {
         band.read(reader)
     }
-    return bands
+    return bands;
 }

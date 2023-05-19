@@ -1,5 +1,5 @@
-use std::io::{Read, Seek};
 use std::fmt::Display;
+use std::io::{Read, Seek};
 
 use super::*;
 
@@ -58,7 +58,7 @@ impl Display for Security {
         out_str += format!("CRSN: {}, ", self.CRSN).as_ref();
         out_str += format!("SRDT: {}, ", self.SRDT).as_ref();
         out_str += format!("CTLN: {}", self.CTLN).as_ref();
-        return write!(f, "{}", out_str)
+        return write!(f, "{}", out_str);
     }
 }
 impl Security {

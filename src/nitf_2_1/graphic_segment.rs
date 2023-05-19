@@ -1,6 +1,6 @@
 //! Graphic segment definition
-use std::io::{Read, Seek};
 use std::fmt::Display;
+use std::io::{Read, Seek};
 
 use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
 
@@ -40,7 +40,7 @@ pub struct GraphicSegment {
 }
 impl Display for GraphicSegment {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut out_str = String::default(); 
+        let mut out_str = String::default();
         out_str += format!("SY: {}, ", self.SY).as_ref();
         out_str += format!("SID: {}, ", self.SID).as_ref();
         out_str += format!("SNAME: {}, ", self.SNAME).as_ref();

@@ -1,6 +1,6 @@
 //! Header definition
-use std::io::{Read, Seek};
 use std::fmt::Display;
+use std::io::{Read, Seek};
 
 use crate::nitf_2_1::types::*;
 
@@ -121,40 +121,17 @@ impl NitfSegmentHeader for NitfHeader {
         self.FL.read(reader, 12);
         self.HL.read(reader, 6);
         self.NUMI.read(reader, 3);
-        self.IMHEADERS.read(
-            reader, 
-            &self.NUMI, 
-            6, 
-            10);
+        self.IMHEADERS.read(reader, &self.NUMI, 6, 10);
         self.NUMS.read(reader, 3);
-        self.GRAPHHEADERS.read(
-            reader, 
-            &self.NUMS, 
-            4, 
-            6);
+        self.GRAPHHEADERS.read(reader, &self.NUMS, 4, 6);
         self.NUMX.read(reader, 3);
         self.NUMT.read(reader, 3);
-        self.TEXTHEADERS.read(
-            reader, 
-            &self.NUMT, 
-            4, 
-            5);
+        self.TEXTHEADERS.read(reader, &self.NUMT, 4, 5);
         self.NUMDES.read(reader, 3);
-        self.DEXTHEADERS.read(
-            reader, 
-            &self.NUMDES, 
-            4, 
-            9);
+        self.DEXTHEADERS.read(reader, &self.NUMDES, 4, 9);
         self.NUMRES.read(reader, 3);
-        self.RESHEADERS.read(
-            reader, 
-            &self.NUMRES, 
-            4, 
-            7);
+        self.RESHEADERS.read(reader, &self.NUMRES, 4, 7);
         self.UDHDL.read(reader, 5);
         self.XHDL.read(reader, 5);
     }
 }
-
-
-

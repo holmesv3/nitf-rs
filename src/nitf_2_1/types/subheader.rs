@@ -1,12 +1,12 @@
-use std::io::{Read, Seek};
 use std::fmt::Display;
+use std::io::{Read, Seek};
 
 use super::*;
 
 /// Subheader element type
-/// 
+///
 /// Used within the NITF header to denote the subheader segments contained in the file
-/// 
+///
 ///     /// Bytes of header description
 ///     pub subheader_size: Vec<u8>,
 ///     /// Bytes of the data
@@ -19,39 +19,39 @@ pub struct NitfSubHeader {
     pub item_size: NitfField,
 }
 impl NitfSubHeader {
-    pub fn read(
-        &mut self, 
-        reader: &mut (impl Read + Seek), 
-        sh_size: usize,
-        item_size: usize) {
+    pub fn read(&mut self, reader: &mut (impl Read + Seek), sh_size: usize, item_size: usize) {
         self.subheader_size.read(reader, sh_size);
         self.item_size.read(reader, item_size);
     }
 }
 impl Display for NitfSubHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        return write!(f, "[{}, {}]", &self.subheader_size.string, &self.item_size.string)
+        return write!(
+            f,
+            "[{}, {}]",
+            &self.subheader_size.string, &self.item_size.string
+        );
     }
 }
 
-
 /// Subheader vector type
-/// 
+///
 ///     /// Vector of subheader info
-///     pub val: Vec<NitfSubHeader>, 
+///     pub val: Vec<NitfSubHeader>,
 #[derive(Default, Clone, Hash, Debug)]
-pub struct NitfSubHeaderVec { 
+pub struct NitfSubHeaderVec {
     /// Vector of subheader info
-    pub val: Vec<NitfSubHeader>, 
+    pub val: Vec<NitfSubHeader>,
 }
-impl NitfSubHeaderVec{
+impl NitfSubHeaderVec {
     pub fn read(
-        &mut self, 
-        reader: &mut (impl Read + Seek), 
+        &mut self,
+        reader: &mut (impl Read + Seek),
         n_subheader: &NitfField,
         sh_size: usize,
-        item_size: usize) {
-        let n_seg: usize = n_subheader.string.parse().unwrap();    
+        item_size: usize,
+    ) {
+        let n_seg: usize = n_subheader.string.parse().unwrap();
         for _ in 0..n_seg {
             let mut seg = NitfSubHeader::default();
             seg.read(reader, sh_size, item_size);
@@ -68,4 +68,3 @@ impl Display for NitfSubHeaderVec {
         write!(f, "{}", out_str)
     }
 }
-
