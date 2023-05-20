@@ -1,9 +1,11 @@
 # nitf-rs
+|crates|_ |discord|_
 .. |crates| image:: https://img.shields.io/crates/v/nitf-rs
    :alt: nitf-rs at crates.io
 .. _crates: https://crates.io/crates/nitf-rs
 
 .. |discord| image:: https://img.shields.io/discord/1109246714721865810
+.. _discord: https://discord.com/channels/1109246714721865810/1109246715208400899
 
 A rust NITF file interface
 
