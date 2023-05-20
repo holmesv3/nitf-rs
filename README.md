@@ -7,6 +7,8 @@ A rust NITF file interface
 
 Current project goals are
 - Finish implementing version 2.1 reading, maybe writing
+- Implement some form of 'cloud reading' to fetch files from something like s3 bucket
+  - Could provide more exhaustive testing, as an actual file could be parsed without needing to store it locally
 - Expand into a SICD file reader 
 - Provide `Python` bindings 
 
