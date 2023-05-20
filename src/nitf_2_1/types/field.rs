@@ -17,7 +17,7 @@ pub struct NitfField {
     /// Vector of bytes
     pub bytes: Vec<u8>,
     /// Byte offset in file
-    pub offset: u64,
+    pub offset: usize,
     /// String representation of field
     pub string: String,
     /// Length of byte vector
@@ -29,7 +29,7 @@ impl NitfField {
         for _ in 0..n_bytes {
             self.bytes.push(0u8)
         }
-        self.offset = reader.stream_position().unwrap();
+        self.offset = reader.stream_position().unwrap() as usize;
         reader.read(&mut self.bytes).unwrap();
         let result = String::from_utf8(self.bytes.to_vec());
         match result {

@@ -59,11 +59,11 @@ pub struct Nitf {
 
 impl From<&mut File> for Nitf {
     fn from(value: &mut File) -> Self {
-        Self::from_file(value).unwrap()
+        Self::from_file(value)
     }
 }
 impl Nitf {
-    pub fn from_file(reader: &mut File) -> Result<Self, FromUtf8Error> {
+    pub fn from_file(reader: &mut File) -> Self {
         let mut nitf = Self::default();
         nitf.nitf_header.read(reader, 0, 0);
 
@@ -77,7 +77,7 @@ impl Nitf {
             nitf.image_segments.push(seg);
         }
 
-        let mut n_seg: usize = nitf.nitf_header.meta.NUMS.string.parse().unwrap();
+        n_seg = nitf.nitf_header.meta.NUMS.string.parse().unwrap();
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.meta.GRAPHHEADERS.val[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
@@ -107,7 +107,7 @@ impl Nitf {
             nitf.data_extension_segments.push(seg);
         }
 
-        n_seg = nitf.nitf_header.meta.NUMDES.string.parse().unwrap();
+        n_seg = nitf.nitf_header.meta.NUMRES.string.parse().unwrap();
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.meta.RESHEADERS.val[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
@@ -117,7 +117,7 @@ impl Nitf {
             nitf.reserved_extension_segments.push(seg);
         }
 
-        return Ok(nitf);
+        return nitf;
     }
 }
 

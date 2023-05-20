@@ -22,13 +22,23 @@ use nitf_2_1::Nitf;
 /// Construct a `Nitf` object from a file `path`.
 ///
 /// If `path` is `None`, returns `Nitf::default()`
-pub fn read_nitf(path: Option<&Path>) -> Result<Nitf, FromUtf8Error> {
+/// 
+/// # Example
+/// 
+///     use std::path::Path;
+///     use nitf_rs::read_nitf;
+/// 
+///     fn main() {
+///     
+///     }
+/// 
+pub fn read_nitf(path: Option<&Path>) -> Nitf {
     match path {
         Some(path) => {
             let mut reader = File::open(path).unwrap();
             return Nitf::from_file(&mut reader);
         }
-        None => return Ok(Nitf::default()),
+        None => return Nitf::default(),
     }
 }
 
@@ -71,12 +81,6 @@ mod tests {
 
     #[test]
     fn test_read_nitf() {
-        let res = read_nitf(None);
-        let pass: bool;
-        match res {
-            Ok(_) => pass = true,
-            Err(_) => pass = false,
-        }
-        assert!(pass == true)
+        let _res = read_nitf(None);
     }
 }

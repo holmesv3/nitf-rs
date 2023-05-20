@@ -1,6 +1,6 @@
 use std::fmt::Display;
 use std::fs::File;
-use std::io::{Read, Seek};
+use std::io::{Read, Seek, SeekFrom::Current};
 use std::ops::Bound;
 use std::ops::{Deref, RangeBounds};
 
@@ -134,6 +134,8 @@ where
             data_offset,
             data_size,
         };
+        // Move pointer to end of data
+        reader.seek(Current(data_size as i64)).unwrap();
         return Ok(seg);
     }
     pub fn read(&mut self, reader: &mut (impl Read + Seek), header_size: usize, data_size: usize) {

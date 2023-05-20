@@ -46,14 +46,15 @@ impl NitfSegmentHeader for DataExtensionSegmentHeader {
         self.DESID.read(reader, 25);
         self.DESVER.read(reader, 2);
         self.SECURITY.read(reader);
-        self.DESOFLW.read(reader, 6);
-        self.DESITEM.read(reader, 3);
+        if self.DESID.string == "             TRE_OVERFLOW" { // 25 characters
+            self.DESOFLW.read(reader, 6);
+            self.DESITEM.read(reader, 3);
+        }
         self.DESSHL.read(reader, 4);
-        let header_length: usize = String::from_utf8(self.DESSHL.bytes.to_vec())
-            .unwrap()
-            .parse()
-            .unwrap();
-        self.DESSHF.read(reader, header_length);
+        let header_length: usize = self.DESSHL.string.parse().unwrap();
+        if header_length != 0 {
+            self.DESSHF.read(reader, header_length);
+        }
         // self.DESDATA.read(reader, data_length);
     }
 }
