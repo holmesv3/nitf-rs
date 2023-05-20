@@ -6,7 +6,7 @@ use crate::nitf_2_1::types::*;
 
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ImageSegment {
+pub struct ImageSegmentHeader {
     /// File Part Type
     pub IM: NitfField,
     /// Image Identifier 1
@@ -91,7 +91,7 @@ pub struct ImageSegment {
     pub IXSHD: NitfField,
 }
 
-impl Display for ImageSegment {
+impl Display for ImageSegmentHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         out_str += format!("IM: {}, ", self.IM).as_ref();
@@ -138,7 +138,7 @@ impl Display for ImageSegment {
         return write!(f, "ImageSegment: [{}]", out_str);
     }
 }
-impl NitfSegmentHeader for ImageSegment {
+impl NitfSegmentHeader for ImageSegmentHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {
         self.IM.read(reader, 2);
         self.IID1.read(reader, 10);

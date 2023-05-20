@@ -5,7 +5,7 @@ use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
 
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ReservedExtensionSegment {
+pub struct ReservedExtensionSegmentHeader {
     /// File Part Type
     pub RE: NitfField,
     /// Unique RES Type Identifier
@@ -21,7 +21,7 @@ pub struct ReservedExtensionSegment {
     /// User-Defined Data
     pub RESDATA: NitfField,
 }
-impl Display for ReservedExtensionSegment {
+impl Display for ReservedExtensionSegmentHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         out_str += format!("RE: {}, ", self.RE).as_ref();
@@ -34,7 +34,7 @@ impl Display for ReservedExtensionSegment {
         write!(f, "ReservedExtensionSegment: [{}]", out_str)
     }
 }
-impl NitfSegmentHeader for ReservedExtensionSegment {
+impl NitfSegmentHeader for ReservedExtensionSegmentHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {
         self.RE.read(reader, 2);
         self.RESID.read(reader, 25);

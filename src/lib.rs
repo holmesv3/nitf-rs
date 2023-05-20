@@ -11,7 +11,7 @@ use std::path::Path;
 use std::string::FromUtf8Error;
 
 use ndarray::Array2;
-use nitf_2_1::image_segment::ImageSegment;
+use nitf_2_1::image_segment::ImageSegmentHeader;
 use nitf_2_1::types::Segment;
 use num_complex::Complex32;
 
@@ -36,7 +36,9 @@ pub fn read_nitf(path: Option<&Path>) -> Result<Nitf, FromUtf8Error> {
 /// Read image data from `image_header` into an array
 ///
 /// Only supports `Complex32` data
-pub fn data_to_array(image_header: &Segment<ImageSegment, memmap2::Mmap>) -> Array2<Complex32> {
+pub fn data_to_array(
+    image_header: &Segment<ImageSegmentHeader, memmap2::Mmap>,
+) -> Array2<Complex32> {
     let n_row: usize = image_header.meta.NROWS.string.parse().unwrap();
     let n_col: usize = image_header.meta.NCOLS.string.parse().unwrap();
 

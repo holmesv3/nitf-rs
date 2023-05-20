@@ -50,7 +50,7 @@ pub struct NitfHeader {
     pub GRAPHHEADERS: NitfSubHeaderVec,
     /// Reserved for future use
     pub NUMX: NitfField,
-    /// Number of Text Files
+    /// Number of Text Segments
     pub NUMT: NitfField,
     /// Text Segments
     pub TEXTHEADERS: NitfSubHeaderVec,

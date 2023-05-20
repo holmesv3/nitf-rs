@@ -6,7 +6,7 @@ use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
 
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
-pub struct GraphicSegment {
+pub struct GraphicSegmentHeader {
     /// File Part Type
     pub SY: NitfField,
     /// Graphic Identifier
@@ -38,7 +38,7 @@ pub struct GraphicSegment {
     /// Graphic Extended Subheader Data Length
     pub SXSHDL: NitfField,
 }
-impl Display for GraphicSegment {
+impl Display for GraphicSegmentHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         out_str += format!("SY: {}, ", self.SY).as_ref();
@@ -59,7 +59,7 @@ impl Display for GraphicSegment {
         write!(f, "Graphic Segment: [{}]", out_str)
     }
 }
-impl NitfSegmentHeader for GraphicSegment {
+impl NitfSegmentHeader for GraphicSegmentHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {
         self.SY.read(reader, 2);
         self.SID.read(reader, 10);

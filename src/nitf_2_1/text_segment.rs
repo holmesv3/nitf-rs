@@ -6,7 +6,7 @@ use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
 
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
-pub struct TextSegment {
+pub struct TextSegmentHeader {
     /// File Part Type
     pub TE: NitfField,
     /// Text Identifier
@@ -26,7 +26,7 @@ pub struct TextSegment {
     /// Text Extended Subheader Data Length
     pub TXSHDL: NitfField,
 }
-impl Display for TextSegment {
+impl Display for TextSegmentHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         out_str += format!("TE: {}, ", self.TE).as_ref();
@@ -41,7 +41,7 @@ impl Display for TextSegment {
         write!(f, "TextSegment: [{}]", out_str)
     }
 }
-impl NitfSegmentHeader for TextSegment {
+impl NitfSegmentHeader for TextSegmentHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {
         self.TE.read(reader, 2);
         self.TEXTID.read(reader, 7);

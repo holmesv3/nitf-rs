@@ -5,7 +5,7 @@ use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
 
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
-pub struct DataExtensionSegment {
+pub struct DataExtensionSegmentHeader {
     // File Part Type
     pub DE: NitfField,
     // Unique DES Type Identifier
@@ -25,7 +25,7 @@ pub struct DataExtensionSegment {
     // DES User-Defined Data
     pub DESDATA: NitfField,
 }
-impl Display for DataExtensionSegment {
+impl Display for DataExtensionSegmentHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         out_str += format!("DE: {}, ", self.DE).as_ref();
@@ -40,7 +40,7 @@ impl Display for DataExtensionSegment {
         write!(f, "DataExtension: [{}]", out_str)
     }
 }
-impl NitfSegmentHeader for DataExtensionSegment {
+impl NitfSegmentHeader for DataExtensionSegmentHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {
         self.DE.read(reader, 2);
         self.DESID.read(reader, 25);
