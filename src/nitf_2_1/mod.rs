@@ -59,11 +59,11 @@ pub struct Nitf {
 
 impl From<&mut File> for Nitf {
     fn from(value: &mut File) -> Self {
-        Self::from_file(value)
+        Self::from_file(value).unwrap()
     }
 }
 impl Nitf {
-    pub fn from_file(reader: &mut File) -> Self {
+    pub fn from_file(reader: &mut File) -> Result<Self, FromUtf8Error> {
         let mut nitf = Self::default();
         nitf.nitf_header.read(reader, 0, 0);
 
@@ -117,7 +117,7 @@ impl Nitf {
             nitf.reserved_extension_segments.push(seg);
         }
 
-        return nitf;
+        return Ok(nitf);
     }
 }
 
