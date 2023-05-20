@@ -1,7 +1,7 @@
 # nitf-rs
 
 [![crates.io](https://img.shields.io/crates/v/nitf-rs)](https://crates.io/crates/nitf-rs)
-[![Discord](https://img.shields.io/discord/1109246714721865810)](https://discord.gg/Kg7NwN4XgS)
+[![Discord](https://img.shields.io/discord/1109246714721865810?label=discord&logo=discord&logoColor=white&style=for-the-badge&color=blue)](https://discord.gg/Kg7NwN4XgS)
 
 A rust NITF file interface
 
