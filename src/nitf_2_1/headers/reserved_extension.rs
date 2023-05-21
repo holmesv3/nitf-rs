@@ -3,9 +3,12 @@ use std::io::{Read, Seek};
 
 use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
 
+/// Metadata for Reserved Extension Segment
+/// 
+/// RESDATA is accessed through [Segment] `read_data()` function
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ReservedExtensionSegmentHeader {
+pub struct ReservedExtensionHeader {
     /// File Part Type
     pub RE: NitfField,
     /// Unique RES Type Identifier
@@ -21,7 +24,7 @@ pub struct ReservedExtensionSegmentHeader {
     /// User-Defined Data
     pub RESDATA: NitfField,
 }
-impl Display for ReservedExtensionSegmentHeader {
+impl Display for ReservedExtensionHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         out_str += format!("RE: {}, ", self.RE).as_ref();
@@ -34,15 +37,16 @@ impl Display for ReservedExtensionSegmentHeader {
         write!(f, "ReservedExtensionSegment: [{}]", out_str)
     }
 }
-impl NitfSegmentHeader for ReservedExtensionSegmentHeader {
+impl NitfSegmentHeader for ReservedExtensionHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        self.RE.read(reader, 2);
-        self.RESID.read(reader, 25);
-        self.RESVER.read(reader, 2);
+        self.RE.read(reader, 2u8);
+        self.RESID.read(reader, 25u8);
+        self.RESVER.read(reader, 2u8);
         self.SECURITY.read(reader);
-        self.RESSHL.read(reader, 4);
-        let header_length: usize = self.RESSHL.string.parse().unwrap();
-        self.RESSHF.read(reader, header_length);
-        // self.RESDATA.read(reader, data_length);
+        self.RESSHL.read(reader, 4u8);
+        let user_data_length: u32 = self.RESSHL.string.parse().unwrap();
+        if user_data_length != 0 {
+            self.RESSHF.read(reader, user_data_length);
+        }
     }
 }

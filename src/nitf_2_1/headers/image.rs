@@ -1,12 +1,15 @@
-//! Image header definition
+//! Image Segment definition
+//! 
+//! Need to implement data mask - which also means need to implement some kind of nicer parsing (enums, among other things)
 use std::fmt::Display;
 use std::io::{Read, Seek};
 
 use crate::nitf_2_1::types::*;
 
+/// Metadata for Image Segment
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
-pub struct ImageSegmentHeader {
+pub struct ImageHeader {
     /// File Part Type
     pub IM: NitfField,
     /// Image Identifier 1
@@ -91,7 +94,7 @@ pub struct ImageSegmentHeader {
     pub IXSHD: NitfField,
 }
 
-impl Display for ImageSegmentHeader {
+impl Display for ImageHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         out_str += format!("IM: {}, ", self.IM).as_ref();
@@ -138,72 +141,82 @@ impl Display for ImageSegmentHeader {
         return write!(f, "ImageSegment: [{}]", out_str);
     }
 }
-impl NitfSegmentHeader for ImageSegmentHeader {
+impl NitfSegmentHeader for ImageHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        self.IM.read(reader, 2);
-        self.IID1.read(reader, 10);
-        self.IDATIM.read(reader, 14);
-        self.TGTID.read(reader, 17);
-        self.IID2.read(reader, 80);
+        self.IM.read(reader, 2u8);
+        self.IID1.read(reader, 10u8);
+        self.IDATIM.read(reader, 14u8);
+        self.TGTID.read(reader, 17u8);
+        self.IID2.read(reader, 80u8);
         self.SECURITY.read(reader);
-        self.ENCRYP.read(reader, 1);
-        self.ISORCE.read(reader, 42);
-        self.NROWS.read(reader, 8);
-        self.NCOLS.read(reader, 8);
-        self.PVTYPE.read(reader, 3);
-        self.IREP.read(reader, 8);
-        self.ICAT.read(reader, 8);
-        self.ABPP.read(reader, 2);
-        self.PJUST.read(reader, 1);
-        self.ICORDS.read(reader, 1);
-        self.IGEOLO.read(reader, 60);
-        self.NICOM.read(reader, 1);
+        self.ENCRYP.read(reader, 1u8);
+        self.ISORCE.read(reader, 42u8);
+        self.NROWS.read(reader, 8u8);
+        self.NCOLS.read(reader, 8u8);
+        self.PVTYPE.read(reader, 3u8);
+        self.IREP.read(reader, 8u8);
+        self.ICAT.read(reader, 8u8);
+        self.ABPP.read(reader, 2u8);
+        self.PJUST.read(reader, 1u8);
+        self.ICORDS.read(reader, 1u8);
+        self.IGEOLO.read(reader, 60u8);
+        self.NICOM.read(reader, 1u8);
         self.ICOMS.read_vec(reader, &self.NICOM, 80);
-        self.IC.read(reader, 2);
-        self.NBANDS.read(reader, 1);
+        self.IC.read(reader, 2u8);
+        self.NBANDS.read(reader, 1u8);
         // If NBANDS = 0, use XBANDS
         if self.NBANDS.string != "0" {
             self.BANDS = bands_from_reader(&self.NBANDS, reader)
         } else {
-            self.XBANDS.read(reader, 5);
+            self.XBANDS.read(reader, 5u8);
             self.BANDS = bands_from_reader(&self.XBANDS, reader)
         }
-        self.ISYNC.read(reader, 1);
-        self.IMODE.read(reader, 1);
-        self.NBPR.read(reader, 4);
-        self.NBPC.read(reader, 4);
-        self.NPPBH.read(reader, 4);
-        self.NPPBV.read(reader, 4);
-        self.NBPP.read(reader, 2);
-        self.IDLVL.read(reader, 3);
-        self.IALVL.read(reader, 3);
-        self.ILOC.read(reader, 10);
-        self.IMAG.read(reader, 4);
-        self.UDIDL.read(reader, 5);
-        let udi_data_length: usize = self.UDIDL.string.parse().unwrap();
+        self.ISYNC.read(reader, 1u8);
+        self.IMODE.read(reader, 1u8);
+        self.NBPR.read(reader, 4u8);
+        self.NBPC.read(reader, 4u8);
+        self.NPPBH.read(reader, 4u8);
+        self.NPPBV.read(reader, 4u8);
+        self.NBPP.read(reader, 2u8);
+        self.IDLVL.read(reader, 3u8);
+        self.IALVL.read(reader, 3u8);
+        self.ILOC.read(reader, 10u8);
+        self.IMAG.read(reader, 4u8);
+        self.UDIDL.read(reader, 5u8);
+        let udi_data_length: u32 = self.UDIDL.string.parse().unwrap();
         if udi_data_length != 0 {
-            self.UDOFL.read(reader, 3);
-            self.UDID.read(reader, (udi_data_length - 3) as usize);
+            self.UDOFL.read(reader, 3u8);
+            self.UDID.read(reader, udi_data_length - 3);
         }
-        self.IXSHDL.read(reader, 5);
-        let ixsh_data_length: usize = self.IXSHDL.string.parse().unwrap();
+        self.IXSHDL.read(reader, 5u8);
+        let ixsh_data_length: u32 = self.IXSHDL.string.parse().unwrap();
         if ixsh_data_length != 0 {
-            self.IXSOFL.read(reader, 3);
-            self.IXSHD.read(reader, (ixsh_data_length - 3) as usize);
+            self.IXSOFL.read(reader, 3u8);
+            self.IXSHD.read(reader, ixsh_data_length - 3);
         }
     }
 }
+
+/// Struct for Band metadata
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Band {
+    /// Band Representation
     pub IREPBAND: NitfField,
+    /// Band Subcategory
     pub ISUBCAT: NitfField,
+    /// Band Image Filter Condition
     pub IFC: NitfField,
+    /// Band Standard Image Filter Code 
     pub IMFLT: NitfField,
+    /// Number of Look-Up-Tables for the Image Band
     pub NLUTS: NitfField,
+    /// Number of Look-Up-Table Entries for the Image Band
     pub NELUT: NitfField,
+    /// Image Band Look-Up-Tables
     pub LUTD: NitfFieldVec,
 }
+
 impl Display for Band {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
@@ -217,25 +230,24 @@ impl Display for Band {
         return write!(f, "{}", out_str);
     }
 }
+
 impl Band {
     pub fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        self.IREPBAND.read(reader, 2);
-        self.ISUBCAT.read(reader, 6);
-        self.IFC.read(reader, 1);
-        self.IMFLT.read(reader, 3);
-        self.NLUTS.read(reader, 1);
+        self.IREPBAND.read(reader, 2u8);
+        self.ISUBCAT.read(reader, 6u8);
+        self.IFC.read(reader, 1u8);
+        self.IMFLT.read(reader, 3u8);
+        self.NLUTS.read(reader, 1u8);
         if self.NLUTS.string != "0" {
-            self.NELUT.read(reader, 5);
+            self.NELUT.read(reader, 5u8);
             self.LUTD.read_vec(reader, &self.NLUTS, 1);
         }
     }
 }
 
+/// Helper function for parsing bands
 fn bands_from_reader(elem: &NitfField, reader: &mut (impl Read + Seek)) -> Vec<Band> {
-    let n_band: usize = String::from_utf8(elem.bytes.to_vec())
-        .unwrap()
-        .parse()
-        .unwrap();
+    let n_band: usize = elem.string.parse().unwrap();
     let mut bands: Vec<Band> = vec![Band::default(); n_band];
     for band in &mut bands {
         band.read(reader)

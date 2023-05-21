@@ -4,9 +4,10 @@ use std::io::{Read, Seek};
 
 use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
 
+/// Header fields for Graphic Segment
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
-pub struct GraphicSegmentHeader {
+pub struct GraphicHeader {
     /// File Part Type
     pub SY: NitfField,
     /// Graphic Identifier
@@ -37,8 +38,12 @@ pub struct GraphicSegmentHeader {
     pub SRES2: NitfField,
     /// Graphic Extended Subheader Data Length
     pub SXSHDL: NitfField,
+    /// Graphic Extended Subheader Overflow
+    pub SXSOFL: NitfField,
+    /// Graphic Extended Subheader Data
+    pub SXSHD: NitfField,
 }
-impl Display for GraphicSegmentHeader {
+impl Display for GraphicHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         out_str += format!("SY: {}, ", self.SY).as_ref();
@@ -56,25 +61,32 @@ impl Display for GraphicSegmentHeader {
         out_str += format!("SBND2: {}, ", self.SBND2).as_ref();
         out_str += format!("SRES2: {}, ", self.SRES2).as_ref();
         out_str += format!("SXSHDL: {}", self.SXSHDL).as_ref();
+        out_str += format!("SXSOFL: {}", self.SXSOFL).as_ref();
+        out_str += format!("SXSHD: {}", self.SXSHD).as_ref();
         write!(f, "Graphic Segment: [{}]", out_str)
     }
 }
-impl NitfSegmentHeader for GraphicSegmentHeader {
+impl NitfSegmentHeader for GraphicHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        self.SY.read(reader, 2);
-        self.SID.read(reader, 10);
-        self.SNAME.read(reader, 20);
+        self.SY.read(reader, 2u8);
+        self.SID.read(reader, 10u8);
+        self.SNAME.read(reader, 20u8);
         self.SECURITY.read(reader);
-        self.ENCRYP.read(reader, 1);
-        self.SFMT.read(reader, 1);
-        self.SSTRUCT.read(reader, 13);
-        self.SDLVL.read(reader, 3);
-        self.SALVL.read(reader, 3);
-        self.SLOC.read(reader, 10);
-        self.SBND1.read(reader, 10);
-        self.SCOLOR.read(reader, 1);
-        self.SBND2.read(reader, 10);
-        self.SRES2.read(reader, 2);
-        self.SXSHDL.read(reader, 5);
+        self.ENCRYP.read(reader, 1u8);
+        self.SFMT.read(reader, 1u8);
+        self.SSTRUCT.read(reader, 13u8);
+        self.SDLVL.read(reader, 3u8);
+        self.SALVL.read(reader, 3u8);
+        self.SLOC.read(reader, 10u8);
+        self.SBND1.read(reader, 10u8);
+        self.SCOLOR.read(reader, 1u8);
+        self.SBND2.read(reader, 10u8);
+        self.SRES2.read(reader, 2u8);
+        self.SXSHDL.read(reader, 5u8);
+        let gphx_data_length: u32 = self.SXSHDL.string.parse().unwrap();
+        if gphx_data_length != 0 {
+            self.SXSOFL.read(reader, 3u8);
+            self.SXSHD.read(reader, gphx_data_length - 3);
+        }
     }
 }
