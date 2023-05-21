@@ -1,4 +1,4 @@
-//! Functions to interface with NITF version 2.1
+//! Interface for NITF version 2.1
 
 pub mod types;
 pub mod subheaders;
@@ -18,8 +18,7 @@ use types::{Segment, DataSegment};
 
 /// Top level NITF interface
 ///
-/// Collection of [Segment] objects
-///  
+/// Collection of [Segment] and [DataSegment] objects
 #[derive(Default, Debug)]
 pub struct Nitf {
     /// Nitf file header. See [NitfHeader] for `meta` fields
@@ -36,11 +35,6 @@ pub struct Nitf {
     pub reserved_extension_segments: Vec<DataSegment<ReservedExtensionHeader>>,
 }
 
-impl From<&mut File> for Nitf {
-    fn from(value: &mut File) -> Self {
-        Self::from_file(value)
-    }
-}
 impl Nitf {
     pub fn from_file(reader: &mut File) -> Self {
         let mut nitf = Self::default();

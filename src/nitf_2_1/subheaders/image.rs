@@ -1,4 +1,4 @@
-//! Image Segment definition
+//! Image segment definition
 //! 
 //! Need to implement data mask - which also means need to implement some kind of nicer parsing (enums, among other things)
 use std::fmt::Display;

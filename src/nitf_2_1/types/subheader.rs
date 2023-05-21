@@ -1,16 +1,11 @@
+//! Subheader element type
 use std::fmt::Display;
 use std::io::{Read, Seek};
-
 use super::*;
 
 /// Subheader element type
 ///
 /// Used within the NITF header to denote the subheader segments contained in the file
-///
-///     /// Bytes of header description
-///     pub subheader_size: Vec<u8>,
-///     /// Bytes of the data
-///     pub item_size: Vec<u8>,
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NitfSubHeader {
     /// Bytes of header description
@@ -34,7 +29,7 @@ impl Display for NitfSubHeader {
     }
 }
 
-/// Subheader vector type
+/// Subheader vector type - slated for removal
 ///
 ///     /// Vector of subheader info
 ///     pub val: Vec<NitfSubHeader>,

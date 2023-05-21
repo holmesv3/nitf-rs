@@ -1,4 +1,4 @@
-//! Base type/trait definitions used throughout library
+//! Base type/trait definitions used throughout crate
 
 // This style makes all of the structs and traits
 // visible, without the module in the middle

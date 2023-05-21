@@ -1,4 +1,4 @@
-//! Header definition
+//! File header definition
 use std::fmt::Display;
 use std::io::{Read, Seek};
 

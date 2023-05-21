@@ -1,8 +1,10 @@
+//! Data Extension segment subheader definition
 use std::fmt::Display;
 use std::io::{Read, Seek};
 
 use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
 
+/// Metadata for Data Extension Segment
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct DataExtensionHeader {
