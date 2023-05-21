@@ -8,11 +8,10 @@
 
 use std::fs::File;
 use std::path::Path;
-use std::string::FromUtf8Error;
 
 use ndarray::Array2;
-use nitf_2_1::image_segment::ImageSegmentHeader;
-use nitf_2_1::types::Segment;
+use nitf_2_1::headers::image::ImageHeader;
+use nitf_2_1::types::DataSegment;
 use num_complex::Complex32;
 
 pub mod nitf_2_1;
@@ -47,7 +46,7 @@ pub fn read_nitf(path: Option<&Path>) -> Nitf {
 ///
 /// Only supports `Complex32` data
 pub fn data_to_array(
-    image_header: &Segment<ImageSegmentHeader, memmap2::Mmap>,
+    image_header: &DataSegment<ImageHeader>,
 ) -> Array2<Complex32> {
     let n_row: usize = image_header.meta.NROWS.string.parse().unwrap();
     let n_col: usize = image_header.meta.NCOLS.string.parse().unwrap();
