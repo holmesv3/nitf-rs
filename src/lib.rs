@@ -21,16 +21,14 @@ use nitf_2_1::Nitf;
 /// Construct a `Nitf` object from a file `path`.
 ///
 /// If `path` is `None`, returns `Nitf::default()`
-/// 
+///
 /// # Example
-/// 
+///
 ///     use std::path::Path;
 ///     use nitf_rs::read_nitf;
-/// 
-///     fn main() {
-///     
-///     }
-/// 
+///
+///     let nitf_path = Path::new(<path-to-file>);
+///     let nitf = read_nitf(Some(nitf_path));
 pub fn read_nitf(path: Option<&Path>) -> Nitf {
     match path {
         Some(path) => {
@@ -45,9 +43,7 @@ pub fn read_nitf(path: Option<&Path>) -> Nitf {
 /// Read image data from `image_header` into an array
 ///
 /// Only supports `Complex32` data
-pub fn data_to_array(
-    image_header: &DataSegment<ImageHeader>,
-) -> Array2<Complex32> {
+pub fn data_to_array(image_header: &DataSegment<ImageHeader>) -> Array2<Complex32> {
     let n_row: usize = image_header.meta.NROWS.string.parse().unwrap();
     let n_col: usize = image_header.meta.NCOLS.string.parse().unwrap();
 

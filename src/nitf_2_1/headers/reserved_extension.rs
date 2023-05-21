@@ -4,7 +4,7 @@ use std::io::{Read, Seek};
 use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
 
 /// Metadata for Reserved Extension Segment
-/// 
+///
 /// RESDATA is accessed through [Segment] `read_data()` function
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]

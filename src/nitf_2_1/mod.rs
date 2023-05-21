@@ -1,19 +1,19 @@
 //! Functions to interface with NITF version 2.1
 
-pub mod types;
 pub mod headers;
+pub mod types;
 
 use std::fmt::Display;
 use std::fs::File;
 
-use headers::*;
 use data_extension::DataExtensionHeader;
 use graphic::GraphicHeader;
+use headers::*;
 use image::ImageHeader;
 use nitf_header::NitfHeader;
 use reserved_extension::ReservedExtensionHeader;
 use text::TextHeader;
-use types::{Segment, DataSegment};
+use types::{DataSegment, Segment};
 
 /// Top level NITF interface
 ///
@@ -60,8 +60,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.GRAPHHEADERS.val[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
             let _data_size: u64 = seg_info.item_size.string.parse().unwrap();
-            let seg: Segment<GraphicHeader> =
-                Segment::from_reader(reader, header_size).unwrap();
+            let seg: Segment<GraphicHeader> = Segment::from_reader(reader, header_size).unwrap();
             nitf.graphic_segments.push(seg);
         }
 
@@ -70,8 +69,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.TEXTHEADERS.val[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
             let _data_size: u64 = seg_info.item_size.string.parse().unwrap();
-            let seg: Segment<TextHeader> =
-                Segment::from_reader(reader, header_size).unwrap();
+            let seg: Segment<TextHeader> = Segment::from_reader(reader, header_size).unwrap();
             nitf.text_segments.push(seg);
         }
 

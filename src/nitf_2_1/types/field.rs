@@ -58,12 +58,7 @@ pub struct NitfFieldVec {
 }
 impl NitfFieldVec {
     /// Read `n_field` [NitfField]s of `n_bytes` each
-    pub fn read_vec(
-        &mut self,
-        reader: &mut (impl Read + Seek),
-        n_field: &NitfField,
-        n_bytes: u64,
-    ) {
+    pub fn read_vec(&mut self, reader: &mut (impl Read + Seek), n_field: &NitfField, n_bytes: u64) {
         let n_elem_str = String::from_utf8(n_field.bytes.to_vec()).unwrap();
         let n_elem: usize = match n_elem_str.parse() {
             Ok(uint) => uint,

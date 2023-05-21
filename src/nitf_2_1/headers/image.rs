@@ -1,5 +1,5 @@
 //! Image Segment definition
-//! 
+//!
 //! Need to implement data mask - which also means need to implement some kind of nicer parsing (enums, among other things)
 use std::fmt::Display;
 use std::io::{Read, Seek};
@@ -207,7 +207,7 @@ pub struct Band {
     pub ISUBCAT: NitfField,
     /// Band Image Filter Condition
     pub IFC: NitfField,
-    /// Band Standard Image Filter Code 
+    /// Band Standard Image Filter Code
     pub IMFLT: NitfField,
     /// Number of Look-Up-Tables for the Image Band
     pub NLUTS: NitfField,

@@ -59,7 +59,7 @@ where
 impl<T: NitfSegmentHeader + Default> Segment<T> {
     pub fn from_reader(
         reader: &mut (impl Read + Seek),
-        header_size: u64,  // TODO refactor to not usize
+        header_size: u64, // TODO refactor to not usize
     ) -> Result<Self, FromUtf8Error> {
         let mut seg = Self::default();
         seg.read_header(reader, header_size);
