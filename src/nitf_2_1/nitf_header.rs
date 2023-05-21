@@ -4,7 +4,7 @@ use std::io::{Read, Seek};
 
 use crate::nitf_2_1::types::*;
 
-// Metadata for Nitf Header
+/// Metadata for Nitf File Header
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NitfHeader {
