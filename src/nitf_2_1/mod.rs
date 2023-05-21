@@ -1,12 +1,13 @@
 //! Functions to interface with NITF version 2.1
 
 pub mod types;
-pub mod headers;
+pub mod subheaders;
+pub mod nitf_header;
 
 use std::fmt::Display;
 use std::fs::File;
 
-use headers::*;
+use subheaders::*;
 use data_extension::DataExtensionHeader;
 use graphic::GraphicHeader;
 use image::ImageHeader;
