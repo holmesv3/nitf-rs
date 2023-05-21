@@ -19,7 +19,7 @@ pub struct NitfSubHeader {
     pub item_size: NitfField,
 }
 impl NitfSubHeader {
-    pub fn read(&mut self, reader: &mut (impl Read + Seek), sh_size: usize, item_size: usize) {
+    pub fn read(&mut self, reader: &mut (impl Read + Seek), sh_size: u64, item_size: u64) {
         self.subheader_size.read(reader, sh_size);
         self.item_size.read(reader, item_size);
     }
@@ -44,12 +44,17 @@ pub struct NitfSubHeaderVec {
     pub val: Vec<NitfSubHeader>,
 }
 impl NitfSubHeaderVec {
+    /// Read subheaders into a vector
+    /// 
+    /// - `n_subheader` defines how many to read
+    /// - `sh_size` defines how many bytes each subheader is
+    /// - `item_size` defines the data length in bytes
     pub fn read(
         &mut self,
         reader: &mut (impl Read + Seek),
         n_subheader: &NitfField,
-        sh_size: usize,
-        item_size: usize,
+        sh_size: u64,
+        item_size: u64,
     ) {
         let n_seg: usize = n_subheader.string.parse().unwrap();
         for _ in 0..n_seg {

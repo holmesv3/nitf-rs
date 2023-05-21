@@ -17,19 +17,19 @@ pub struct NitfField {
     /// Vector of bytes
     pub bytes: Vec<u8>,
     /// Byte offset in file
-    pub offset: usize,
+    pub offset: u64,
     /// String representation of field
     pub string: String,
     /// Length of byte vector
-    length: usize,
+    pub length: u64,
 }
 impl NitfField {
-    pub fn read(&mut self, reader: &mut (impl Read + Seek), n_bytes: usize) {
-        self.length = n_bytes;
-        for _ in 0..n_bytes {
+    pub fn read<T: Sized + Into<u64>>(&mut self, reader: &mut (impl Read + Seek), n_bytes: T) {
+        self.length = n_bytes.into();
+        for _ in 0..self.length {
             self.bytes.push(0u8)
         }
-        self.offset = reader.stream_position().unwrap() as usize;
+        self.offset = reader.stream_position().unwrap();
         reader.read(&mut self.bytes).unwrap();
         let result = String::from_utf8(self.bytes.to_vec());
         match result {
@@ -57,11 +57,12 @@ pub struct NitfFieldVec {
     pub val: Vec<NitfField>,
 }
 impl NitfFieldVec {
+    /// Read `n_field` [NitfField]s of `n_bytes` each
     pub fn read_vec(
         &mut self,
         reader: &mut (impl Read + Seek),
         n_field: &NitfField,
-        n_bytes: usize,
+        n_bytes: u64,
     ) {
         let n_elem_str = String::from_utf8(n_field.bytes.to_vec()).unwrap();
         let n_elem: usize = match n_elem_str.parse() {

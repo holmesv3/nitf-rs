@@ -63,21 +63,21 @@ impl Display for Security {
 }
 impl Security {
     pub fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        self.CLAS.read(reader, 1);
-        self.CLSY.read(reader, 2);
-        self.CODE.read(reader, 11);
-        self.CTLH.read(reader, 2);
-        self.REL.read(reader, 20);
-        self.DCTP.read(reader, 2);
-        self.DCDT.read(reader, 8);
-        self.DCXM.read(reader, 4);
-        self.DG.read(reader, 1);
-        self.DGDT.read(reader, 8);
-        self.CLTX.read(reader, 43);
-        self.CATP.read(reader, 1);
-        self.CAUT.read(reader, 40);
-        self.CRSN.read(reader, 1);
-        self.SRDT.read(reader, 8);
-        self.CTLN.read(reader, 15);
+        self.CLAS.read(reader, 1u8);
+        self.CLSY.read(reader, 2u8);
+        self.CODE.read(reader, 11u8);
+        self.CTLH.read(reader, 2u8);
+        self.REL.read(reader, 20u8);
+        self.DCTP.read(reader, 2u8);
+        self.DCDT.read(reader, 8u8);
+        self.DCXM.read(reader, 4u8);
+        self.DG.read(reader, 1u8);
+        self.DGDT.read(reader, 8u8);
+        self.CLTX.read(reader, 43u8);
+        self.CATP.read(reader, 1u8);
+        self.CAUT.read(reader, 40u8);
+        self.CRSN.read(reader, 1u8);
+        self.SRDT.read(reader, 8u8);
+        self.CTLN.read(reader, 15u8);
     }
 }
