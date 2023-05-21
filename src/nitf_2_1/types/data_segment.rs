@@ -26,17 +26,17 @@ impl NitfSegmentData for Mmap {
 /// Segment structure definition
 ///
 ///     // Header metadata fields defined in module
-///     pub meta: T
+///     pub meta: T,
 ///     // Segment data
-///     data: Vec<u8>
+///     data: Mmap,
 ///     // Byte offset of header start
-///     pub header_offset: u64
+///     pub header_offset: u64,
 ///     // Byte size of header
-///     pub header_size: usize
+///     pub header_size: usize,
 ///     // Data byte offset
-///     pub data_offset: u64
+///     pub data_offset: u64,
 ///     // Data size in bytes
-///     pub data_size: usize
+///     pub data_size: usize,
 #[derive(Debug)]
 pub struct DataSegment<T> {
     /// Header fields defined in module
