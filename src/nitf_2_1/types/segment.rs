@@ -5,8 +5,6 @@ use std::io::{Read, Seek};
 
 use std::string::FromUtf8Error;
 
-use memmap2::Mmap;
-
 /// Nitf segment header interface definition
 ///
 /// Provide implementation for `read()`, `from_reader` defined automatically.
@@ -65,10 +63,10 @@ impl<T: NitfSegmentHeader + Default> Segment<T> {
         data_size: usize,
     ) -> Result<Self, FromUtf8Error> {
         let mut seg = Self::default();
-        seg.read_header(reader, header_size, data_size);
+        seg.read_header(reader, header_size);
         Ok(seg)
     }
-    pub fn read_header(&mut self, reader: &mut (impl Read + Seek), header_size: usize, data_size: usize) {
+    pub fn read_header(&mut self, reader: &mut (impl Read + Seek), header_size: usize) {
         self.header_size = header_size;
         self.header_offset = reader.stream_position().unwrap() as usize;
         self.meta.read(reader);

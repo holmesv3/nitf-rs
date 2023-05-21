@@ -43,7 +43,7 @@ impl From<&mut File> for Nitf {
 impl Nitf {
     pub fn from_file(reader: &mut File) -> Self {
         let mut nitf = Self::default();
-        nitf.nitf_header.read_header(reader, 0, 0);
+        nitf.nitf_header.read_header(reader, 0);
 
         let mut n_seg: usize = nitf.nitf_header.meta.NUMI.string.parse().unwrap();
         for i_seg in 0..n_seg {
