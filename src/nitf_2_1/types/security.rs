@@ -1,3 +1,4 @@
+//! Security information
 use std::fmt::Display;
 use std::io::{Read, Seek};
 
