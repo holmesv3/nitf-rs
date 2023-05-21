@@ -1,29 +1,7 @@
 //! Functions to interface with NITF version 2.1
-pub mod types {
-    // This style makes all of the structs and traits
-    // visible, without the module in the middle
-    mod field;
-    mod security;
-    mod segment;
-    mod data_segment;
-    mod subheader;
 
-    pub use field::*;
-    pub use security::*;
-    pub use segment::*;
-    pub use data_segment::*;
-    pub use subheader::*;
-}
-
-pub mod headers {
-    pub mod data_extension;
-    pub mod graphic;
-    pub mod image;
-    pub mod nitf_header;
-    pub mod reserved_extension;
-    pub mod text;
-}
-
+pub mod types;
+pub mod headers;
 
 use std::fmt::Display;
 use std::fs::File;
