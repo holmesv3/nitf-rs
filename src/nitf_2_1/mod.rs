@@ -59,9 +59,9 @@ impl Nitf {
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.meta.GRAPHHEADERS.val[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
-            let data_size = seg_info.item_size.string.parse().unwrap();
+            let _data_size: u64 = seg_info.item_size.string.parse().unwrap();
             let seg: Segment<GraphicHeader> =
-                Segment::from_reader(reader, header_size, data_size).unwrap();
+                Segment::from_reader(reader, header_size).unwrap();
             nitf.graphic_segments.push(seg);
         }
 
@@ -69,9 +69,9 @@ impl Nitf {
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.meta.TEXTHEADERS.val[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
-            let data_size = seg_info.item_size.string.parse().unwrap();
+            let _data_size: u64 = seg_info.item_size.string.parse().unwrap();
             let seg: Segment<TextHeader> =
-                Segment::from_reader(reader, header_size, data_size).unwrap();
+                Segment::from_reader(reader, header_size).unwrap();
             nitf.text_segments.push(seg);
         }
 
@@ -79,9 +79,9 @@ impl Nitf {
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.meta.DEXTHEADERS.val[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
-            let data_size = seg_info.item_size.string.parse().unwrap();
+            let _data_size: u64 = seg_info.item_size.string.parse().unwrap();
             let seg: Segment<DataExtensionHeader> =
-                Segment::from_reader(reader, header_size, data_size).unwrap();
+                Segment::from_reader(reader, header_size).unwrap();
             nitf.data_extension_segments.push(seg);
         }
 

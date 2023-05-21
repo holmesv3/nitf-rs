@@ -44,13 +44,13 @@ pub struct DataSegment<T> {
     /// Segment data, must define function interface for access
     pub data: Mmap,
     /// Byte offset of header start
-    pub header_offset: usize,
+    pub header_offset: u64,
     /// Byte size of header
-    pub header_size: usize,
+    pub header_size: u64,
     /// Data byte offset
-    pub data_offset: usize,
+    pub data_offset: u64,
     /// Data size in bytes
-    pub data_size: usize,
+    pub data_size: u64,
 }
 
 impl<T> Display for DataSegment<T>
@@ -67,10 +67,10 @@ where
 {
     pub fn from_file(
         reader: &mut File,
-        header_size: usize,
-        data_size: usize,
+        header_size: u64,
+        data_size: u64,
     ) -> Result<Self, FromUtf8Error> {
-        let header_offset = reader.stream_position().unwrap() as usize;
+        let header_offset = reader.stream_position().unwrap();
         let data_offset = header_offset + header_size;
         let seg = Self {
             meta: T::from_reader(reader),
@@ -84,22 +84,22 @@ where
         reader.seek(Current(data_size as i64)).unwrap();
         return Ok(seg);
     }
-    pub fn read(&mut self, reader: &mut (impl Read + Seek), header_size: usize, data_size: usize) {
+    pub fn read(&mut self, reader: &mut (impl Read + Seek), header_size: u64, data_size: u64) {
         self.header_size = header_size;
         self.data_size = data_size;
-        self.header_offset = reader.stream_position().unwrap() as usize;
+        self.header_offset = reader.stream_position().unwrap();
         self.data_offset = self.header_offset + header_size;
         self.meta.read(reader);
         if header_size == 0 {
-            self.header_size = reader.stream_position().unwrap() as usize - self.header_offset;
-            self.data_offset = reader.stream_position().unwrap() as usize;
+            self.header_size = reader.stream_position().unwrap() - self.header_offset;
+            self.data_offset = reader.stream_position().unwrap();
         }
     }
 
     /// Read the bytes specified by the `index` range 
     pub fn read_data_bytes(&self, index: impl RangeBounds<usize>) -> &[u8] {
         let data_start = self.data_offset as usize;
-        let data_end = self.data_size + data_start;
+        let data_end = self.data_size as usize + data_start;
 
         // First bound does not have exclusive, but the arm needs to be matched
         let idx_start: usize = match index.start_bound() {

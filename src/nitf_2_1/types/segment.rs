@@ -42,9 +42,9 @@ pub struct Segment<T> {
     /// Header fields defined in module
     pub meta: T,
     /// Byte offset of header start
-    pub header_offset: usize,
+    pub header_offset: u64,
     /// Byte size of header
-    pub header_size: usize,
+    pub header_size: u64,
 }
 
 impl<T> Display for Segment<T>
@@ -59,19 +59,18 @@ where
 impl<T: NitfSegmentHeader + Default> Segment<T> {
     pub fn from_reader(
         reader: &mut (impl Read + Seek),
-        header_size: usize,  // TODO refactor to not usize
-        data_size: usize,
+        header_size: u64,  // TODO refactor to not usize
     ) -> Result<Self, FromUtf8Error> {
         let mut seg = Self::default();
         seg.read_header(reader, header_size);
         Ok(seg)
     }
-    pub fn read_header(&mut self, reader: &mut (impl Read + Seek), header_size: usize) {
+    pub fn read_header(&mut self, reader: &mut (impl Read + Seek), header_size: u64) {
         self.header_size = header_size;
-        self.header_offset = reader.stream_position().unwrap() as usize;
+        self.header_offset = reader.stream_position().unwrap();
         self.meta.read(reader);
         if header_size == 0 {
-            self.header_size = reader.stream_position().unwrap() as usize - self.header_offset;
+            self.header_size = reader.stream_position().unwrap() - self.header_offset;
         }
     }
 }
