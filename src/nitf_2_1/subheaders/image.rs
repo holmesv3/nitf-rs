@@ -3,6 +3,7 @@
 //! Need to implement data mask - which also means need to implement some kind of nicer parsing (enums, among other things)
 use std::fmt::Display;
 use std::io::{Read, Seek};
+use std::str::FromStr;
 
 use crate::nitf_2_1::types::*;
 
@@ -245,6 +246,32 @@ impl Band {
     }
 }
 
+/// PVTYPE definition from standard
+pub enum PixelValueType{
+    /// Integer, 8, 12, 16, 32, or 64 bits
+    INT,
+    /// Bi-level, single bit
+    B,
+    /// 2's complement signed integer, 8, 12, 16, 32, or 64 bits
+    SI,
+    /// Float, 32 or 64 bits
+    R,
+    /// ComplexFloat, 32 or 64 bits, real then imaginary
+    C
+}
+
+impl FromStr for PixelValueType {
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match &s.trim().to_uppercase() {
+            "INT" => Ok(Self::INT),
+            "B" => Ok(Self::B),
+            "SI" => Ok(Self::SI),
+            "R" => Ok(Self::R),
+            "C" => Ok(Self::C),
+            _ => Self::Err,
+        }
+    }
+}
 /// Helper function for parsing bands
 fn bands_from_reader(elem: &NitfField, reader: &mut (impl Read + Seek)) -> Vec<Band> {
     let n_band: usize = elem.string.parse().unwrap();

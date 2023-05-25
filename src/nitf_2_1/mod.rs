@@ -4,13 +4,15 @@ pub mod types;
 pub mod subheaders;
 pub mod nitf_header;
 
-use std::fmt::Display;
+use std::{fmt::Display, str::FromStr};
 use std::fs::File;
+use ndarray::Array2;
+use num_complex::Complex;
 
 use subheaders::*;
 use data_extension::DataExtensionHeader;
 use graphic::GraphicHeader;
-use image::ImageHeader;
+use image::{ImageHeader, PixelValueType};
 use nitf_header::NitfHeader;
 use reserved_extension::ReservedExtensionHeader;
 use text::TextHeader;
@@ -34,6 +36,7 @@ pub struct Nitf {
     /// Vector of reserved extension segments. See [ReservedExtensionHeader] for `meta` fields
     pub reserved_extension_segments: Vec<DataSegment<ReservedExtensionHeader>>,
 }
+
 
 impl Nitf {
     pub fn from_file(reader: &mut File) -> Self {
@@ -90,6 +93,38 @@ impl Nitf {
             nitf.reserved_extension_segments.push(seg);
         }
         return nitf;
+    }
+
+    pub fn image_data_to_array(&self, image_idx: usize) -> Array2<_> {
+        todo!();
+        let image_segment = &self.image_segments[image_idx];
+        let n_row: usize = image_segment.meta.NROWS.string.parse().unwrap();
+        let n_col: usize = image_segment.meta.NCOLS.string.parse().unwrap();
+
+        let n_byte_per_pixel: u8 = image_segment.meta.NBPP.string.parse().unwrap();
+
+        let dtype = PixelValueType::from_str(&image_segment.meta.PVTYPE.string).unwrap();
+
+        let mut arr = Array2::from_elem((n_row, n_col), Complex32::default());
+
+        let mut real: [u8; 4] = [0u8; 4];
+        let mut imag: [u8; 4] = [0u8; 4];
+
+        let data = image_segment.read_data_bytes(..); // read all the data
+        let data_chunks = &mut data.chunks(4); // grab 4 bytes at a time
+
+        for row in arr.rows_mut() {
+            for elm in row {
+                real.copy_from_slice(data_chunks.next().unwrap());
+                imag.copy_from_slice(data_chunks.next().unwrap());
+
+                *elm = Complex32 {
+                    re: f32::from_be_bytes(real),
+                    im: f32::from_be_bytes(imag),
+                };
+            }
+        }
+        return arr;
     }
 }
 
