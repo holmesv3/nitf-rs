@@ -8,11 +8,11 @@ A rust NITF file interface
 
 Current project goals are
 - Finish implementing version 2.1 reading (maybe writing)
-  [ ] Verify header/subheader field entries (see [`NitfField`](https://docs.rs/nitf-rs/0.1.4/nitf_rs/nitf_2_1/types/struct.NitfField.html))
+  - Verify header/subheader field entries (see [`NitfField`](https://docs.rs/nitf-rs/0.1.4/nitf_rs/nitf_2_1/types/struct.NitfField.html))
     - Will likely make the `NitfField` generic for the input type, such that values could be parsed based on `enums` or a range of valid inputs.
     - Potentially add `NitfField.val` for this parsed value
-  [ ] Verify all segments are parsed properly
-  [ ] Implement logic for various header/subheader inputs 
+  - Verify all segments are parsed properly
+  - Implement logic for various header/subheader inputs 
       - For example, return data from an image segment as an array with the appropriate format (right now only `Complex32` supported)
 - Expand for various applications of the standard (SICD as a first step)
 
