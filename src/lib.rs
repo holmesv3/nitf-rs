@@ -7,6 +7,9 @@ use nitf_2_1::subheaders::image::ImageHeader;
 use nitf_2_1::types::DataSegment;
 use num_complex::Complex32;
 
+use nitf_2_1::subheaders::image::ImageHeader;
+use nitf_2_1::types::data_segment::DataSegment;
+
 pub mod nitf_2_1;
 
 use nitf_2_1::Nitf;

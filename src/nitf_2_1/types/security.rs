@@ -3,7 +3,7 @@ use std::fmt::Display;
 use std::io::{Read, Seek};
 use std::str::FromStr;
 
-use super::*;
+use super::field::*;
 
 /// Standard security metadata
 #[allow(non_snake_case)]
