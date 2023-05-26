@@ -40,7 +40,7 @@ pub struct NitfSubHeaderVec {
 }
 impl NitfSubHeaderVec {
     /// Read subheaders into a vector
-    /// 
+    ///
     /// - `n_subheader` defines how many to read
     /// - `sh_size` defines how many bytes each subheader is
     /// - `item_size` defines the data length in bytes

@@ -1,12 +1,12 @@
 //! Segment with memmaped data
 
+use memmap2::Mmap;
 use std::fmt::Display;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom::Current};
 use std::ops::Bound;
 use std::ops::{Deref, RangeBounds};
 use std::string::FromUtf8Error;
-use memmap2::Mmap;
 
 use super::segment::NitfSegmentHeader;
 /// Nitf segment data interface definition
@@ -96,7 +96,7 @@ where
         }
     }
 
-    /// Read the bytes specified by the `index` range 
+    /// Read the bytes specified by the `index` range
     pub fn read_data_bytes(&self, index: impl RangeBounds<usize>) -> &[u8] {
         let data_start = self.data_offset as usize;
         let data_end = self.data_size as usize + data_start;

@@ -208,7 +208,7 @@ pub struct Band {
     pub ISUBCAT: NitfField,
     /// Band Image Filter Condition
     pub IFC: NitfField,
-    /// Band Standard Image Filter Code 
+    /// Band Standard Image Filter Code
     pub IMFLT: NitfField,
     /// Number of Look-Up-Tables for the Image Band
     pub NLUTS: NitfField,
