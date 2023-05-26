@@ -42,6 +42,112 @@ pub struct Security {
     /// File Security Control Number
     pub CTLN: NitfField<String>,
 }
+
+/// Classification codes
+#[derive(Debug, Default, Hash, Clone)]
+pub enum Classification {
+    #[default]
+    /// Unclassified
+    U,  
+    /// Top Secret
+    T,  
+    /// Secret
+    S,  
+    /// Confidential
+    C,  
+    /// Restricted
+    R,  
+}
+
+/// Declassification codes
+#[derive(Debug, Default, Hash, Clone)]
+pub enum DeclassificationType {
+    #[default]
+    /// Default value, two spaces
+    DEFAULT,  
+    /// Declassify on specific date
+    DD,     
+    /// Declassify on occurrence of event
+    DE,     
+    /// Downgrade to specified level on specific date
+    GD,     
+    /// Downgrade to specified level on occurrence of event
+    GE,     
+    /// OADR
+    O,      
+    /// Exempt from automatic declassification
+    X,      
+}
+
+///  Declassification exemption
+#[derive(Debug, Default, Hash, Clone)]
+pub enum DeclassificationExemption {
+    #[default]
+    /// Default value, four spaces
+    DEFAULT,
+    /// Valid value, see NitfField.string for value
+    VALID,
+}
+
+/// Downgrade classification
+#[derive(Debug, Default, Hash, Clone)]
+pub enum Downgrade {
+    #[default]
+    /// Default value, two spaces
+    DEFAULT,  
+    /// Secret
+    S,  
+    /// Confidential
+    C,  
+    /// Restricted
+    R,  
+}
+
+/// Classification authority
+#[derive(Debug, Default, Hash, Clone)]
+pub enum ClassificationAuthorityType {
+    #[default]
+    /// Default, one space
+    DEFAULT,
+    /// Original classification authority
+    O,
+    /// Derivative from a single source
+    D,
+    /// Derivative from multiple sources
+    M,
+}
+
+/// Reason for classification
+#[derive(Debug, Default, Hash, Clone)]
+pub enum ClassificationReason {
+    #[default]
+    /// Default value, one space
+    DEFAULT,  
+    /// Valid value, see NitfField.string for value
+    VALID,  
+}
+
+
+impl Security {
+    pub fn read(&mut self, reader: &mut (impl Read + Seek)) {
+        self.CLAS.read(reader, 1u8);
+        self.CLSY.read(reader, 2u8);
+        self.CODE.read(reader, 11u8);
+        self.CTLH.read(reader, 2u8);
+        self.REL.read(reader, 20u8);
+        self.DCTP.read(reader, 2u8);
+        self.DCDT.read(reader, 8u8);
+        self.DCXM.read(reader, 4u8);
+        self.DG.read(reader, 1u8);
+        self.DGDT.read(reader, 8u8);
+        self.CLTX.read(reader, 43u8);
+        self.CATP.read(reader, 1u8);
+        self.CAUT.read(reader, 40u8);
+        self.CRSN.read(reader, 1u8);
+        self.SRDT.read(reader, 8u8);
+        self.CTLN.read(reader, 15u8);
+    }
+}
 impl Display for Security {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
@@ -64,43 +170,6 @@ impl Display for Security {
         return write!(f, "{}", out_str);
     }
 }
-impl Security {
-    pub fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        self.CLAS.read(reader, 1u8);
-        self.CLSY.read(reader, 2u8);
-        self.CODE.read(reader, 11u8);
-        self.CTLH.read(reader, 2u8);
-        self.REL.read(reader, 20u8);
-        self.DCTP.read(reader, 2u8);
-        self.DCDT.read(reader, 8u8);
-        self.DCXM.read(reader, 4u8);
-        self.DG.read(reader, 1u8);
-        self.DGDT.read(reader, 8u8);
-        self.CLTX.read(reader, 43u8);
-        self.CATP.read(reader, 1u8);
-        self.CAUT.read(reader, 40u8);
-        self.CRSN.read(reader, 1u8);
-        self.SRDT.read(reader, 8u8);
-        self.CTLN.read(reader, 15u8);
-    }
-}
-
-/// Enumeration of classification codes
-#[derive(Debug, Default, Hash, Clone)]
-pub enum Classification {
-    #[default]
-    /// Unclassified
-    U,  
-    /// Top Secret
-    T,  
-    /// Secret
-    S,  
-    /// Confidential
-    C,  
-    /// Restricted
-    R,  
-}
-
 impl FromStr for Classification {
     type Err = InvalidNitfValue;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -114,27 +183,6 @@ impl FromStr for Classification {
         }
     }
 }
-
-/// Enumeration of declassification codes
-#[derive(Debug, Default, Hash, Clone)]
-pub enum DeclassificationType {
-    #[default]
-    /// Default value, two spaces
-    DEFAULT,  
-    /// Declassify on specific date
-    DD,     
-    /// Declassify on occurrence of event
-    DE,     
-    /// Downgrade to specified level on specific date
-    GD,     
-    /// Downgrade to specified level on occurrence of event
-    GE,     
-    /// OADR
-    O,      
-    /// Exempt from automatic declassification
-    X,      
-}
-
 impl FromStr for DeclassificationType {
     type Err = InvalidNitfValue;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -150,17 +198,6 @@ impl FromStr for DeclassificationType {
         }
     }
 }
-
-///  Enumeration to parse declassification exemption
-#[derive(Debug, Default, Hash, Clone)]
-pub enum DeclassificationExemption {
-    #[default]
-    /// Default value, four spaces
-    DEFAULT,
-    /// Valid value, see NitfField.string for value
-    VALID,
-}
-
 impl FromStr for DeclassificationExemption {
     type Err = InvalidNitfValue;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -187,21 +224,6 @@ impl FromStr for DeclassificationExemption {
         }
     }
 }
-
-/// Enumeration of downgrade classification
-#[derive(Debug, Default, Hash, Clone)]
-pub enum Downgrade {
-    #[default]
-    /// Default value, two spaces
-    DEFAULT,  
-    /// Secret
-    S,  
-    /// Confidential
-    C,  
-    /// Restricted
-    R,  
-}
-
 impl FromStr for Downgrade {
     type Err = InvalidNitfValue;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -214,20 +236,6 @@ impl FromStr for Downgrade {
         }
     }
 }
-
-#[derive(Debug, Default, Hash, Clone)]
-pub enum ClassificationAuthorityType {
-    #[default]
-    /// Default, one space
-    DEFAULT,
-    /// Original classification authority
-    O,
-    /// Derivative from a single source
-    D,
-    /// Derivative from multiple sources
-    M,
-}
-
 impl FromStr for ClassificationAuthorityType {
     type Err = InvalidNitfValue;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -240,15 +248,6 @@ impl FromStr for ClassificationAuthorityType {
         }
     }
 }
-#[derive(Debug, Default, Hash, Clone)]
-pub enum ClassificationReason {
-    #[default]
-    /// Default value, one space
-    DEFAULT,  
-    /// Valid value, see NitfField.string for value
-    VALID,  
-}
-
 impl FromStr for ClassificationReason {
     type Err = InvalidNitfValue;
     fn from_str(s: &str) -> Result<Self, Self::Err> {

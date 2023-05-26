@@ -94,7 +94,7 @@ impl NitfSegmentHeader for GraphicHeader {
     }
 }
 
-/// Enumeration for graphic type. Right now supports only C
+/// Graphic type. Right now standard only supports C
 #[derive(Debug, Default, Hash, Clone)]
 pub enum Format {
     #[default]
@@ -112,6 +112,7 @@ impl FromStr for Format {
     }
 }
 
+/// Graphic bound position relative to origin of coordinate system
 #[derive(Debug, Default, Clone, Hash)]
 pub struct BoundLocation {
     pub row: i32,
@@ -135,7 +136,7 @@ impl FromStr for BoundLocation {
     }
 }
 
-/// Enumeration for the color of graphics
+/// Color type of graphics
 #[derive(Debug, Default, Hash, Clone)]
 pub enum Color {
     #[default]

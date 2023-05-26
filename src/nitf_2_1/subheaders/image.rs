@@ -7,7 +7,7 @@ use std::str::FromStr;
 
 use crate::nitf_2_1::types::*;
 
-/// Metadata for Image Segment
+/// Metadata for Image Segment subheader
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ImageHeader {
@@ -95,6 +95,237 @@ pub struct ImageHeader {
     pub IXSHD: NitfField<String>,  // TODO
 }
 
+/// Band metadata
+#[allow(non_snake_case)]
+#[derive(Default, Clone, Hash, Debug)]
+pub struct Band {
+    /// Band Representation
+    pub IREPBAND: NitfField<String>,  // TODO: Check how to do this
+    /// Band Subcategory
+    pub ISUBCAT: NitfField<String>,  // User specified
+    /// Band Image Filter Condition
+    pub IFC: NitfField<String>,  // Reserved for future use 
+    /// Band Standard Image Filter Code
+    pub IMFLT: NitfField<String>,  // Reserved for future use
+    /// Number of Look-Up-Tables for the Image Band
+    pub NLUTS: NitfField<u8>,  // 
+    /// Number of Look-Up-Table Entries for the Image Band
+    pub NELUT: NitfField<u16>,
+    /// Image Band Look-Up-Tables
+    pub LUTD: Vec<NitfField<u8>>,
+}
+
+/// Pixel Value type options
+#[derive(Debug, Default, Hash, Clone)]
+pub enum PixelValueType{
+    #[default]
+    /// ComplexFloat, 32 or 64 bits, real then imaginary
+    C,
+    /// Float, 32 or 64 bits
+    R,
+    /// Bi-level, single bit
+    B,
+    /// 2's complement signed integer, 8, 12, 16, 32, or 64 bits
+    SI,
+    /// Integer, 8, 12, 16, 32, or 64 bits
+    INT,
+}
+
+/// Image representation values
+#[derive(Debug, Default, Hash, Clone)]
+pub enum ImageRepresentation {
+    #[default]
+    /// Monochrome
+    MONO,
+    /// RGB true color
+    RGB,
+    /// RGB/LUT for mapped color
+    RGBLUT,
+    /// Multiband imagery
+    MULTI,
+    /// Not intended for display
+    NODISPLY,
+    /// Vectors with cartesian coordinates
+    NVECTOR,
+    /// Vectors with polar coordinates
+    POLAR,
+    /// SAR video phase history
+    VPH,
+    /// Compressed in the ITU-R recommendation
+    YCbCr601,
+}
+
+/// Pixel justification
+#[derive(Debug, Default, Hash, Clone)]
+pub enum PixelJustification {
+    #[default]
+    /// Right justified
+    R,
+    /// Left justified
+    L,
+}
+
+/// Coordinate representation
+#[derive(Debug, Default, Hash, Clone)]
+pub enum CoordinateRepresentation {
+    #[default]
+    /// Default value, one space
+    DEFAULT,
+    /// UTM in Military Grid Reference System
+    U, 
+    /// UTM/UPS Northern hemisphere
+    N,
+    /// UTM/UPS Southern hemisphere
+    S, 
+    /// UPS 
+    P, 
+    /// Geographic
+    G, 
+    /// Decimal degrees
+    D, 
+}
+
+/// Image compression values
+#[derive(Debug, Default, Hash, Clone)]
+pub enum Compression {
+    #[default]
+    /// Not compressed
+    NC, 
+    /// Uncompressed, contains mask
+    NM, 
+    /// Bi-level
+    C1, 
+    /// JPEG
+    C3, 
+    /// Vector Quantization
+    C4,
+    /// Lossless JPEG
+    C5, 
+    /// Reserved for future compression algorithm
+    C6, 
+    /// Resrved for future complex SAR compression
+    C7, 
+    /// ISO JPEG 2000
+    C8, 
+    /// Downsampled JPEG
+    I1,
+    /// Compressed, contains mask
+    M1, 
+    /// Compressed, contains mask
+    M3, 
+    /// Compressed, contains mask
+    M4, 
+    /// Compressed, contains mask
+    M5, 
+    /// Reserved for future compression algorithm
+    M6,
+    /// Resrved for future complex SAR compression
+    M7, 
+    /// ISO JPEG 2000
+    M8, 
+}
+
+/// Image data storage mode
+#[derive(Debug, Default, Hash, Clone)]
+pub enum Mode {
+    #[default]
+    /// Band interleaved by block
+    B,
+    /// Band interleaved by pixel
+    P,
+    /// Band interleaved by row
+    R,
+    /// Band sequential
+    S,
+}
+
+// FUNCTIONS
+/// Helper function for parsing bands
+fn read_bands(reader: &mut (impl Read + Seek), n_band: u32) -> Vec<Band> {
+    let mut bands: Vec<Band> = vec![Band::default(); n_band as usize];
+    for band in &mut bands {
+        band.IREPBAND.read(reader, 2u8);
+        band.ISUBCAT.read(reader, 6u8);
+        band.IFC.read(reader, 1u8);
+        band.IMFLT.read(reader, 3u8);
+        band.NLUTS.read(reader, 1u8);
+        if band.NLUTS.val != 0 {
+            band.NELUT.read(reader, 5u8);
+            for _ in 0..band.NELUT.val {
+                let mut lut: NitfField<u8> = NitfField::default();
+                lut.read(reader, 1u8);
+                band.LUTD.push(lut);
+            }
+        }
+    }
+    return bands;
+}
+
+// TRAIT IMPLEMENTATIONS
+impl NitfSegmentHeader for ImageHeader {
+    fn read(&mut self, reader: &mut (impl Read + Seek)) {
+        self.IM.read(reader, 2u8);
+        self.IID1.read(reader, 10u8);
+        self.IDATIM.read(reader, 14u8);
+        self.TGTID.read(reader, 17u8);
+        self.IID2.read(reader, 80u8);
+        self.SECURITY.read(reader);
+        self.ENCRYP.read(reader, 1u8);
+        self.ISORCE.read(reader, 42u8);
+        self.NROWS.read(reader, 8u8);
+        self.NCOLS.read(reader, 8u8);
+        self.PVTYPE.read(reader, 3u8);
+        self.IREP.read(reader, 8u8);
+        self.ICAT.read(reader, 8u8);
+        self.ABPP.read(reader, 2u8);
+        self.PJUST.read(reader, 1u8);
+        self.ICORDS.read(reader, 1u8);
+        for _ in 0..4 {
+            let mut geoloc: NitfField<String> = NitfField::default();
+            geoloc.read(reader, 15u8);
+            self.IGEOLO.push(geoloc);
+        }
+        self.NICOM.read(reader, 1u8);
+        for _ in 0..self.NICOM.val {
+            let mut comment: NitfField<String> = NitfField::default();
+            comment.read(reader, 80u8);
+            self.ICOMS.push(comment);
+        }
+
+        self.IC.read(reader, 2u8);
+        self.NBANDS.read(reader, 1u8);
+        // If NBANDS = 0, use XBANDS
+        if self.NBANDS.val != 0 {
+            self.BANDS = read_bands(reader, self.NBANDS.val as u32)
+        } else {
+            self.XBANDS.read(reader, 5u8);
+            self.BANDS = read_bands(reader, self.XBANDS.val)
+        }
+        self.ISYNC.read(reader, 1u8);
+        self.IMODE.read(reader, 1u8);
+        self.NBPR.read(reader, 4u8);
+        self.NBPC.read(reader, 4u8);
+        self.NPPBH.read(reader, 4u8);
+        self.NPPBV.read(reader, 4u8);
+        self.NBPP.read(reader, 2u8);
+        self.IDLVL.read(reader, 3u8);
+        self.IALVL.read(reader, 3u8);
+        self.ILOC.read(reader, 10u8);
+        self.IMAG.read(reader, 4u8);
+        self.UDIDL.read(reader, 5u8);
+        let udi_data_length: u32 = self.UDIDL.string.parse().unwrap();
+        if udi_data_length != 0 {
+            self.UDOFL.read(reader, 3u8);
+            self.UDID.read(reader, udi_data_length - 3);
+        }
+        self.IXSHDL.read(reader, 5u8);
+        let ixsh_data_length: u32 = self.IXSHDL.string.parse().unwrap();
+        if ixsh_data_length != 0 {
+            self.IXSOFL.read(reader, 3u8);
+            self.IXSHD.read(reader, ixsh_data_length - 3);
+        }
+    }
+}
 impl Display for ImageHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
@@ -146,91 +377,6 @@ impl Display for ImageHeader {
         return write!(f, "Image Subheader: [{}]", out_str);
     }
 }
-impl NitfSegmentHeader for ImageHeader {
-    fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        self.IM.read(reader, 2u8);
-        self.IID1.read(reader, 10u8);
-        self.IDATIM.read(reader, 14u8);
-        self.TGTID.read(reader, 17u8);
-        self.IID2.read(reader, 80u8);
-        self.SECURITY.read(reader);
-        self.ENCRYP.read(reader, 1u8);
-        self.ISORCE.read(reader, 42u8);
-        self.NROWS.read(reader, 8u8);
-        self.NCOLS.read(reader, 8u8);
-        self.PVTYPE.read(reader, 3u8);
-        self.IREP.read(reader, 8u8);
-        self.ICAT.read(reader, 8u8);
-        self.ABPP.read(reader, 2u8);
-        self.PJUST.read(reader, 1u8);
-        self.ICORDS.read(reader, 1u8);
-        for _ in 0..4 {
-            let mut geoloc: NitfField<String> = NitfField::default();
-            geoloc.read(reader, 15u8);
-            self.IGEOLO.push(geoloc);
-        }
-        self.NICOM.read(reader, 1u8);
-        for _ in 0..self.NICOM.val {
-            let mut comment: NitfField<String> = NitfField::default();
-            comment.read(reader, 80u8);
-            self.ICOMS.push(comment);
-        }
-
-        self.IC.read(reader, 2u8);
-        self.NBANDS.read(reader, 1u8);
-        // If NBANDS = 0, use XBANDS
-        if self.NBANDS.val != 0 {
-            self.BANDS = bands_from_reader(reader, self.NBANDS.val as u32)
-        } else {
-            self.XBANDS.read(reader, 5u8);
-            self.BANDS = bands_from_reader(reader, self.XBANDS.val)
-        }
-        self.ISYNC.read(reader, 1u8);
-        self.IMODE.read(reader, 1u8);
-        self.NBPR.read(reader, 4u8);
-        self.NBPC.read(reader, 4u8);
-        self.NPPBH.read(reader, 4u8);
-        self.NPPBV.read(reader, 4u8);
-        self.NBPP.read(reader, 2u8);
-        self.IDLVL.read(reader, 3u8);
-        self.IALVL.read(reader, 3u8);
-        self.ILOC.read(reader, 10u8);
-        self.IMAG.read(reader, 4u8);
-        self.UDIDL.read(reader, 5u8);
-        let udi_data_length: u32 = self.UDIDL.string.parse().unwrap();
-        if udi_data_length != 0 {
-            self.UDOFL.read(reader, 3u8);
-            self.UDID.read(reader, udi_data_length - 3);
-        }
-        self.IXSHDL.read(reader, 5u8);
-        let ixsh_data_length: u32 = self.IXSHDL.string.parse().unwrap();
-        if ixsh_data_length != 0 {
-            self.IXSOFL.read(reader, 3u8);
-            self.IXSHD.read(reader, ixsh_data_length - 3);
-        }
-    }
-}
-
-/// Struct for Band metadata
-#[allow(non_snake_case)]
-#[derive(Default, Clone, Hash, Debug)]
-pub struct Band {
-    /// Band Representation
-    pub IREPBAND: NitfField<String>,  // TODO: Check how to do this
-    /// Band Subcategory
-    pub ISUBCAT: NitfField<String>,  // User specified
-    /// Band Image Filter Condition
-    pub IFC: NitfField<String>,  // Reserved for future use 
-    /// Band Standard Image Filter Code
-    pub IMFLT: NitfField<String>,  // Reserved for future use
-    /// Number of Look-Up-Tables for the Image Band
-    pub NLUTS: NitfField<u8>,  // 
-    /// Number of Look-Up-Table Entries for the Image Band
-    pub NELUT: NitfField<u16>,
-    /// Image Band Look-Up-Tables
-    pub LUTD: Vec<NitfField<u8>>,
-}
-
 impl Display for Band {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
@@ -246,50 +392,6 @@ impl Display for Band {
         return write!(f, "{}", out_str);
     }
 }
-
-impl Band {
-    pub fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        self.IREPBAND.read(reader, 2u8);
-        self.ISUBCAT.read(reader, 6u8);
-        self.IFC.read(reader, 1u8);
-        self.IMFLT.read(reader, 3u8);
-        self.NLUTS.read(reader, 1u8);
-        if self.NLUTS.val != 0 {
-            self.NELUT.read(reader, 5u8);
-            for _ in 0..self.NELUT.val {
-                let mut lut: NitfField<u8> = NitfField::default();
-                lut.read(reader, 1u8);
-                self.LUTD.push(lut);
-            }
-        }
-    }
-}
-
-/// Helper function for parsing bands
-fn bands_from_reader(reader: &mut (impl Read + Seek), n_band: u32) -> Vec<Band> {
-    let mut bands: Vec<Band> = vec![Band::default(); n_band as usize];
-    for band in &mut bands {
-        band.read(reader)
-    }
-    return bands;
-}
-
-/// PVTYPE definition from standard
-#[derive(Debug, Default, Hash, Clone)]
-pub enum PixelValueType{
-    #[default]
-    /// ComplexFloat, 32 or 64 bits, real then imaginary
-    C,
-    /// Float, 32 or 64 bits
-    R,
-    /// Bi-level, single bit
-    B,
-    /// 2's complement signed integer, 8, 12, 16, 32, or 64 bits
-    SI,
-    /// Integer, 8, 12, 16, 32, or 64 bits
-    INT,
-}
-
 impl FromStr for PixelValueType {
     type Err = InvalidNitfValue;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -303,31 +405,6 @@ impl FromStr for PixelValueType {
         }
     }
 }
-
-/// Enumeration for image representation values
-#[derive(Debug, Default, Hash, Clone)]
-pub enum ImageRepresentation {
-    #[default]
-    /// Monochrome
-    MONO,
-    /// RGB true color
-    RGB,
-    /// RGB/LUT for mapped color
-    RGBLUT,
-    /// Multiband imagery
-    MULTI,
-    /// Not intended for display
-    NODISPLY,
-    /// Vectors with cartesian coordinates
-    NVECTOR,
-    /// Vectors with polar coordinates
-    POLAR,
-    /// SAR video phase history
-    VPH,
-    /// Compressed in the ITU-R recommendation
-    YCbCr601,
-}
-
 impl FromStr for ImageRepresentation {
     type Err = InvalidNitfValue;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -345,17 +422,6 @@ impl FromStr for ImageRepresentation {
         }
     }
 }
-
-/// Enumeration for pixel justification
-#[derive(Debug, Default, Hash, Clone)]
-pub enum PixelJustification {
-    #[default]
-    /// Right justified
-    R,
-    /// Left justified
-    L,
-}
-
 impl FromStr for PixelJustification {
     type Err = InvalidNitfValue;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -366,27 +432,6 @@ impl FromStr for PixelJustification {
         }
     }
 }
-
-/// Enumeration for coordinate representation
-#[derive(Debug, Default, Hash, Clone)]
-pub enum CoordinateRepresentation {
-    #[default]
-    /// Default value, one space
-    DEFAULT,
-    /// UTM in Military Grid Reference System
-    U, 
-    /// UTM/UPS Northern hemisphere
-    N,
-    /// UTM/UPS Southern hemisphere
-    S, 
-    /// UPS 
-    P, 
-    /// Geographic
-    G, 
-    /// Decimal degrees
-    D, 
-}
-
 impl FromStr for CoordinateRepresentation {
     type Err = InvalidNitfValue;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -402,47 +447,6 @@ impl FromStr for CoordinateRepresentation {
         }
     }
 }
-
-/// Enumeration for image compression values
-#[derive(Debug, Default, Hash, Clone)]
-pub enum Compression {
-    #[default]
-    /// Not compressed
-    NC, 
-    /// Uncompressed, contains mask
-    NM, 
-    /// Bi-level
-    C1, 
-    /// JPEG
-    C3, 
-    /// Vector Quantization
-    C4,
-    /// Lossless JPEG
-    C5, 
-    /// Reserved for future compression algorithm
-    C6, 
-    /// Resrved for future complex SAR compression
-    C7, 
-    /// ISO JPEG 2000
-    C8, 
-    /// Downsampled JPEG
-    I1,
-    /// Compressed, contains mask
-    M1, 
-    /// Compressed, contains mask
-    M3, 
-    /// Compressed, contains mask
-    M4, 
-    /// Compressed, contains mask
-    M5, 
-    /// Reserved for future compression algorithm
-    M6,
-    /// Resrved for future complex SAR compression
-    M7, 
-    /// ISO JPEG 2000
-    M8, 
-}
-
 impl FromStr for Compression {
     type Err = InvalidNitfValue;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -468,22 +472,6 @@ impl FromStr for Compression {
         }
     }
 }
-
-
-/// Enumeration of image data storage mode
-#[derive(Debug, Default, Hash, Clone)]
-pub enum Mode {
-    #[default]
-    /// Band interleaved by block
-    B,
-    /// Band interleaved by pixel
-    P,
-    /// Band interleaved by row
-    R,
-    /// Band sequential
-    S,
-}
-
 impl FromStr for Mode {
     type Err = InvalidNitfValue;
     fn from_str(s: &str) -> Result<Self, Self::Err> {

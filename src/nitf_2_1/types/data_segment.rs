@@ -9,21 +9,8 @@ use std::ops::{Deref, RangeBounds};
 use std::string::FromUtf8Error;
 
 use super::segment::NitfSegmentHeader;
-/// Nitf segment data interface definition
-pub trait NitfSegmentData
-where
-    Self: Sized,
-{
-    fn read_segment_data(&mut self, reader: &mut (impl Read + Seek), n_bytes: u64);
-}
-impl NitfSegmentData for Mmap {
-    #[allow(unused)]
-    fn read_segment_data(&mut self, reader: &mut (impl Read + Seek), n_bytes: u64) {
-        todo!()
-    }
-}
 
-/// Segment structure definition
+/// Segment definition containing data
 ///
 ///     // Header metadata fields defined in module
 ///     pub meta: T,
@@ -53,18 +40,27 @@ pub struct DataSegment<T> {
     pub data_size: u64,
 }
 
-impl<T> Display for DataSegment<T>
+
+/// Nitf segment data interface definition
+pub trait NitfSegmentData
 where
-    T: NitfSegmentHeader + Display,
+    Self: Sized,
 {
+    fn read_segment_data(&mut self, reader: &mut (impl Read + Seek), n_bytes: u64);
+}
+
+impl NitfSegmentData for Mmap {
+    #[allow(unused)]
+    fn read_segment_data(&mut self, reader: &mut (impl Read + Seek), n_bytes: u64) {
+        todo!()
+    }
+}
+impl<T: NitfSegmentHeader + Display> Display for DataSegment<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.meta)
     }
 }
-impl<T> DataSegment<T>
-where
-    T: NitfSegmentHeader + Default,
-{
+impl<T: NitfSegmentHeader + Default> DataSegment<T> {
     pub fn from_file(
         reader: &mut File,
         header_size: u64,
@@ -95,7 +91,7 @@ where
             self.data_offset = reader.stream_position().unwrap();
         }
     }
-
+    
     /// Read the bytes specified by the `index` range
     pub fn read_data_bytes(&self, index: impl RangeBounds<usize>) -> &[u8] {
         let data_start = self.data_offset as usize;

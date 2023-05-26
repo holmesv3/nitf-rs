@@ -32,23 +32,22 @@ pub struct TextHeader {
     /// Text Extended Subheader Data
     pub TXSHD: NitfField<String>,
 }
-impl Display for TextHeader {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut out_str = String::default();
-        out_str += format!("TE: {}, ", self.TE).as_ref();
-        out_str += format!("TEXTID: {}, ", self.TEXTID).as_ref();
-        out_str += format!("TXTALVL: {}, ", self.TXTALVL).as_ref();
-        out_str += format!("TXTDT: {}, ", self.TXTDT).as_ref();
-        out_str += format!("TXTTITL: {}, ", self.TXTTITL).as_ref();
-        out_str += format!("SECURITY: [{}], ", self.SECURITY).as_ref();
-        out_str += format!("ENCRYP: {}, ", self.ENCRYP).as_ref();
-        out_str += format!("TXTFMT: {}, ", self.TXTFMT).as_ref();
-        out_str += format!("TXSHDL: {}", self.TXSHDL).as_ref();
-        out_str += format!("TXSOFL: {}", self.TXSOFL).as_ref();
-        out_str += format!("TXSHD: {}", self.TXSHD).as_ref();
-        write!(f, "Text Subheader: [{}]", out_str)
-    }
+
+/// Formatting specification
+#[derive(Debug, Default, Hash, Clone)]
+pub enum TextFormat {
+    #[default]
+    /// USMTF formatting
+    MTF,
+    /// BCS formatting
+    STA,
+    /// ECS formatting
+    UT1,
+    /// U8S formatting
+    U8S,
 }
+
+
 impl NitfSegmentHeader for TextHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {
         self.TE.read(reader, 2u8);
@@ -67,22 +66,23 @@ impl NitfSegmentHeader for TextHeader {
         }
     }
 }
-
-
-/// Enumeration for text formatting specification
-#[derive(Debug, Default, Hash, Clone)]
-pub enum TextFormat {
-    #[default]
-    /// USMTF formatting
-    MTF,
-    /// BCS formatting
-    STA,
-    /// ECS formatting
-    UT1,
-    /// U8S formatting
-    U8S,
+impl Display for TextHeader {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut out_str = String::default();
+        out_str += format!("TE: {}, ", self.TE).as_ref();
+        out_str += format!("TEXTID: {}, ", self.TEXTID).as_ref();
+        out_str += format!("TXTALVL: {}, ", self.TXTALVL).as_ref();
+        out_str += format!("TXTDT: {}, ", self.TXTDT).as_ref();
+        out_str += format!("TXTTITL: {}, ", self.TXTTITL).as_ref();
+        out_str += format!("SECURITY: [{}], ", self.SECURITY).as_ref();
+        out_str += format!("ENCRYP: {}, ", self.ENCRYP).as_ref();
+        out_str += format!("TXTFMT: {}, ", self.TXTFMT).as_ref();
+        out_str += format!("TXSHDL: {}", self.TXSHDL).as_ref();
+        out_str += format!("TXSOFL: {}", self.TXSOFL).as_ref();
+        out_str += format!("TXSHD: {}", self.TXSHD).as_ref();
+        write!(f, "Text Subheader: [{}]", out_str)
+    }
 }
-
 impl FromStr for TextFormat {
     type Err = InvalidNitfValue;
     fn from_str(s: &str) -> Result<Self, Self::Err> {

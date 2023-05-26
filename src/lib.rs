@@ -36,7 +36,7 @@ pub fn read_nitf(path: Option<&Path>) -> Nitf {
 // TODO: Support various data types based on header information
 /// Read image data from `image_header` into an array
 ///
-/// Only supports `Complex32` data at the moment
+/// Only supports `Complex32` data at the moment with `P` IMODE
 /// 
 /// # Example
 ///

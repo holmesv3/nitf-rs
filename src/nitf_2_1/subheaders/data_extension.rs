@@ -26,37 +26,8 @@ pub struct DataExtensionHeader {
     /// User-defined Subheader Fields
     pub DESSHF: NitfField<String>,  // TODO: Figure out what to do here
 }
-impl Display for DataExtensionHeader {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut out_str = String::default();
-        out_str += format!("DE: {},\n", self.DE).as_ref();
-        out_str += format!("DESID: {},\n", self.DESID).as_ref();
-        out_str += format!("DESVER: {},\n", self.DESVER).as_ref();
-        out_str += format!("SECURITY: [\n{}],\n", self.SECURITY).as_ref();
-        out_str += format!("DESOFLW: {},\n", self.DESOFLW).as_ref();
-        out_str += format!("DESITEM: {},\n", self.DESITEM).as_ref();
-        out_str += format!("DESSHL: {},\n", self.DESSHL).as_ref();
-        out_str += format!("DESSHF: {}", self.DESSHL).as_ref();
-        write!(f, "Data Extension Subheader: [{}]", out_str)
-    }
-}
-impl NitfSegmentHeader for DataExtensionHeader {
-    fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        self.DE.read(reader, 2u8);
-        self.DESID.read(reader, 25u8);
-        self.DESVER.read(reader, 2u8);
-        self.SECURITY.read(reader);
-        if self.DESID.string.trim() == "TRE_OVERFLOW" {
-            self.DESOFLW.read(reader, 6u8);
-            self.DESITEM.read(reader, 3u8);
-        }
-        self.DESSHL.read(reader, 4u8);
-        self.DESSHF.read(reader, self.DESSHL.val);
-    }
-}
 
-
-/// Enumeration for which header/subheader this extension corresponds to
+/// Selection of which header/subheader this extension corresponds to
 #[derive(Debug, Default, Clone, Hash)]
 pub enum OverflowedHeaderType {
     #[default]
@@ -72,6 +43,34 @@ pub enum OverflowedHeaderType {
     UDID,
 }
 
+impl NitfSegmentHeader for DataExtensionHeader {
+    fn read(&mut self, reader: &mut (impl Read + Seek)) {
+        self.DE.read(reader, 2u8);
+        self.DESID.read(reader, 25u8);
+        self.DESVER.read(reader, 2u8);
+        self.SECURITY.read(reader);
+        if self.DESID.string.trim() == "TRE_OVERFLOW" {
+            self.DESOFLW.read(reader, 6u8);
+            self.DESITEM.read(reader, 3u8);
+        }
+        self.DESSHL.read(reader, 4u8);
+        self.DESSHF.read(reader, self.DESSHL.val);
+    }
+}
+impl Display for DataExtensionHeader {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut out_str = String::default();
+        out_str += format!("DE: {},\n", self.DE).as_ref();
+        out_str += format!("DESID: {},\n", self.DESID).as_ref();
+        out_str += format!("DESVER: {},\n", self.DESVER).as_ref();
+        out_str += format!("SECURITY: [\n{}],\n", self.SECURITY).as_ref();
+        out_str += format!("DESOFLW: {},\n", self.DESOFLW).as_ref();
+        out_str += format!("DESITEM: {},\n", self.DESITEM).as_ref();
+        out_str += format!("DESSHL: {},\n", self.DESSHL).as_ref();
+        out_str += format!("DESSHF: {}", self.DESSHL).as_ref();
+        write!(f, "Data Extension Subheader: [{}]", out_str)
+    }
+}
 impl FromStr for OverflowedHeaderType {
     type Err = InvalidNitfValue;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
