@@ -260,15 +260,25 @@ pub enum PixelValueType{
     C
 }
 
+#[derive(Debug, Clone)]
+pub struct PixelValueError;
+
+impl Display for PixelValueError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Invalid Pixel Value Type: ")
+    }
+}
+
 impl FromStr for PixelValueType {
+    type Err = PixelValueError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match &s.trim().to_uppercase() {
+        match s.to_uppercase().trim() {
             "INT" => Ok(Self::INT),
             "B" => Ok(Self::B),
             "SI" => Ok(Self::SI),
             "R" => Ok(Self::R),
             "C" => Ok(Self::C),
-            _ => Self::Err,
+            _ => Err(PixelValueError),
         }
     }
 }
