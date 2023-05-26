@@ -1,35 +1,36 @@
 //! Text segment definition
 use std::fmt::Display;
 use std::io::{Read, Seek};
+use std::str::FromStr;
 
-use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
+use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security, InvalidNitfValue};
 
 /// Text Segment Metadata
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TextHeader {
     /// File Part Type
-    pub TE: NitfField,
+    pub TE: NitfField<String>,
     /// Text Identifier
-    pub TEXTID: NitfField,
+    pub TEXTID: NitfField<String>,
     /// Text Attachment Level
-    pub TXTALVL: NitfField,
+    pub TXTALVL: NitfField<u16>,
     /// Text Date and Time
-    pub TXTDT: NitfField,
+    pub TXTDT: NitfField<String>,
     /// Text Title
-    pub TXTTITL: NitfField,
+    pub TXTTITL: NitfField<String>,
     /// Security information
     pub SECURITY: Security,
     /// Encryption
-    pub ENCRYP: NitfField,
+    pub ENCRYP: NitfField<String>,
     /// Text Format
-    pub TXTFMT: NitfField,
+    pub TXTFMT: NitfField<TextFormat>,
     /// Text Extended Subheader Data Length
-    pub TXSHDL: NitfField,
+    pub TXSHDL: NitfField<u16>,
     /// Text Extended Subheader Overflow
-    pub TXSOFL: NitfField,
+    pub TXSOFL: NitfField<u16>,
     /// Text Extended Subheader Data
-    pub TXSHD: NitfField,
+    pub TXSHD: NitfField<String>,
 }
 impl Display for TextHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -45,7 +46,7 @@ impl Display for TextHeader {
         out_str += format!("TXSHDL: {}", self.TXSHDL).as_ref();
         out_str += format!("TXSOFL: {}", self.TXSOFL).as_ref();
         out_str += format!("TXSHD: {}", self.TXSHD).as_ref();
-        write!(f, "TextSegment: [{}]", out_str)
+        write!(f, "Text Subheader: [{}]", out_str)
     }
 }
 impl NitfSegmentHeader for TextHeader {
@@ -63,6 +64,34 @@ impl NitfSegmentHeader for TextHeader {
         if extended_length != 0 {
             self.TXSOFL.read(reader, 3u8);
             self.TXSHD.read(reader, extended_length - 3)
+        }
+    }
+}
+
+
+/// Enumeration for text formatting specification
+#[derive(Debug, Default, Hash, Clone)]
+pub enum TextFormat {
+    #[default]
+    /// USMTF formatting
+    MTF,
+    /// BCS formatting
+    STA,
+    /// ECS formatting
+    UT1,
+    /// U8S formatting
+    U8S,
+}
+
+impl FromStr for TextFormat {
+    type Err = InvalidNitfValue;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "MTF" => Ok(Self::MTF),
+            "STA" => Ok(Self::STA),
+            "UT1" => Ok(Self::UT1),
+            "U8S" => Ok(Self::U8S),
+            _ => Err(InvalidNitfValue),
         }
     }
 }

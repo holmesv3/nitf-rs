@@ -43,7 +43,7 @@ impl Nitf {
 
         let mut n_seg: usize = nitf.nitf_header.meta.NUMI.string.parse().unwrap();
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.IMHEADERS.val[i_seg];
+            let seg_info = &nitf.nitf_header.meta.IMHEADERS[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
             let data_size = seg_info.item_size.string.parse().unwrap();
             let seg: DataSegment<ImageHeader> =
@@ -53,7 +53,7 @@ impl Nitf {
 
         n_seg = nitf.nitf_header.meta.NUMS.string.parse().unwrap();
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.GRAPHHEADERS.val[i_seg];
+            let seg_info = &nitf.nitf_header.meta.GRAPHHEADERS[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
             let _data_size: u64 = seg_info.item_size.string.parse().unwrap();
             let seg: Segment<GraphicHeader> = Segment::from_reader(reader, header_size).unwrap();
@@ -62,7 +62,7 @@ impl Nitf {
 
         n_seg = nitf.nitf_header.meta.NUMT.string.parse().unwrap();
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.TEXTHEADERS.val[i_seg];
+            let seg_info = &nitf.nitf_header.meta.TEXTHEADERS[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
             let _data_size: u64 = seg_info.item_size.string.parse().unwrap();
             let seg: Segment<TextHeader> = Segment::from_reader(reader, header_size).unwrap();
@@ -71,7 +71,7 @@ impl Nitf {
 
         n_seg = nitf.nitf_header.meta.NUMDES.string.parse().unwrap();
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.DEXTHEADERS.val[i_seg];
+            let seg_info = &nitf.nitf_header.meta.DEXTHEADERS[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
             let _data_size: u64 = seg_info.item_size.string.parse().unwrap();
             let seg: Segment<DataExtensionHeader> =
@@ -81,7 +81,7 @@ impl Nitf {
 
         n_seg = nitf.nitf_header.meta.NUMRES.string.parse().unwrap();
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.RESHEADERS.val[i_seg];
+            let seg_info = &nitf.nitf_header.meta.RESHEADERS[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
             let data_size = seg_info.item_size.string.parse().unwrap();
             let seg: DataSegment<ReservedExtensionHeader> =
@@ -96,21 +96,21 @@ impl Nitf {
 impl Display for Nitf {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("[{}]", self.nitf_header).as_ref();
+        out_str += format!("{}\n", self.nitf_header).as_ref();
         for segment in &self.image_segments {
-            out_str += format!("[{}]", segment).as_ref();
+            out_str += format!("{}\n", segment).as_ref();
         }
         for segment in &self.graphic_segments {
-            out_str += format!("[{}]", segment).as_ref();
+            out_str += format!("{}\n", segment).as_ref();
         }
         for segment in &self.text_segments {
-            out_str += format!("[{}]", segment).as_ref();
+            out_str += format!("{}\n", segment).as_ref();
         }
         for segment in &self.data_extension_segments {
-            out_str += format!("[{}]", segment).as_ref();
+            out_str += format!("{}\n", segment).as_ref();
         }
         for segment in &self.reserved_extension_segments {
-            out_str += format!("[{}]", segment).as_ref();
+            out_str += format!("{}\n", segment).as_ref();
         }
         write!(f, "{}", out_str)
     }
