@@ -4,6 +4,7 @@ use std::io::{Read, Seek};
 
 use crate::nitf_2_1::types::{NitfField, NitfSegmentHeader, Security};
 
+/// Text Segment Metadata
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TextHeader {

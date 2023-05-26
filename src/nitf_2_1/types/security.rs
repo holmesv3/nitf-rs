@@ -1,8 +1,10 @@
+//! Security information
 use std::fmt::Display;
 use std::io::{Read, Seek};
 
 use super::*;
 
+/// Standard security metadata
 #[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Security {

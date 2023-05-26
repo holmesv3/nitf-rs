@@ -1,15 +1,16 @@
-//! Functions to interface with NITF version 2.1
+//! Interface for NITF version 2.1
 
-pub mod headers;
 pub mod types;
+pub mod subheaders;
+pub mod nitf_header;
 
 use std::fmt::Display;
 use std::fs::File;
 
+use subheaders::*;
 use data_extension::DataExtensionHeader;
 use graphic::GraphicHeader;
-use headers::*;
-use image::ImageHeader;
+use image::{ImageHeader};
 use nitf_header::NitfHeader;
 use reserved_extension::ReservedExtensionHeader;
 use text::TextHeader;
@@ -17,8 +18,7 @@ use types::{DataSegment, Segment};
 
 /// Top level NITF interface
 ///
-/// Collection of [Segment] objects
-///  
+/// Collection of [Segment] and [DataSegment] objects
 #[derive(Default, Debug)]
 pub struct Nitf {
     /// Nitf file header. See [NitfHeader] for `meta` fields
@@ -35,11 +35,7 @@ pub struct Nitf {
     pub reserved_extension_segments: Vec<DataSegment<ReservedExtensionHeader>>,
 }
 
-impl From<&mut File> for Nitf {
-    fn from(value: &mut File) -> Self {
-        Self::from_file(value)
-    }
-}
+
 impl Nitf {
     pub fn from_file(reader: &mut File) -> Self {
         let mut nitf = Self::default();
@@ -94,6 +90,7 @@ impl Nitf {
         }
         return nitf;
     }
+
 }
 
 impl Display for Nitf {

@@ -1,3 +1,4 @@
+//! Reserved Extension segment subheader definition
 use std::fmt::Display;
 use std::io::{Read, Seek};
 

@@ -1,17 +1,9 @@
+//! Inidividual header/subheader element type
 use std::fmt::Display;
 use std::io::{Read, Seek};
 
 // TODO: Consider making this generic, use enums to ensure fields are valid.
-/// Inidividual element type
-///
-///     // Vector of bytes
-///     pub val: Vec<u8>,
-///     // Byte offset in file
-///     pub offset: u64,
-///     // String representation of field
-///     pub string: String,
-///     // Length of byte vector
-///     length: usize,
+/// Inidividual header/subheader element type
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NitfField {
     /// Vector of bytes
@@ -47,7 +39,7 @@ impl Display for NitfField {
     }
 }
 
-/// Element vector type
+/// Element vector type - slated for removal
 ///
 ///     // Vector of fields
 ///     pub val: Vec<NitfField>,
