@@ -5,7 +5,9 @@ use std::fmt::Display;
 use std::io::{Read, Seek};
 use std::str::FromStr;
 
-use crate::nitf_2_1::types::*;
+use crate::nitf_2_1::types::field::{NitfField, InvalidNitfValue};
+use crate::nitf_2_1::types::security::Security;
+use crate::nitf_2_1::types::segment::NitfSegmentHeader;
 
 /// Metadata for Image Segment subheader
 #[allow(non_snake_case)]

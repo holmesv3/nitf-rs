@@ -10,20 +10,7 @@ use std::string::FromUtf8Error;
 
 use super::segment::NitfSegmentHeader;
 
-/// Segment definition containing data
-///
-///     // Header metadata fields defined in module
-///     pub meta: T,
-///     // Segment data
-///     data: Mmap,
-///     // Byte offset of header start
-///     pub header_offset: u64,
-///     // Byte size of header
-///     pub header_size: usize,
-///     // Data byte offset
-///     pub data_offset: u64,
-///     // Data size in bytes
-///     pub data_size: usize,
+/// Segment with memmaped data
 #[derive(Debug)]
 pub struct DataSegment<T> {
     /// Header fields defined in module

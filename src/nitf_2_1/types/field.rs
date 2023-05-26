@@ -3,6 +3,7 @@ use std::fmt::{Display, Debug};
 use std::io::{Read, Seek};
 use std::str::FromStr;
 
+/// Lowest level object for file parsing
 #[derive(Default, Clone, Hash, Debug)]
 pub struct NitfField<V: FromStr + Debug> {
     /// Byte representation

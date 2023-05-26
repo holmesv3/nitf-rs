@@ -1,7 +1,7 @@
 //! Subheader element type
 use std::fmt::Display;
 use std::io::{Read, Seek};
-use super::*;
+use super::field::*;
 
 /// Subheader element type
 ///

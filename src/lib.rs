@@ -3,8 +3,6 @@ use std::fs::File;
 use std::path::Path;
 
 use ndarray::Array2;
-use nitf_2_1::subheaders::image::ImageHeader;
-use nitf_2_1::types::DataSegment;
 use num_complex::Complex32;
 
 use nitf_2_1::subheaders::image::ImageHeader;

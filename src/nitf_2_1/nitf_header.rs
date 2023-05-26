@@ -2,7 +2,12 @@
 use std::fmt::Display;
 use std::io::{Read, Seek};
 
-use crate::nitf_2_1::types::*;
+use crate::nitf_2_1::types::{
+    field::*, 
+    subheader::*, 
+    security::*,
+    segment::*,
+};
 
 /// Metadata for Nitf File Header
 #[allow(non_snake_case)]

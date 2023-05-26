@@ -14,7 +14,9 @@ use image::{ImageHeader};
 use nitf_header::NitfHeader;
 use reserved_extension::ReservedExtensionHeader;
 use text::TextHeader;
-use types::{DataSegment, Segment};
+use types::segment::Segment;
+use types::data_segment::DataSegment;
+
 
 /// Top level NITF interface
 ///
