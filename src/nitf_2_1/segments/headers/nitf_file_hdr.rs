@@ -4,10 +4,9 @@ use std::io::{Read, Seek};
 
 use crate::nitf_2_1::types::{
     field::*, 
-    subheader::*, 
     security::*,
-    segment::*,
 };
+use crate::nitf_2_1::segments::headers::NitfSegmentHeader;
 
 /// Metadata for Nitf File Header
 #[allow(non_snake_case)]
@@ -48,25 +47,25 @@ pub struct NitfHeader {
     /// Number of Image Segments
     pub NUMI: NitfField<u16>,
     /// Image Segments
-    pub IMHEADERS: Vec<NitfSubHeader>,
+    pub IMHEADERS: Vec<SubHeader>,
     /// Number of Graphics Segments
     pub NUMS: NitfField<u16>,
     /// Graphic Segments
-    pub GRAPHHEADERS: Vec<NitfSubHeader>,
+    pub GRAPHHEADERS: Vec<SubHeader>,
     /// Reserved for future use
     pub NUMX: NitfField<u16>,
     /// Number of Text Segments
     pub NUMT: NitfField<u16>,
     /// Text Segments
-    pub TEXTHEADERS: Vec<NitfSubHeader>,
+    pub TEXTHEADERS: Vec<SubHeader>,
     /// Number of Data Extension Segments
     pub NUMDES: NitfField<u16>,
     /// Data Extenstion Segments
-    pub DEXTHEADERS: Vec<NitfSubHeader>,
+    pub DEXTHEADERS: Vec<SubHeader>,
     /// Number of Reserved Extension Segments
     pub NUMRES: NitfField<u16>,
     /// Reserved Extension Segments
-    pub RESHEADERS: Vec<NitfSubHeader>,
+    pub RESHEADERS: Vec<SubHeader>,
     /// User Defined Header Data Length
     pub UDHDL: NitfField<u32>,
     /// User Defined Header Overflow
@@ -134,6 +133,7 @@ impl Display for NitfHeader {
         write!(f, "NitfHeader: [{}]", out_str)
     }
 }
+
 impl NitfSegmentHeader for NitfHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {
         self.FHDR.read(reader, 4u8);
@@ -159,14 +159,14 @@ impl NitfSegmentHeader for NitfHeader {
         self.HL.read(reader, 6u8);
         self.NUMI.read(reader, 3u8);
         for _ in 0..self.NUMI.val {
-            let mut subheader = NitfSubHeader::default();
+            let mut subheader = SubHeader::default();
             subheader.read(reader, 6, 10);
             self.IMHEADERS.push(subheader);
         }
 
         self.NUMS.read(reader, 3u8);
         for _ in 0..self.NUMS.val {
-            let mut subheader = NitfSubHeader::default();
+            let mut subheader = SubHeader::default();
             subheader.read(reader, 4, 6);
             self.GRAPHHEADERS.push(subheader);
         }
@@ -174,21 +174,21 @@ impl NitfSegmentHeader for NitfHeader {
         self.NUMX.read(reader, 3u8);
         self.NUMT.read(reader, 3u8);
         for _ in 0..self.NUMT.val {
-            let mut subheader = NitfSubHeader::default();
+            let mut subheader = SubHeader::default();
             subheader.read(reader, 4, 5);
             self.TEXTHEADERS.push(subheader);
         }
 
         self.NUMDES.read(reader, 3u8);
         for _ in 0..self.NUMDES.val {
-            let mut subheader = NitfSubHeader::default();
+            let mut subheader = SubHeader::default();
             subheader.read(reader, 4, 9);
             self.DEXTHEADERS.push(subheader);
         }
 
         self.NUMRES.read(reader, 3u8);
         for _ in 0..self.NUMRES.val {
-            let mut subheader = NitfSubHeader::default();
+            let mut subheader = SubHeader::default();
             subheader.read(reader, 4, 7);
             self.RESHEADERS.push(subheader);
         }
@@ -204,5 +204,31 @@ impl NitfSegmentHeader for NitfHeader {
             self.XHDLOFL.read(reader, 3u8);
             self.XHD.read(reader, &self.XHDL.val - 3);
         }
+    }
+}
+
+/// Subheader element type
+///
+/// Used within the NITF header to denote the subheader segments contained in the file
+#[derive(Default, Clone, Hash, Debug)]
+pub struct SubHeader {
+    /// Bytes of header description
+    pub subheader_size: NitfField<u32>,
+    /// Bytes of the data
+    pub item_size: NitfField<u64>,
+}
+impl SubHeader {
+    pub fn read(&mut self, reader: &mut (impl Read + Seek), sh_size: u64, item_size: u64) {
+        self.subheader_size.read(reader, sh_size);
+        self.item_size.read(reader, item_size);
+    }
+}
+impl Display for SubHeader {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        return write!(
+            f,
+            "[subheader_size: {}, item_size: {}]",
+            &self.subheader_size.string, &self.item_size.string
+        );
     }
 }

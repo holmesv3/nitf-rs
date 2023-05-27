@@ -1,14 +1,70 @@
-//! Segment with memmaped data
+pub mod headers;
+pub mod nitf_file;
+pub mod image;
+pub mod graphic;
+pub mod text;
+pub mod data_extension;
+pub mod reserved_extension;
+
+pub use nitf_file::FileHeader;
+pub use image::Image;
+pub use graphic::Graphic;
+pub use text::Text;
+pub use data_extension::DataExtension;
+pub use reserved_extension::ReservedExtension;
+
 
 use memmap2::Mmap;
 use std::fmt::Display;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom::Current};
-use std::ops::Bound;
-use std::ops::{Deref, RangeBounds};
+use std::ops::Deref;
 use std::string::FromUtf8Error;
 
-use super::segment::NitfSegmentHeader;
+use headers::NitfSegmentHeader;
+/// Segment structure definition
+/// 
+/// 
+///     pub meta: T  // header metadata fields defined in module
+///     pub header_offset: u64  // byte offset of header start
+///     pub header_size: usize  // byte size of header
+/// 
+#[derive(Default, Debug)]
+pub struct Segment<T> {
+    /// Header fields defined in module
+    pub meta: T,
+    /// Byte offset of header start
+    pub header_offset: u64,
+    /// Byte size of header
+    pub header_size: u64,
+}
+
+impl<T> Display for Segment<T>
+where
+    T: NitfSegmentHeader + Display,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.meta)
+    }
+}
+impl<T: NitfSegmentHeader + Default> Segment<T> {
+    pub fn from_reader(
+        reader: &mut (impl Read + Seek),
+        header_size: u64, // TODO refactor to not usize
+    ) -> Result<Self, FromUtf8Error> {
+        let mut seg = Self::default();
+        seg.read_header(reader, header_size);
+        Ok(seg)
+    }
+    pub fn read_header(&mut self, reader: &mut (impl Read + Seek), header_size: u64) {
+        self.header_size = header_size;
+        self.header_offset = reader.stream_position().unwrap();
+        self.meta.read(reader);
+        if header_size == 0 {
+            self.header_size = reader.stream_position().unwrap() - self.header_offset;
+        }
+    }
+}
 
 /// Segment with memmaped data
 #[derive(Debug)]
@@ -26,7 +82,6 @@ pub struct DataSegment<T> {
     /// Data size in bytes
     pub data_size: u64,
 }
-
 
 /// Nitf segment data interface definition
 pub trait NitfSegmentData
@@ -77,27 +132,5 @@ impl<T: NitfSegmentHeader + Default> DataSegment<T> {
             self.header_size = reader.stream_position().unwrap() - self.header_offset;
             self.data_offset = reader.stream_position().unwrap();
         }
-    }
-    
-    /// Read the bytes specified by the `index` range
-    pub fn read_data_bytes(&self, index: impl RangeBounds<usize>) -> &[u8] {
-        let data_start = self.data_offset as usize;
-        let data_end = self.data_size as usize + data_start;
-
-        // First bound does not have exclusive, but the arm needs to be matched
-        let idx_start: usize = match index.start_bound() {
-            Bound::Included(x) => *x + data_start,
-            Bound::Excluded(x) => *x + data_start,
-            Bound::Unbounded => data_start,
-        };
-        // Different cases for the top bound, as each variant is possible
-        let idx_end = match index.end_bound() {
-            Bound::Included(x) => *x + data_start - 1,
-            Bound::Excluded(x) => *x + data_start,
-            Bound::Unbounded => data_end,
-        };
-        // Should add a check that the bounds not > data_start + data_end
-
-        return &self.data[idx_start..idx_end];
     }
 }

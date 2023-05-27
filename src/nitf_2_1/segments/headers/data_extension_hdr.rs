@@ -5,7 +5,7 @@ use std::str::FromStr;
 
 use crate::nitf_2_1::types::field::{NitfField, InvalidNitfValue};
 use crate::nitf_2_1::types::security::Security;
-use crate::nitf_2_1::types::segment::NitfSegmentHeader;
+use crate::nitf_2_1::segments::headers::NitfSegmentHeader;
 
 /// Metadata for Data Extension Segment
 #[allow(non_snake_case)]

@@ -4,7 +4,7 @@ use std::io::{Read, Seek};
 
 use crate::nitf_2_1::types::field::NitfField;
 use crate::nitf_2_1::types::security::Security;
-use crate::nitf_2_1::types::segment::NitfSegmentHeader;
+use crate::nitf_2_1::segments::headers::NitfSegmentHeader;
 
 /// Metadata for Reserved Extension Segment
 ///

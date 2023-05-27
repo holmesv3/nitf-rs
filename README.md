@@ -19,6 +19,27 @@ it as I have time to.
 If you have questions, would like to contribute, or would like to request 
 something be added, you can ask on [this Discord server](https://discord.gg/Kg7NwN4XgS), or create an issue.
 
+## Example
+```rust
+use nitf_rs::read_nitf;
+use std::path::Path;
+// Define a string which is the path to some nitf file
+let nitf_file: String = get_nitf_file();
+let nitf_path = Path::new(&nitf_file);
+
+// Read the file and parse all available metadata
+let nitf = read_nitf(nitf_path);
+
+// Print all metadata
+println!("{}", &nitf);
+
+// Read image data, check that the dimensions are what we expect
+let im_seg = &nitf.image_segments[0];
+let data = im_seg.data_to_array();
+println!("Meta NROWS: {}, data.nrows(): {}", im_seg.meta.NROWS.val, data.nrows());
+println!("Meta NCOLS: {}, data.ncols(): {}", im_seg.meta.NCOLS.val, data.ncols());
+```
+
 ## Current Functionality
 
 In my own testing, I have only been able to find files to verify parsing for:

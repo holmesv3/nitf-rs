@@ -1,7 +1,4 @@
-//! Base type/trait definitions used throughout crate
-pub mod data_segment;
+//! Base type definitions used to define headers
 pub mod field;
 pub mod security;
-pub mod segment;
-pub mod subheader;
 
