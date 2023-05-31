@@ -117,8 +117,9 @@ pub struct ValidData {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Vertex {
-    pub index: u64,
-    pub value: RowCol,
+    pub index: usize,
+    pub Row: u64,
+    pub Col: u64
 }
 
 
