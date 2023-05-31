@@ -3,7 +3,7 @@ use ndarray::{Array1, Array2};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct RC {
+pub struct RowCol {
     pub Row: u64,
     pub Col: u64,
 }
