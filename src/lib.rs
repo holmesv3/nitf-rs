@@ -5,6 +5,7 @@ use std::fs::File;
 use std::path::Path;
 
 pub mod nitf_2_1;
+
 // #[cfg(feature="sicd")]  // optional export of  the sicd module
 pub mod sicd;
 
@@ -23,9 +24,6 @@ pub fn read_nitf(path: &Path) -> Nitf {
     let mut reader = File::open(path).unwrap();
     return Nitf::from_file(&mut reader);
 }
-
-
-
 
 // UNIT TESTS
 #[cfg(test)]
