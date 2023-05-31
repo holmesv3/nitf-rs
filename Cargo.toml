@@ -13,8 +13,9 @@ readme = "README-crates.md"
 num-complex = "0.4.3"
 memmap2 = "0.5.10"
 ndarray = {version = "0.15.6", features = ["serde"]}
-serde-xml-rs = {version = "0.6.0"}
 serde = {version = "1.0.163", features = ["derive"]}
+serde-xml-rs = {version = "0.6.0"}
+
 [features]
 # sicd = ["dep:serde-xml-rs", "dep:serde"]
 

@@ -3,6 +3,3 @@
 
 pub mod param_types;
 pub mod sicd_types;
-
-// Export the sicd object directly
-pub use sicd_types::Sicd;

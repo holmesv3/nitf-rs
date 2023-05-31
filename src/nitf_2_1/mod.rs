@@ -5,8 +5,10 @@ pub mod types;
 
 use std::fmt::Display;
 use std::fs::File;
+use serde_xml_rs::from_str;
 
 use segments::{DataExtension, FileHeader, Graphic, Image, ReservedExtension, Text};
+use crate::sicd::sicd_types::Sicd;
 
 /// Top level NITF interface
 ///
@@ -77,6 +79,12 @@ impl Nitf {
             nitf.reserved_extension_segments.push(seg);
         }
         return nitf;
+    }
+
+    // #[cfg(feature = "sicd")]
+    pub fn parse_sicd_meta(&self) -> Result<Sicd, serde_xml_rs::Error> {
+        let xml_str = String::from_utf8(self.data_extension_segments[0].data[..].to_vec()).unwrap();
+        from_str(&xml_str)
     }
 }
 
