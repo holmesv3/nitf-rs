@@ -1,3 +1,5 @@
+use std::ops::Index;
+
 use super::param_types::{Poly1D, Poly2D, XYZ};
 use serde::Deserialize;
 
@@ -47,6 +49,12 @@ pub struct Timeline {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct IppParams {
     pub Set: Vec<IppSet>,
+}
+impl Index<usize> for IppParams {
+    type Output = IppSet;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.Set[index]
+    }
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
