@@ -1,13 +1,12 @@
 //! Header definitions for each segment
-pub mod nitf_file_hdr;
 pub mod data_extension_hdr;
 pub mod graphic_hdr;
 pub mod image_hdr;
+pub mod nitf_file_hdr;
 pub mod reserved_extension_hdr;
 pub mod text_hdr;
 
 use std::io::{Read, Seek};
-
 
 /// Nitf segment header interface definition
 ///

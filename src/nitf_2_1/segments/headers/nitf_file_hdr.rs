@@ -2,11 +2,8 @@
 use std::fmt::Display;
 use std::io::{Read, Seek};
 
-use crate::nitf_2_1::types::{
-    field::*, 
-    security::*,
-};
 use crate::nitf_2_1::segments::headers::NitfSegmentHeader;
+use crate::nitf_2_1::types::{field::*, security::*};
 
 /// Metadata for Nitf File Header
 #[allow(non_snake_case)]
@@ -35,7 +32,7 @@ pub struct NitfHeader {
     /// Encryption
     pub ENCRYP: NitfField<String>,
     /// File Background Color
-    pub FBKGC: Vec<NitfField<String>>,  // TODO: Fix the parsing of this
+    pub FBKGC: Vec<NitfField<String>>, // TODO: Fix the parsing of this
     /// Originator's Name
     pub ONAME: NitfField<String>,
     /// Originator's Phone Number
@@ -71,13 +68,13 @@ pub struct NitfHeader {
     /// User Defined Header Overflow
     pub UDHOFL: NitfField<u16>,
     /// User Defined Header Data
-    pub UDHD: NitfField<String>,  // TODO: Figure out what to do with this
+    pub UDHD: NitfField<String>, // TODO: Figure out what to do with this
     /// Extended Header Data Length
     pub XHDL: NitfField<u32>,
     /// Extended Header Data Overflow
     pub XHDLOFL: NitfField<u16>,
     /// Extended Header Data
-    pub XHD: NitfField<String>,  // TODO: Figure out what to do with this
+    pub XHD: NitfField<String>, // TODO: Figure out what to do with this
 }
 impl Display for NitfHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -95,10 +92,9 @@ impl Display for NitfHeader {
         out_str += format!("ENCRYP: {}, \n", self.ENCRYP).as_ref();
         out_str += format!(
             "FBKGC: [R: {}, G: {}, B: {}], \n",
-             self.FBKGC[0],
-             self.FBKGC[1],
-             self.FBKGC[2],
-        ).as_ref();
+            self.FBKGC[0], self.FBKGC[1], self.FBKGC[2],
+        )
+        .as_ref();
         out_str += format!("ONAME: {}, \n", self.ONAME).as_ref();
         out_str += format!("OPHONE: {}, \n", self.OPHONE).as_ref();
         out_str += format!("FL: {}, \n", self.FL).as_ref();

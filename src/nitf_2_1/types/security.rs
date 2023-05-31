@@ -12,7 +12,7 @@ pub struct Security {
     /// File Security Classification
     pub CLAS: NitfField<Classification>,
     /// File Classification Security System
-    pub CLSY: NitfField<String>,  // TODO: Check value registry
+    pub CLSY: NitfField<String>, // TODO: Check value registry
     /// File Codewords
     pub CODE: NitfField<String>,
     /// File Control and Handling
@@ -36,7 +36,7 @@ pub struct Security {
     /// File Classification Authority
     pub CAUT: NitfField<String>,
     /// File Classification Reason
-    pub CRSN: NitfField<ClassificationReason>,  // TODO: Check value registry
+    pub CRSN: NitfField<ClassificationReason>, // TODO: Check value registry
     /// File Security Source Date
     pub SRDT: NitfField<String>,
     /// File Security Control Number
@@ -48,15 +48,15 @@ pub struct Security {
 pub enum Classification {
     #[default]
     /// Unclassified
-    U,  
+    U,
     /// Top Secret
-    T,  
+    T,
     /// Secret
-    S,  
+    S,
     /// Confidential
-    C,  
+    C,
     /// Restricted
-    R,  
+    R,
 }
 
 /// Declassification codes
@@ -64,19 +64,19 @@ pub enum Classification {
 pub enum DeclassificationType {
     #[default]
     /// Default value, two spaces
-    DEFAULT,  
+    DEFAULT,
     /// Declassify on specific date
-    DD,     
+    DD,
     /// Declassify on occurrence of event
-    DE,     
+    DE,
     /// Downgrade to specified level on specific date
-    GD,     
+    GD,
     /// Downgrade to specified level on occurrence of event
-    GE,     
+    GE,
     /// OADR
-    O,      
+    O,
     /// Exempt from automatic declassification
-    X,      
+    X,
 }
 
 ///  Declassification exemption
@@ -94,13 +94,13 @@ pub enum DeclassificationExemption {
 pub enum Downgrade {
     #[default]
     /// Default value, two spaces
-    DEFAULT,  
+    DEFAULT,
     /// Secret
-    S,  
+    S,
     /// Confidential
-    C,  
+    C,
     /// Restricted
-    R,  
+    R,
 }
 
 /// Classification authority
@@ -122,11 +122,10 @@ pub enum ClassificationAuthorityType {
 pub enum ClassificationReason {
     #[default]
     /// Default value, one space
-    DEFAULT,  
+    DEFAULT,
     /// Valid value, see NitfField.string for value
-    VALID,  
+    VALID,
 }
-
 
 impl Security {
     pub fn read(&mut self, reader: &mut (impl Read + Seek)) {
@@ -179,7 +178,7 @@ impl FromStr for Classification {
             "S" => Ok(Self::S),
             "C" => Ok(Self::C),
             "R" => Ok(Self::R),
-            _ => Err(InvalidNitfValue)
+            _ => Err(InvalidNitfValue),
         }
     }
 }
@@ -194,7 +193,7 @@ impl FromStr for DeclassificationType {
             "GE" => Ok(Self::GE),
             "O" => Ok(Self::O),
             "X" => Ok(Self::X),
-            _ => Err(InvalidNitfValue)
+            _ => Err(InvalidNitfValue),
         }
     }
 }
@@ -203,23 +202,23 @@ impl FromStr for DeclassificationExemption {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "" => Ok(Self::DEFAULT),
-            "X1" => Ok(Self::VALID),    // DOD 5200.01-V1, 4-201b(1)
-            "X2" => Ok(Self::VALID),    // DOD 5200.01-V1, 4-201b(2)
-            "X3" => Ok(Self::VALID),    // DOD 5200.01-V1, 4-201b(3)
-            "X4" => Ok(Self::VALID),    // DOD 5200.01-V1, 4-201b(4)
-            "X5" => Ok(Self::VALID),    // DOD 5200.01-V1, 4-201b(5)
-            "X6" => Ok(Self::VALID),    // DOD 5200.01-V1, 4-201b(6)
-            "X7" => Ok(Self::VALID),    // DOD 5200.01-V1, 4-201b(7)
-            "X8" => Ok(Self::VALID),    // DOD 5200.01-V1, 4-201b(8)
-            "25X1" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(1)
-            "25X2" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(2)
-            "25X3" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(3)
-            "25X4" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(4)
-            "25X5" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(5)
-            "25X6" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(6)
-            "25X7" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(7)
-            "25X8" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(8)
-            "25X9" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(9)
+            "X1" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(1)
+            "X2" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(2)
+            "X3" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(3)
+            "X4" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(4)
+            "X5" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(5)
+            "X6" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(6)
+            "X7" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(7)
+            "X8" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(8)
+            "25X1" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(1)
+            "25X2" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(2)
+            "25X3" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(3)
+            "25X4" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(4)
+            "25X5" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(5)
+            "25X6" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(6)
+            "25X7" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(7)
+            "25X8" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(8)
+            "25X9" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(9)
             _ => Err(InvalidNitfValue),
         }
     }
@@ -232,7 +231,7 @@ impl FromStr for Downgrade {
             "S" => Ok(Self::S),
             "C" => Ok(Self::C),
             "R" => Ok(Self::R),
-            _ => Err(InvalidNitfValue)
+            _ => Err(InvalidNitfValue),
         }
     }
 }
@@ -244,7 +243,7 @@ impl FromStr for ClassificationAuthorityType {
             "O" => Ok(Self::O),
             "D" => Ok(Self::D),
             "M" => Ok(Self::M),
-            _ => Err(InvalidNitfValue) 
+            _ => Err(InvalidNitfValue),
         }
     }
 }
@@ -261,7 +260,7 @@ impl FromStr for ClassificationReason {
             "F" => Ok(Self::VALID),
             "G" => Ok(Self::VALID),
             "H" => Ok(Self::VALID),
-            _ => Err(InvalidNitfValue)
+            _ => Err(InvalidNitfValue),
         }
     }
 }

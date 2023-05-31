@@ -1,6 +1,6 @@
 //! Sicd metadata type definitions
-use serde::{Deserialize};
 use ndarray::{Array1, Array2};
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RC {
@@ -32,13 +32,13 @@ pub struct LL {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Coef1D {
     pub exponent1: usize,
-    #[serde(rename="$value")]
+    #[serde(rename = "$value")]
     pub Value: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Poly1D {
     pub order1: usize,
-    #[serde(rename="$value")]
+    #[serde(rename = "$value")]
     pub Coefs: Vec<Coef1D>,
 }
 impl Poly1D {
@@ -53,19 +53,18 @@ impl Poly1D {
     }
 }
 
-
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Coef2D {
     pub exponent1: usize,
     pub exponent2: usize,
-    #[serde(rename="$value")]
+    #[serde(rename = "$value")]
     pub Value: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Poly2D {
     pub order1: usize,
     pub order2: usize,
-    #[serde(rename="$value")]
+    #[serde(rename = "$value")]
     pub Coefs: Vec<Coef2D>,
 }
 impl Poly2D {

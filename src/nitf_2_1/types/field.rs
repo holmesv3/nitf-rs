@@ -1,5 +1,5 @@
 //! Inidividual header/subheader element type
-use std::fmt::{Display, Debug};
+use std::fmt::{Debug, Display};
 use std::io::{Read, Seek};
 use std::str::FromStr;
 
@@ -19,9 +19,11 @@ pub struct NitfField<V: FromStr + Debug> {
 }
 
 /// Use Default implementation
-impl<V> NitfField<V> 
-where V: FromStr + Debug, 
-     <V as FromStr>::Err : Debug {
+impl<V> NitfField<V>
+where
+    V: FromStr + Debug,
+    <V as FromStr>::Err: Debug,
+{
     /// Read the specified number of bytes and parse the value of a given field
     pub fn read<T: Sized + Into<u64>>(&mut self, reader: &mut (impl Read + Seek), n_bytes: T) {
         self.length = n_bytes.into();
@@ -48,7 +50,6 @@ impl<V: FromStr + Debug> Display for NitfField<V> {
         return write!(f, "{}", &self.string);
     }
 }
-
 
 /// General Error type for parsed value
 #[derive(Debug, Clone)]

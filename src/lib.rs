@@ -30,4 +30,3 @@ pub fn read_nitf(path: &Path) -> Nitf {
 mod tests {
     // TODO - Figure out how to test this
 }
-

@@ -2,9 +2,9 @@
 use std::fmt::Display;
 use std::io::{Read, Seek};
 
+use crate::nitf_2_1::segments::headers::NitfSegmentHeader;
 use crate::nitf_2_1::types::field::NitfField;
 use crate::nitf_2_1::types::security::Security;
-use crate::nitf_2_1::segments::headers::NitfSegmentHeader;
 
 /// Metadata for Reserved Extension Segment
 ///
@@ -25,7 +25,7 @@ pub struct ReservedExtensionHeader {
     /// User-Defined Subheader Fields
     pub RESSHF: NitfField<String>,
     // User-Defined Data
-    // pub RESDATA: NitfField<String>,  // Determined by NTB? 
+    // pub RESDATA: NitfField<String>,  // Determined by NTB?
 }
 impl Display for ReservedExtensionHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

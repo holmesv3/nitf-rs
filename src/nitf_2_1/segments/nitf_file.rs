@@ -1,8 +1,11 @@
 //! Nitf file header structure
 
-use std::{io::{Read, Seek}, fmt::Display};
+use std::{
+    fmt::Display,
+    io::{Read, Seek},
+};
 
-use super::headers::{nitf_file_hdr::{NitfHeader}, NitfSegmentHeader};
+use super::headers::{nitf_file_hdr::NitfHeader, NitfSegmentHeader};
 
 #[derive(Default, Debug, Clone, Hash)]
 pub struct FileHeader {

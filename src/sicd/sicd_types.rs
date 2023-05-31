@@ -1,15 +1,15 @@
-use serde::Deserialize;
 use super::param_types::{Poly1D, Poly2D, XYZ};
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Sicd {
     pub CollectionInfo: CollectionInfo,
-    pub ImageCreation: Option<ImageCreation>, 
+    pub ImageCreation: Option<ImageCreation>,
     pub ImageData: ImageData,
     pub GeoData: GeoData,
     pub Grid: Grid,
-    pub Timeline: Timeline,  // Done
-    pub Position: Position, 
+    pub Timeline: Timeline, // Done
+    pub Position: Position,
     pub RadarCollection: RadarCollection,
     pub ImageFormation: ImageFormation,
     pub SCPCOA: ScpCoa,
@@ -18,7 +18,7 @@ pub struct Sicd {
     pub ErrorStatistics: Option<ErrorStatistics>,
     pub MatchInfo: Option<MatchInfo>,
     pub RgAzComp: Option<RgAzComp>,
-    pub Pfa: Option<Pfa> , // Done
+    pub Pfa: Option<Pfa>, // Done
     pub Rma: Option<Rma>,
 }
 
@@ -41,7 +41,7 @@ pub struct Grid {}
 pub struct Timeline {
     pub CollectStart: String,
     pub CollectDuration: f64,
-    pub IPP: Option<IppParams>
+    pub IPP: Option<IppParams>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -52,12 +52,11 @@ pub struct IppParams {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct IppSet {
     pub TStart: f64,
-    pub TEnd: f64, 
+    pub TEnd: f64,
     pub IPPStart: u64,
     pub IPPEnd: u64,
     pub IPPPoly: Poly1D,
 }
-
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Position {}
@@ -97,13 +96,13 @@ pub struct Pfa {
     pub Krg2: f64,
     pub Kaz1: f64,
     pub Kaz2: f64,
-    pub STDeskew: Option<STDeskew>
+    pub STDeskew: Option<STDeskew>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct STDeskew {
     Applied: bool,
-    STDSPhasePoly: Poly2D
+    STDSPhasePoly: Poly2D,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]

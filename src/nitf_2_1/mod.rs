@@ -1,12 +1,12 @@
 //! Interface for NITF version 2.1
 
-pub mod types;
 pub mod segments;
+pub mod types;
 
 use std::fmt::Display;
 use std::fs::File;
 
-use segments::{FileHeader, Image, Graphic, Text, DataExtension, ReservedExtension};
+use segments::{DataExtension, FileHeader, Graphic, Image, ReservedExtension, Text};
 
 /// Top level NITF interface
 ///
@@ -26,7 +26,6 @@ pub struct Nitf {
     /// Vector of reserved extension segments. See [ReservedExtensionHeader] for `meta` fields
     pub reserved_extension_segments: Vec<ReservedExtension>,
 }
-
 
 impl Nitf {
     pub fn from_file(reader: &mut File) -> Self {
@@ -79,7 +78,6 @@ impl Nitf {
         }
         return nitf;
     }
-
 }
 
 impl Display for Nitf {

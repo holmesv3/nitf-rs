@@ -1,18 +1,17 @@
-pub mod headers;
-pub mod nitf_file;
-pub mod image;
-pub mod graphic;
-pub mod text;
 pub mod data_extension;
+pub mod graphic;
+pub mod headers;
+pub mod image;
+pub mod nitf_file;
 pub mod reserved_extension;
+pub mod text;
 
-pub use nitf_file::FileHeader;
-pub use image::Image;
-pub use graphic::Graphic;
-pub use text::Text;
 pub use data_extension::DataExtension;
+pub use graphic::Graphic;
+pub use image::Image;
+pub use nitf_file::FileHeader;
 pub use reserved_extension::ReservedExtension;
-
+pub use text::Text;
 
 use memmap2::Mmap;
 use std::fmt::Display;
@@ -23,12 +22,12 @@ use std::string::FromUtf8Error;
 
 use headers::NitfSegmentHeader;
 /// Segment structure definition
-/// 
-/// 
+///
+///
 ///     pub meta: T  // header metadata fields defined in module
 ///     pub header_offset: u64  // byte offset of header start
 ///     pub header_size: usize  // byte size of header
-/// 
+///
 #[derive(Default, Debug)]
 pub struct Segment<T> {
     /// Header fields defined in module

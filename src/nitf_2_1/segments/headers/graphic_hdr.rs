@@ -3,9 +3,9 @@ use std::fmt::Display;
 use std::io::{Read, Seek};
 use std::str::FromStr;
 
-use crate::nitf_2_1::types::field::{NitfField, InvalidNitfValue};
-use crate::nitf_2_1::types::security::Security;
 use crate::nitf_2_1::segments::headers::NitfSegmentHeader;
+use crate::nitf_2_1::types::field::{InvalidNitfValue, NitfField};
+use crate::nitf_2_1::types::security::Security;
 
 /// Header fields for Graphic Segment
 #[allow(non_snake_case)]
@@ -30,7 +30,7 @@ pub struct GraphicHeader {
     /// Graphic Attachment Level
     pub SALVL: NitfField<u16>,
     /// Graphic Location
-    pub SLOC: NitfField<String>,  // TODO: Same image image ILOC type thing
+    pub SLOC: NitfField<String>, // TODO: Same image image ILOC type thing
     /// First Graphic Bound Location
     pub SBND1: NitfField<BoundLocation>,
     /// Graphic Color
@@ -46,7 +46,6 @@ pub struct GraphicHeader {
     /// Graphic Extended Subheader Data
     pub SXSHD: NitfField<String>,
 }
-
 
 impl Display for GraphicHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -101,7 +100,7 @@ impl NitfSegmentHeader for GraphicHeader {
 pub enum Format {
     #[default]
     /// Computer graphics metafile
-    C
+    C,
 }
 
 impl FromStr for Format {
@@ -109,7 +108,7 @@ impl FromStr for Format {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "C" => Ok(Self::C),
-            _ => Err(InvalidNitfValue)
+            _ => Err(InvalidNitfValue),
         }
     }
 }
@@ -130,9 +129,8 @@ impl FromStr for BoundLocation {
             let n_char = n_char_tot / 2;
             bounds.row = s[..n_char].parse().unwrap();
             bounds.col = s[n_char..].parse().unwrap();
-            return Ok(bounds)
-        }
-        else {
+            return Ok(bounds);
+        } else {
             return Err(InvalidNitfValue);
         }
     }
@@ -154,7 +152,7 @@ impl FromStr for Color {
         match s {
             "C" => Ok(Self::C),
             "M" => Ok(Self::M),
-            _ => Err(InvalidNitfValue)
+            _ => Err(InvalidNitfValue),
         }
     }
 }

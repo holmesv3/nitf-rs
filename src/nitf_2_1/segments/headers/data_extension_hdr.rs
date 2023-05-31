@@ -3,9 +3,9 @@ use std::fmt::Display;
 use std::io::{Read, Seek};
 use std::str::FromStr;
 
-use crate::nitf_2_1::types::field::{NitfField, InvalidNitfValue};
-use crate::nitf_2_1::types::security::Security;
 use crate::nitf_2_1::segments::headers::NitfSegmentHeader;
+use crate::nitf_2_1::types::field::{InvalidNitfValue, NitfField};
+use crate::nitf_2_1::types::security::Security;
 
 /// Metadata for Data Extension Segment
 #[allow(non_snake_case)]
@@ -14,7 +14,8 @@ pub struct DataExtensionHeader {
     /// File Part Type
     pub DE: NitfField<String>,
     /// Unique DES Type Identifier
-    pub DESID: NitfField<String>,  /// Check on this registration
+    pub DESID: NitfField<String>,
+    /// Check on this registration
     /// Version of the Data Definition
     pub DESVER: NitfField<u8>,
     //// Security information
@@ -26,7 +27,7 @@ pub struct DataExtensionHeader {
     /// DES User-defined Subheader Length
     pub DESSHL: NitfField<u16>,
     /// User-defined Subheader Fields
-    pub DESSHF: NitfField<String>,  // TODO: Figure out what to do here
+    pub DESSHF: NitfField<String>, // TODO: Figure out what to do here
 }
 
 /// Selection of which header/subheader this extension corresponds to
@@ -34,13 +35,13 @@ pub struct DataExtensionHeader {
 pub enum OverflowedHeaderType {
     #[default]
     /// Image subheader extended subheader data overflow
-    IXSHD, 
+    IXSHD,
     /// Graphic subheader extended subheader data overflow
     SXSHD,
     /// Text subheader extended subheader data overflow
-    TXSHD, 
+    TXSHD,
     /// Header user defined header overflow
-    UDHD, 
+    UDHD,
     /// Image subheader user defined image data overflow
     UDID,
 }
@@ -82,7 +83,7 @@ impl FromStr for OverflowedHeaderType {
             "TXSHD" => Ok(Self::TXSHD),
             "UDHD" => Ok(Self::UDHD),
             "UDID" => Ok(Self::UDID),
-            _ => Err(InvalidNitfValue)
+            _ => Err(InvalidNitfValue),
         }
     }
 }

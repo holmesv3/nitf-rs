@@ -3,9 +3,9 @@ use std::fmt::Display;
 use std::io::{Read, Seek};
 use std::str::FromStr;
 
-use crate::nitf_2_1::types::field::{NitfField, InvalidNitfValue};
-use crate::nitf_2_1::types::security::Security;
 use crate::nitf_2_1::segments::headers::NitfSegmentHeader;
+use crate::nitf_2_1::types::field::{InvalidNitfValue, NitfField};
+use crate::nitf_2_1::types::security::Security;
 
 /// Text Segment Metadata
 #[allow(non_snake_case)]
@@ -48,7 +48,6 @@ pub enum TextFormat {
     /// U8S formatting
     U8S,
 }
-
 
 impl NitfSegmentHeader for TextHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {

@@ -1,13 +1,13 @@
 //! Image segment definition
-//! 
+//!
 //! Need to implement data mask - which also means need to implement some kind of nicer parsing (enums, among other things)
 use std::fmt::Display;
 use std::io::{Read, Seek};
 use std::str::FromStr;
 
-use crate::nitf_2_1::types::field::{NitfField, InvalidNitfValue};
-use crate::nitf_2_1::types::security::Security;
 use crate::nitf_2_1::segments::headers::NitfSegmentHeader;
+use crate::nitf_2_1::types::field::{InvalidNitfValue, NitfField};
+use crate::nitf_2_1::types::security::Security;
 
 /// Metadata for Image Segment subheader
 #[allow(non_snake_case)]
@@ -38,7 +38,7 @@ pub struct ImageHeader {
     /// Image Representation
     pub IREP: NitfField<ImageRepresentation>,
     /// Image Category
-    pub ICAT: NitfField<String>,  // TODO: Check value registry
+    pub ICAT: NitfField<String>, // TODO: Check value registry
     /// Actual Bits-Per-Pixel Per Band
     pub ABPP: NitfField<u8>,
     /// Pixel Justification
@@ -46,7 +46,7 @@ pub struct ImageHeader {
     /// Image Coordinate Representation
     pub ICORDS: NitfField<CoordinateRepresentation>,
     /// Image Geographic Location
-    pub IGEOLO: Vec<NitfField<String>>,  // TODO: Check this out
+    pub IGEOLO: Vec<NitfField<String>>, // TODO: Check this out
     /// Number of Image Comments
     pub NICOM: NitfField<u8>,
     /// Image Comments
@@ -54,7 +54,7 @@ pub struct ImageHeader {
     /// Image Compression
     pub IC: NitfField<Compression>,
     /// Compression Rate Code
-    pub COMRAT: NitfField<String>,  // TODO: Figure out how to parse this
+    pub COMRAT: NitfField<String>, // TODO: Figure out how to parse this
     /// Number of Bands
     pub NBANDS: NitfField<u8>,
     /// Number of Multispectral Bands
@@ -80,7 +80,7 @@ pub struct ImageHeader {
     /// Image Attachment Level
     pub IALVL: NitfField<u16>,
     /// Image Location
-    pub ILOC: NitfField<String>,  // TODO fix this or something
+    pub ILOC: NitfField<String>, // TODO fix this or something
     /// Image Magnification
     pub IMAG: NitfField<String>,
     /// User Defined Image Data Length
@@ -94,7 +94,7 @@ pub struct ImageHeader {
     /// Image Extended Subheader Overflow
     pub IXSOFL: NitfField<u16>,
     /// Image Extended Subheader Data
-    pub IXSHD: NitfField<String>,  // TODO
+    pub IXSHD: NitfField<String>, // TODO
 }
 
 /// Band metadata
@@ -102,15 +102,15 @@ pub struct ImageHeader {
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Band {
     /// Band Representation
-    pub IREPBAND: NitfField<String>,  // TODO: Check how to do this
+    pub IREPBAND: NitfField<String>, // TODO: Check how to do this
     /// Band Subcategory
-    pub ISUBCAT: NitfField<String>,  // User specified
+    pub ISUBCAT: NitfField<String>, // User specified
     /// Band Image Filter Condition
-    pub IFC: NitfField<String>,  // Reserved for future use 
+    pub IFC: NitfField<String>, // Reserved for future use
     /// Band Standard Image Filter Code
-    pub IMFLT: NitfField<String>,  // Reserved for future use
+    pub IMFLT: NitfField<String>, // Reserved for future use
     /// Number of Look-Up-Tables for the Image Band
-    pub NLUTS: NitfField<u8>,  // 
+    pub NLUTS: NitfField<u8>, //
     /// Number of Look-Up-Table Entries for the Image Band
     pub NELUT: NitfField<u16>,
     /// Image Band Look-Up-Tables
@@ -119,7 +119,7 @@ pub struct Band {
 
 /// Pixel Value type options
 #[derive(Debug, Default, Hash, Clone)]
-pub enum PixelValueType{
+pub enum PixelValueType {
     #[default]
     /// ComplexFloat, 32 or 64 bits, real then imaginary
     C,
@@ -174,17 +174,17 @@ pub enum CoordinateRepresentation {
     /// Default value, one space
     DEFAULT,
     /// UTM in Military Grid Reference System
-    U, 
+    U,
     /// UTM/UPS Northern hemisphere
     N,
     /// UTM/UPS Southern hemisphere
-    S, 
-    /// UPS 
-    P, 
+    S,
+    /// UPS
+    P,
     /// Geographic
-    G, 
+    G,
     /// Decimal degrees
-    D, 
+    D,
 }
 
 /// Image compression values
@@ -192,39 +192,39 @@ pub enum CoordinateRepresentation {
 pub enum Compression {
     #[default]
     /// Not compressed
-    NC, 
+    NC,
     /// Uncompressed, contains mask
-    NM, 
+    NM,
     /// Bi-level
-    C1, 
+    C1,
     /// JPEG
-    C3, 
+    C3,
     /// Vector Quantization
     C4,
     /// Lossless JPEG
-    C5, 
+    C5,
     /// Reserved for future compression algorithm
-    C6, 
+    C6,
     /// Resrved for future complex SAR compression
-    C7, 
+    C7,
     /// ISO JPEG 2000
-    C8, 
+    C8,
     /// Downsampled JPEG
     I1,
     /// Compressed, contains mask
-    M1, 
+    M1,
     /// Compressed, contains mask
-    M3, 
+    M3,
     /// Compressed, contains mask
-    M4, 
+    M4,
     /// Compressed, contains mask
-    M5, 
+    M5,
     /// Reserved for future compression algorithm
     M6,
     /// Resrved for future complex SAR compression
-    M7, 
+    M7,
     /// ISO JPEG 2000
-    M8, 
+    M8,
 }
 
 /// Image data storage mode
@@ -388,7 +388,7 @@ impl Display for Band {
         out_str += format!("\tIMFLT: {},\n", self.IMFLT).as_ref();
         out_str += format!("\tNLUTS: {},\n", self.NLUTS).as_ref();
         out_str += format!("\tNELUT: {}, ", self.NELUT).as_ref();
-        for look_up in &self.LUTD{
+        for look_up in &self.LUTD {
             out_str += format!("\n\t\tLUTD: [{}]", look_up).as_ref();
         }
         return write!(f, "{}", out_str);
@@ -482,8 +482,7 @@ impl FromStr for Mode {
             "P" => Ok(Self::P),
             "R" => Ok(Self::R),
             "S" => Ok(Self::S),
-            _ => Err(InvalidNitfValue), 
+            _ => Err(InvalidNitfValue),
         }
     }
 }
-
