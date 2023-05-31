@@ -1,61 +1,89 @@
 //! Sicd metadata type definitions
-pub use serde::{Deserialize, Serialize};
+use serde::{Deserialize};
+use ndarray::{Array1, Array2};
+
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RC {
-    Row: u64,
-    Col: u64,
+    pub Row: u64,
+    pub Col: u64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct CMPLX {
-    Real: f64,
-    Imag: f64,
+    pub Real: f64,
+    pub Imag: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct XYZ {
-    X: f64,
-    Y: f64,
-    Z: f64,
+    pub X: f64,
+    pub Y: f64,
+    pub Z: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct LLH {
-    Lat: f64,
-    Lon: f64,
-    HAE: f64,
+    pub Lat: f64,
+    pub Lon: f64,
+    pub HAE: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct LL {
-    Lat: f64,
-    Lon: f64,
+    pub Lat: f64,
+    pub Lon: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Coef1D {
-    exponent1: u8,
+    pub exponent1: usize,
     #[serde(rename="$value")]
-    Value: f64,
+    pub Value: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Poly1D {
-    order1: u8,
+    pub order1: usize,
     #[serde(rename="$value")]
-    Coefs: Vec<Coef1D>,
+    pub Coefs: Vec<Coef1D>,
 }
+impl Poly1D {
+    /// Parse the data in the polynomial to an array object
+    pub fn to_array(&self) -> Array1<f64> {
+        let mut poly = Array1::zeros(self.order1 + 1);
+        for coef in &self.Coefs {
+            let term = coef.exponent1;
+            poly[term] = coef.Value;
+        }
+        poly
+    }
+}
+
+
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Coef2D {
-    exponent1: u8,
-    exponent2: u8,
+    pub exponent1: usize,
+    pub exponent2: usize,
     #[serde(rename="$value")]
-    Value: f64,
+    pub Value: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Poly2D {
-    order1: u8,
-    order2: u8,
+    pub order1: usize,
+    pub order2: usize,
     #[serde(rename="$value")]
-    Coefs: Vec<Coef2D>,
+    pub Coefs: Vec<Coef2D>,
 }
+impl Poly2D {
+    /// Parse the data in the polynomial to an array object
+    pub fn to_array(&self) -> Array2<f64> {
+        let mut poly = Array2::zeros((self.order1 + 1, self.order2 + 1));
+        for coef in &self.Coefs {
+            let term1 = coef.exponent1;
+            let term2 = coef.exponent2;
+            poly[[term1, term2]] = coef.Value;
+        }
+        poly
+    }
+}
+
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct XyzPoly {
-    X: Poly1D,
-    Y: Poly1D,
-    Z: Poly1D,
+    pub X: Poly1D,
+    pub Y: Poly1D,
+    pub Z: Poly1D,
 }
