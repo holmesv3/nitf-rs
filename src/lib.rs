@@ -5,6 +5,8 @@ use std::fs::File;
 use std::path::Path;
 
 pub mod nitf_2_1;
+// #[cfg(feature="sicd")]  // optional export of  the sicd module
+pub mod sicd;
 
 use nitf_2_1::Nitf;
 
