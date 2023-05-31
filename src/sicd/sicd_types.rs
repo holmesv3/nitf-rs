@@ -18,7 +18,7 @@ pub struct Sicd {
     pub ErrorStatistics: Option<ErrorStatistics>,
     pub MatchInfo: Option<MatchInfo>,
     pub RgAzComp: Option<RgAzComp>,
-    pub Pfa: Option<Pfa> , // DO
+    pub Pfa: Option<Pfa> , // Done
     pub Rma: Option<Rma>,
 }
 
