@@ -240,20 +240,20 @@ pub struct ImageFormation {}
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ScpCoa {
-    SCPTime: f64,
-    ARPPos: XYZ,
-    ARPVel: XYZ,
-    ARPAcc: XYZ,
-    SideOfTrack: SideOfTrack,
-    SlantRange: f64,
-    GroundRange: f64,
-    DopplerConeAng: f64,
-    GrazeAng: f64,
-    IncidenceAng: f64,
-    TwistAng: f64,
-    SlopeAng: f64,
-    AzimAng: f64,
-    LayoverAng: f64,
+    pub SCPTime: f64,
+    pub ARPPos: XYZ,
+    pub ARPVel: XYZ,
+    pub ARPAcc: XYZ,
+    pub SideOfTrack: SideOfTrack,
+    pub SlantRange: f64,
+    pub GroundRange: f64,
+    pub DopplerConeAng: f64,
+    pub GrazeAng: f64,
+    pub IncidenceAng: f64,
+    pub TwistAng: f64,
+    pub SlopeAng: f64,
+    pub AzimAng: f64,
+    pub LayoverAng: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum SideOfTrack {
@@ -263,16 +263,16 @@ pub enum SideOfTrack {
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Radiometric {
-    NoiseLevel: Option<NoiseLevel>,
-    RCSSFPoly: Option<Poly2D>,
-    SigmaZeroSFPoly: Option<Poly2D>,
-    BetaZeroSFPoly: Option<Poly2D>,
-    GammaZeroSFPoly: Option<Poly2D>,
+    pub NoiseLevel: Option<NoiseLevel>,
+    pub RCSSFPoly: Option<Poly2D>,
+    pub SigmaZeroSFPoly: Option<Poly2D>,
+    pub BetaZeroSFPoly: Option<Poly2D>,
+    pub GammaZeroSFPoly: Option<Poly2D>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct NoiseLevel {
-    NoiseLevelType: NoiseLevelType,
-    NoisePoly: Poly2D,
+    pub NoiseLevelType: NoiseLevelType,
+    pub NoisePoly: Poly2D,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum NoiseLevelType {
@@ -282,7 +282,39 @@ pub enum NoiseLevelType {
 
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Antenna {}
+pub struct Antenna {
+    pub Tx: Option<AntennaType>,
+    pub Rcv: Option<AntennaType>,
+    pub TwoWay: Option<AntennaType>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct AntennaType {
+    pub XAxisPoly: XyzPoly,
+    pub YAxisPoly: XyzPoly,
+    pub FreqZero: f64,
+    pub EB: Option<EB>,
+    pub Array: Array,
+    pub Elem: Option<Elem>,
+    pub GainBSPoly: Option<Poly1D>,
+    pub EBFreqShift: Option<bool>,
+    pub MLFreqDilation: Option<bool>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct EB {
+    pub DCXPoly: Poly1D,
+    pub DCYPoly: Poly1D,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct Array {
+    pub GainPoly: Poly2D,
+    pub PhasePoly: Poly2D,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct Elem {
+    pub GainPoly: Poly2D,
+    pub PhasePoly: Poly2D,
+}
+
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ErrorStatistics {}
@@ -309,8 +341,8 @@ pub struct Pfa {
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct STDeskew {
-    Applied: bool,
-    STDSPhasePoly: Poly2D,
+    pub Applied: bool,
+    pub STDSPhasePoly: Poly2D,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
