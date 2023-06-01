@@ -318,9 +318,9 @@ pub struct Elem {
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ErrorStatistics {
-    CompositeSCP: Option<CompositeSCP>,
-    Components: Option<Components>,
-    AdditionalParams: Option<Vec<Parameter>>,
+    pub CompositeSCP: Option<CompositeSCP>,
+    pub Components: Option<Components>,
+    pub AdditionalParams: Option<Vec<Parameter>>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct CompositeSCP {
