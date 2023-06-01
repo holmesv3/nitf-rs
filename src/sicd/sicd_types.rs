@@ -183,7 +183,59 @@ pub struct Polygon {
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Grid {}
+pub struct Grid {
+    pub ImagePlane: ImagePlane,
+    pub Type: Type,
+    pub TimeCOAPoly: Poly2D,
+    pub Row: DirectionParams,
+    pub Col: DirectionParams,
+
+
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum ImagePlane {
+    GROUND,
+    SLANT,
+    OTHER
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum Type {
+    RGAZIM,
+    RGZERO,
+    XRGYCR,
+    XCTYAT,
+    PLANE
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct DirectionParams {
+    UVectECF: XYZ,
+    SS: f64,
+    ImpRespWid: f64,
+    Sgn: i8,  // TODO: Maybe use an actual enum here
+    ImpRespBW: f64,
+    KCtr: f64,
+    DeltaK1: f64,
+    DeltaK2: f64,
+    DeltaKCOAPoly: Option<Poly2D>,
+    WgtType: Option<WgtType>,
+    WgtFunct: Option<WgtFunct>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct WgtType {
+    WindowName: String,
+    Parameter: Option<Vec<Parameter>>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct WgtFunct {
+    size: u64,
+    Wgt: Vec<Wgt>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct Wgt {
+    index: usize,
+    Wgt: f64,
+}
+
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Timeline {
