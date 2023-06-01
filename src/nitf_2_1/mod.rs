@@ -3,12 +3,12 @@
 pub mod segments;
 pub mod types;
 
+use serde_xml_rs::from_str;
 use std::fmt::Display;
 use std::fs::File;
-use serde_xml_rs::from_str;
 
-use segments::{DataExtension, FileHeader, Graphic, Image, ReservedExtension, Text};
 use crate::sicd::sicd_types::Sicd;
+use segments::{DataExtension, FileHeader, Graphic, Image, ReservedExtension, Text};
 
 /// Top level NITF interface
 ///

@@ -11,7 +11,7 @@ pub struct Sicd {
     pub ImageData: ImageData,
     pub GeoData: GeoData,
     pub Grid: Grid,
-    pub Timeline: Timeline, // Done
+    pub Timeline: Timeline,
     pub Position: Position,
     pub RadarCollection: RadarCollection,
     pub ImageFormation: ImageFormation,
@@ -21,10 +21,9 @@ pub struct Sicd {
     pub ErrorStatistics: Option<ErrorStatistics>,
     pub MatchInfo: Option<MatchInfo>,
     pub RgAzComp: Option<RgAzComp>,
-    pub Pfa: Option<Pfa>, // Done
+    pub Pfa: Option<Pfa>,
     pub Rma: Option<Rma>,
 }
-
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct CollectionInfo {
@@ -41,7 +40,7 @@ pub struct CollectionInfo {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum CollectType {
     MONOSTATIC,
-    BISTATIC
+    BISTATIC,
 }
 fn default_class() -> String {
     String::from("UNCLASSIFIED")
@@ -62,9 +61,8 @@ pub enum ModeType {
 pub struct Parameter {
     pub name: String,
     #[serde(rename = "$value")]
-    pub value: String
+    pub value: String,
 }
-
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageCreation {
@@ -73,7 +71,6 @@ pub struct ImageCreation {
     pub Site: Option<String>,
     pub Profile: Option<String>,
 }
-
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageData {
@@ -85,7 +82,7 @@ pub struct ImageData {
     pub FirstCol: u64,
     pub FullImage: FullImage,
     pub SCPPixel: RowCol,
-    pub ValidData: Option<ValidDataRC>
+    pub ValidData: Option<ValidDataRC>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -119,9 +116,8 @@ pub struct ValidDataRC {
 pub struct VertexRC {
     pub index: usize,
     pub Row: u64,
-    pub Col: u64
+    pub Col: u64,
 }
-
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct GeoData {
@@ -138,11 +134,22 @@ pub enum EarthModel {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct SCP {
     ECF: XYZ,
-    LLH: LLH
+    LLH: LLH,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageCorners {
-    ICP: Vec<VertexLL>
+    ICP: Vec<ICP>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct ICP {
+    index: String,
+    Lat: f64,
+    Lon: f64,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct ValidDataLL {
+    size: u64,
+    Vertex: Vec<VertexLL>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct VertexLL {
@@ -151,27 +158,28 @@ pub struct VertexLL {
     Lon: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct ValidDataLL {
-    size: u64,
-    Vertex: Vec<VertexLL>
-}
-#[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct GeoInfo {
     name: String,
-    Desc: Option<String>,
+    Desc: Option<Vec<String>>,
     Point: Option<LL>,
     Line: Option<Line>,
-    Polygon: Option<Polygon>
+    Polygon: Option<Polygon>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Line {
     size: u64,
-    Endpoint: Vec<VertexLL>
+    Endpoint: Vec<Endpoint>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct Endpoint {
+    index: usize,
+    Lat: f64,
+    Lon: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Polygon {
     size: u64,
-    Vertex: Vec<VertexLL>
+    Vertex: Vec<VertexLL>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
