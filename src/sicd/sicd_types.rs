@@ -208,32 +208,32 @@ pub enum Type {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct DirectionParams {
-    UVectECF: XYZ,
-    SS: f64,
-    ImpRespWid: f64,
-    Sgn: i8,  // TODO: Maybe use an actual enum here
-    ImpRespBW: f64,
-    KCtr: f64,
-    DeltaK1: f64,
-    DeltaK2: f64,
-    DeltaKCOAPoly: Option<Poly2D>,
-    WgtType: Option<WgtType>,
-    WgtFunct: Option<WgtFunct>,
+    pub UVectECF: XYZ,
+    pub SS: f64,
+    pub ImpRespWid: f64,
+    pub Sgn: i8,  // TODO: Maybe use an actual enum here
+    pub ImpRespBW: f64,
+    pub KCtr: f64,
+    pub DeltaK1: f64,
+    pub DeltaK2: f64,
+    pub DeltaKCOAPoly: Option<Poly2D>,
+    pub WgtType: Option<WgtType>,
+    pub WgtFunct: Option<WgtFunct>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct WgtType {
-    WindowName: String,
-    Parameter: Option<Vec<Parameter>>,
+    pub WindowName: String,
+    pub Parameter: Option<Vec<Parameter>>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct WgtFunct {
-    size: u64,
-    Wgt: Vec<Wgt>,
+    pub size: u64,
+    pub Wgt: Vec<Wgt>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Wgt {
-    index: usize,
-    Wgt: f64,
+    pub index: usize,
+    pub Wgt: f64,
 }
 
 
