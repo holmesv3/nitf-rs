@@ -48,7 +48,7 @@ To the best of my knowledge, these function as expected.
 There is no logic built around the inputs yet (in progress)
 
 ## New from last version (that I remember)
-- Added a `sicd` module and feature flag for including `serde` to parse sicd metadata.
+- Added a `sicd` module and feature flag for including `serde` to parse sicd metadata. (only active on `crates.io` branch)
 
 If you have questions, would like to contribute, or would like to request 
 something be added, you can ask on [this Discord server](https://discord.gg/Kg7NwN4XgS), or create an issue.
