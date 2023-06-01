@@ -32,7 +32,7 @@ pub struct CollectionInfo {
     pub CoreName: String,
     pub CollectType: Option<CollectType>,
     pub RadarMode: RadarMode,
-    #[serde(default = "default_class")]
+    #[serde(default = "default_classification")]
     pub Classification: String,
     pub CountryCode: Option<Vec<String>>,
     pub Parameter: Option<Vec<Parameter>>,
@@ -42,7 +42,7 @@ pub enum CollectType {
     MONOSTATIC,
     BISTATIC,
 }
-fn default_class() -> String {
+fn default_classification() -> String {
     String::from("UNCLASSIFIED")
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -121,11 +121,11 @@ pub struct VertexRC {
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct GeoData {
-    EarthModel: EarthModel,
-    SCP: SCP,
-    ImageCorners: ImageCorners,
-    ValidData: Option<ValidDataLL>,
-    GeoInfo: Option<Vec<GeoInfo>>,
+    pub EarthModel: EarthModel,
+    pub SCP: SCP,
+    pub ImageCorners: ImageCorners,
+    pub ValidData: Option<ValidDataLL>,
+    pub GeoInfo: Option<Vec<GeoInfo>>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum EarthModel {
@@ -133,53 +133,53 @@ pub enum EarthModel {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct SCP {
-    ECF: XYZ,
-    LLH: LLH,
+    pub ECF: XYZ,
+    pub LLH: LLH,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageCorners {
-    ICP: Vec<ICP>,
+    pub ICP: Vec<ICP>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ICP {
-    index: String,
-    Lat: f64,
-    Lon: f64,
+    pub index: String,
+    pub Lat: f64,
+    pub Lon: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ValidDataLL {
-    size: u64,
-    Vertex: Vec<VertexLL>,
+    pub size: u64,
+    pub Vertex: Vec<VertexLL>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct VertexLL {
-    index: usize,
-    Lat: f64,
-    Lon: f64,
+    pub index: usize,
+    pub Lat: f64,
+    pub Lon: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct GeoInfo {
-    name: String,
-    Desc: Option<Vec<String>>,
-    Point: Option<LL>,
-    Line: Option<Line>,
-    Polygon: Option<Polygon>,
+    pub name: String,
+    pub Desc: Option<Vec<String>>,
+    pub Point: Option<LL>,
+    pub Line: Option<Line>,
+    pub Polygon: Option<Polygon>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Line {
-    size: u64,
-    Endpoint: Vec<Endpoint>,
+    pub size: u64,
+    pub Endpoint: Vec<Endpoint>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Endpoint {
-    index: usize,
-    Lat: f64,
-    Lon: f64,
+    pub index: usize,
+    pub Lat: f64,
+    pub Lon: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Polygon {
-    size: u64,
-    Vertex: Vec<VertexLL>,
+    pub size: u64,
+    pub Vertex: Vec<VertexLL>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -213,7 +213,24 @@ pub struct IppSet {
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Position {}
+pub struct Position {
+    pub ARPPoly: XyzPoly,
+    pub GRPPoly: Option<XyzPoly>,
+    pub TxAPCPoly: Option<XyzPoly>,
+    pub RcvApc: Option<RcvAPC>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct RcvAPC {
+    pub size: usize,
+    pub RcvAPCPoly: RcvAPCPoly,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct RcvAPCPoly{
+    pub index: usize,
+    pub X: Poly1D,
+    pub Y: Poly1D,
+    pub Z: Poly1D,
+}
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RadarCollection {}
@@ -222,10 +239,47 @@ pub struct RadarCollection {}
 pub struct ImageFormation {}
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct ScpCoa {}
+pub struct ScpCoa {
+    SCPTime: f64,
+    ARPPos: XYZ,
+    ARPVel: XYZ,
+    ARPAcc: XYZ,
+    SideOfTrack: SideOfTrack,
+    SlantRange: f64,
+    GroundRange: f64,
+    DopplerConeAng: f64,
+    GrazeAng: f64,
+    IncidenceAng: f64,
+    TwistAng: f64,
+    SlopeAng: f64,
+    AzimAng: f64,
+    LayoverAng: f64,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum SideOfTrack {
+    L,
+    R,
+}
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Radiometric {}
+pub struct Radiometric {
+    NoiseLevel: Option<NoiseLevel>,
+    RCSSFPoly: Option<Poly2D>,
+    SigmaZeroSFPoly: Option<Poly2D>,
+    BetaZeroSFPoly: Option<Poly2D>,
+    GammaZeroSFPoly: Option<Poly2D>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct NoiseLevel {
+    NoiseLevelType: NoiseLevelType,
+    NoisePoly: Poly2D,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum NoiseLevelType {
+    ABSOLUTE,
+    RELATIVE,
+}
+
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Antenna {}
