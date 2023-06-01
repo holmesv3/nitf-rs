@@ -50,24 +50,24 @@ pub struct GraphicHeader {
 impl Display for GraphicHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("SY: {},\n", self.SY).as_ref();
-        out_str += format!("SID: {},\n", self.SID).as_ref();
-        out_str += format!("SNAME: {},\n", self.SNAME).as_ref();
-        out_str += format!("SECURITY: [\n{}],\n", self.SECURITY).as_ref();
-        out_str += format!("ENCRYP: {},\n", self.ENCRYP).as_ref();
-        out_str += format!("SFMT: {},\n", self.SFMT).as_ref();
-        out_str += format!("SSTRUCT: {},\n", self.SSTRUCT).as_ref();
-        out_str += format!("SDLVL: {},\n", self.SDLVL).as_ref();
-        out_str += format!("SALVL: {},\n", self.SALVL).as_ref();
-        out_str += format!("SLOC: {},\n", self.SLOC).as_ref();
-        out_str += format!("SBND1: {},\n", self.SBND1).as_ref();
-        out_str += format!("SCOLOR: {},\n", self.SCOLOR).as_ref();
-        out_str += format!("SBND2: {},\n", self.SBND2).as_ref();
-        out_str += format!("SRES2: {},\n", self.SRES2).as_ref();
-        out_str += format!("SXSHDL: {}\n", self.SXSHDL).as_ref();
-        out_str += format!("SXSOFL: {}\n", self.SXSOFL).as_ref();
-        out_str += format!("SXSHD: [{}]", self.SXSHD).as_ref();
-        write!(f, "Graphic Subheader: [{}]", out_str)
+        out_str += format!("SY: {}, ", self.SY).as_ref();
+        out_str += format!("SID: {}, ", self.SID).as_ref();
+        out_str += format!("SNAME: {}, ", self.SNAME).as_ref();
+        out_str += format!("SECURITY: [{}], ", self.SECURITY).as_ref();
+        out_str += format!("ENCRYP: {}, ", self.ENCRYP).as_ref();
+        out_str += format!("SFMT: {}, ", self.SFMT).as_ref();
+        out_str += format!("SSTRUCT: {}, ", self.SSTRUCT).as_ref();
+        out_str += format!("SDLVL: {}, ", self.SDLVL).as_ref();
+        out_str += format!("SALVL: {}, ", self.SALVL).as_ref();
+        out_str += format!("SLOC: {}, ", self.SLOC).as_ref();
+        out_str += format!("SBND1: {}, ", self.SBND1).as_ref();
+        out_str += format!("SCOLOR: {}, ", self.SCOLOR).as_ref();
+        out_str += format!("SBND2: {}, ", self.SBND2).as_ref();
+        out_str += format!("SRES2: {}, ", self.SRES2).as_ref();
+        out_str += format!("SXSHDL: {}, ", self.SXSHDL).as_ref();
+        out_str += format!("SXSOFL: {}, ", self.SXSOFL).as_ref();
+        out_str += format!("[SXSHD: {}]", self.SXSHD).as_ref();
+        write!(f, "[Graphic Subheader: {}]", out_str)
     }
 }
 impl NitfSegmentHeader for GraphicHeader {

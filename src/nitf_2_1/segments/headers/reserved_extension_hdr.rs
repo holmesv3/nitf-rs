@@ -37,7 +37,7 @@ impl Display for ReservedExtensionHeader {
         out_str += format!("RESSHL: {}, ", self.RESSHL).as_ref();
         out_str += format!("RESSHF: {}, ", self.RESSHF).as_ref();
         // out_str += format!("RESDATA: {}, ", self.RESDATA).as_ref();
-        write!(f, "Reserved Extension Subheader: [{}]", out_str)
+        write!(f, "[Reserved Extension Subheader: {}]", out_str)
     }
 }
 impl NitfSegmentHeader for ReservedExtensionHeader {

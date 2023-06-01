@@ -81,7 +81,7 @@ impl Display for TextHeader {
         out_str += format!("TXSHDL: {}", self.TXSHDL).as_ref();
         out_str += format!("TXSOFL: {}", self.TXSOFL).as_ref();
         out_str += format!("TXSHD: {}", self.TXSHD).as_ref();
-        write!(f, "Text Subheader: [{}]", out_str)
+        write!(f, "[Text Subheader: {}]", out_str)
     }
 }
 impl FromStr for TextFormat {

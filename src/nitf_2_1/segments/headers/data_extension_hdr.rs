@@ -63,15 +63,15 @@ impl NitfSegmentHeader for DataExtensionHeader {
 impl Display for DataExtensionHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("DE: {},\n", self.DE).as_ref();
-        out_str += format!("DESID: {},\n", self.DESID).as_ref();
-        out_str += format!("DESVER: {},\n", self.DESVER).as_ref();
-        out_str += format!("SECURITY: [\n{}],\n", self.SECURITY).as_ref();
-        out_str += format!("DESOFLW: {},\n", self.DESOFLW).as_ref();
-        out_str += format!("DESITEM: {},\n", self.DESITEM).as_ref();
-        out_str += format!("DESSHL: {},\n", self.DESSHL).as_ref();
+        out_str += format!("DE: {}, ", self.DE).as_ref();
+        out_str += format!("DESID: {}, ", self.DESID).as_ref();
+        out_str += format!("DESVER: {}, ", self.DESVER).as_ref();
+        out_str += format!("SECURITY: [{}], ", self.SECURITY).as_ref();
+        out_str += format!("DESOFLW: {}, ", self.DESOFLW).as_ref();
+        out_str += format!("DESITEM: {}, ", self.DESITEM).as_ref();
+        out_str += format!("DESSHL: {}, ", self.DESSHL).as_ref();
         out_str += format!("DESSHF: {}", self.DESSHL).as_ref();
-        write!(f, "Data Extension Subheader: [{}]", out_str)
+        write!(f, "[Data Extension Subheader: {}]", out_str)
     }
 }
 impl FromStr for OverflowedHeaderType {

@@ -331,65 +331,65 @@ impl NitfSegmentHeader for ImageHeader {
 impl Display for ImageHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("IM: {},\n", self.IM).as_ref();
-        out_str += format!("IID1: {},\n", self.IID1).as_ref();
-        out_str += format!("IDATIM: {},\n", self.IDATIM).as_ref();
-        out_str += format!("TGTID: {},\n", self.TGTID).as_ref();
-        out_str += format!("IID2: {},\n", self.IID2).as_ref();
-        out_str += format!("SECURITY: [\n{}],\n", self.SECURITY).as_ref();
-        out_str += format!("ENCRYP: {},\n", self.ENCRYP).as_ref();
-        out_str += format!("ISORCE: {},\n", self.ISORCE).as_ref();
-        out_str += format!("NROWS: {},\n", self.NROWS).as_ref();
-        out_str += format!("NCOLS: {},\n", self.NCOLS).as_ref();
-        out_str += format!("PVTYPE: {},\n", self.PVTYPE).as_ref();
-        out_str += format!("IREP: {},\n", self.IREP).as_ref();
-        out_str += format!("ICAT: {},\n", self.ICAT).as_ref();
-        out_str += format!("ABPP: {},\n", self.ABPP).as_ref();
-        out_str += format!("PJUST: {},\n", self.PJUST).as_ref();
-        out_str += format!("ICORDS: {},\n", self.ICORDS).as_ref();
+        out_str += format!("IM: {}, ", self.IM).as_ref();
+        out_str += format!("IID1: {}, ", self.IID1).as_ref();
+        out_str += format!("IDATIM: {}, ", self.IDATIM).as_ref();
+        out_str += format!("TGTID: {}, ", self.TGTID).as_ref();
+        out_str += format!("IID2: {}, ", self.IID2).as_ref();
+        out_str += format!("SECURITY: [\n{}], ", self.SECURITY).as_ref();
+        out_str += format!("ENCRYP: {}, ", self.ENCRYP).as_ref();
+        out_str += format!("ISORCE: {}, ", self.ISORCE).as_ref();
+        out_str += format!("NROWS: {}, ", self.NROWS).as_ref();
+        out_str += format!("NCOLS: {}, ", self.NCOLS).as_ref();
+        out_str += format!("PVTYPE: {}, ", self.PVTYPE).as_ref();
+        out_str += format!("IREP: {}, ", self.IREP).as_ref();
+        out_str += format!("ICAT: {}, ", self.ICAT).as_ref();
+        out_str += format!("ABPP: {}, ", self.ABPP).as_ref();
+        out_str += format!("PJUST: {}, ", self.PJUST).as_ref();
+        out_str += format!("ICORDS: {}, ", self.ICORDS).as_ref();
         for geolocation in &self.IGEOLO {
-            out_str += format!("\tGEOLO: [{}],\n", geolocation).as_ref();
+            out_str += format!("[GEOLO: {}], ", geolocation).as_ref();
         }
-        out_str += format!("NICOM: {},\n", self.NICOM).as_ref();
+        out_str += format!("NICOM: {}, ", self.NICOM).as_ref();
         for comment in &self.ICOMS {
-            out_str += format!("\tICOM: [{}], \n", comment).as_ref();
+            out_str += format!("[ICOM: {}], ", comment).as_ref();
         }
-        out_str += format!("IC: {},\n", self.IC).as_ref();
-        out_str += format!("NBANDS: {},\n", self.NBANDS).as_ref();
+        out_str += format!("IC: {}, ", self.IC).as_ref();
+        out_str += format!("NBANDS: {}, ", self.NBANDS).as_ref();
         for band in &self.BANDS {
-            out_str += format!("BAND: [\n{}],\n", band).as_ref();
+            out_str += format!("[BAND: {}], ", band).as_ref();
         }
-        out_str += format!("ISYNC: {},\n", self.ISYNC).as_ref();
-        out_str += format!("IMODE: {},\n", self.IMODE).as_ref();
-        out_str += format!("NBPR: {},\n", self.NBPR).as_ref();
-        out_str += format!("NBPC: {},\n", self.NBPC).as_ref();
-        out_str += format!("NPPBH: {},\n", self.NPPBH).as_ref();
-        out_str += format!("NPPBV: {},\n", self.NPPBV).as_ref();
-        out_str += format!("NBPP: {},\n", self.NBPP).as_ref();
-        out_str += format!("IDLVL: {},\n", self.IDLVL).as_ref();
-        out_str += format!("IALVL: {},\n", self.IALVL).as_ref();
-        out_str += format!("ILOC: {},\n", self.ILOC).as_ref();
-        out_str += format!("IMAG: {},\n", self.IMAG).as_ref();
-        out_str += format!("UDIDL: {},\n", self.UDIDL).as_ref();
-        out_str += format!("UDOFL: {},\n", self.UDOFL).as_ref();
-        out_str += format!("UDID: [{}],\n", self.UDID).as_ref();
-        out_str += format!("IXSHDL: {},\n", self.IXSHDL).as_ref();
-        out_str += format!("IXSOFL: {},\n", self.IXSOFL).as_ref();
-        out_str += format!("IXSHD: [{}],", self.IXSHD).as_ref();
-        return write!(f, "Image Subheader: [{}]", out_str);
+        out_str += format!("ISYNC: {}, ", self.ISYNC).as_ref();
+        out_str += format!("IMODE: {}, ", self.IMODE).as_ref();
+        out_str += format!("NBPR: {}, ", self.NBPR).as_ref();
+        out_str += format!("NBPC: {}, ", self.NBPC).as_ref();
+        out_str += format!("NPPBH: {}, ", self.NPPBH).as_ref();
+        out_str += format!("NPPBV: {}, ", self.NPPBV).as_ref();
+        out_str += format!("NBPP: {}, ", self.NBPP).as_ref();
+        out_str += format!("IDLVL: {}, ", self.IDLVL).as_ref();
+        out_str += format!("IALVL: {}, ", self.IALVL).as_ref();
+        out_str += format!("ILOC: {}, ", self.ILOC).as_ref();
+        out_str += format!("IMAG: {}, ", self.IMAG).as_ref();
+        out_str += format!("UDIDL: {}, ", self.UDIDL).as_ref();
+        out_str += format!("UDOFL: {}, ", self.UDOFL).as_ref();
+        out_str += format!("UDID: {}, ", self.UDID).as_ref();
+        out_str += format!("IXSHDL: {}, ", self.IXSHDL).as_ref();
+        out_str += format!("IXSOFL: {}, ", self.IXSOFL).as_ref();
+        out_str += format!("IXSHD: {},", self.IXSHD).as_ref();
+        return write!(f, "[Image Subheader: {}]", out_str);
     }
 }
 impl Display for Band {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("\tIREPBAND: {},\n", self.IREPBAND).as_ref();
-        out_str += format!("\tISUBCAT: {},\n", self.ISUBCAT).as_ref();
-        out_str += format!("\tIFC: {},\n", self.IFC).as_ref();
-        out_str += format!("\tIMFLT: {},\n", self.IMFLT).as_ref();
-        out_str += format!("\tNLUTS: {},\n", self.NLUTS).as_ref();
-        out_str += format!("\tNELUT: {}, ", self.NELUT).as_ref();
+        out_str += format!("IREPBAND: {}, ", self.IREPBAND).as_ref();
+        out_str += format!("ISUBCAT: {}, ", self.ISUBCAT).as_ref();
+        out_str += format!("IFC: {}, ", self.IFC).as_ref();
+        out_str += format!("IMFLT: {}, ", self.IMFLT).as_ref();
+        out_str += format!("NLUTS: {}, ", self.NLUTS).as_ref();
+        out_str += format!("NELUT: {}, ", self.NELUT).as_ref();
         for look_up in &self.LUTD {
-            out_str += format!("\n\t\tLUTD: [{}]", look_up).as_ref();
+            out_str += format!("LUTD: {}, ", look_up).as_ref();
         }
         return write!(f, "{}", out_str);
     }

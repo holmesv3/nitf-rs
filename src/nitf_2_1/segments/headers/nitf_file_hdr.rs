@@ -79,54 +79,54 @@ pub struct NitfHeader {
 impl Display for NitfHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("FHDR: {}, \n", self.FHDR).as_ref();
-        out_str += format!("FVER: {}, \n", self.FVER).as_ref();
-        out_str += format!("CLEVEL: {}, \n", self.CLEVEL).as_ref();
-        out_str += format!("STYPE: {}, \n", self.STYPE).as_ref();
-        out_str += format!("OSTAID: {}, \n", self.OSTAID).as_ref();
-        out_str += format!("FDT: {}, \n", self.FDT).as_ref();
-        out_str += format!("FTITLE: {}, \n", self.FTITLE).as_ref();
-        out_str += format!("SECURITY: [\n{}], \n", self.SECURITY).as_ref();
-        out_str += format!("FSCOP: {}, \n", self.FSCOP).as_ref();
-        out_str += format!("FSCPYS: {}, \n", self.FSCPYS).as_ref();
-        out_str += format!("ENCRYP: {}, \n", self.ENCRYP).as_ref();
+        out_str += format!("FHDR: {}, ", self.FHDR).as_ref();
+        out_str += format!("FVER: {}, ", self.FVER).as_ref();
+        out_str += format!("CLEVEL: {}, ", self.CLEVEL).as_ref();
+        out_str += format!("STYPE: {}, ", self.STYPE).as_ref();
+        out_str += format!("OSTAID: {}, ", self.OSTAID).as_ref();
+        out_str += format!("FDT: {}, ", self.FDT).as_ref();
+        out_str += format!("FTITLE: {}, ", self.FTITLE).as_ref();
+        out_str += format!("SECURITY: [{}], ", self.SECURITY).as_ref();
+        out_str += format!("FSCOP: {}, ", self.FSCOP).as_ref();
+        out_str += format!("FSCPYS: {}, ", self.FSCPYS).as_ref();
+        out_str += format!("ENCRYP: {}, ", self.ENCRYP).as_ref();
         out_str += format!(
-            "FBKGC: [R: {}, G: {}, B: {}], \n",
+            "FBKGC: [R: {}, G: {}, B: {}], ",
             self.FBKGC[0], self.FBKGC[1], self.FBKGC[2],
         )
         .as_ref();
-        out_str += format!("ONAME: {}, \n", self.ONAME).as_ref();
-        out_str += format!("OPHONE: {}, \n", self.OPHONE).as_ref();
-        out_str += format!("FL: {}, \n", self.FL).as_ref();
-        out_str += format!("HL: {}, \n", self.HL).as_ref();
-        out_str += format!("NUMI: {}, \n", self.NUMI).as_ref();
+        out_str += format!("ONAME: {}, ", self.ONAME).as_ref();
+        out_str += format!("OPHONE: {}, ", self.OPHONE).as_ref();
+        out_str += format!("FL: {}, ", self.FL).as_ref();
+        out_str += format!("HL: {}, ", self.HL).as_ref();
+        out_str += format!("NUMI: {}, ", self.NUMI).as_ref();
         for seg in &self.IMHEADERS {
-            out_str += format!("\tIMHEADER: {}, \n", seg).as_ref()
+            out_str += format!("[IMHEADER: {}], ", seg).as_ref()
         }
-        out_str += format!("NUMS: {}, \n", self.NUMS).as_ref();
+        out_str += format!("NUMS: {}, ", self.NUMS).as_ref();
         for seg in &self.GRAPHHEADERS {
-            out_str += format!("\tGRAPHHEADERS: {}, \n", seg).as_ref()
+            out_str += format!("[GRAPHHEADERS: {}], ", seg).as_ref()
         }
-        out_str += format!("NUMX: {}, \n", self.NUMX).as_ref();
-        out_str += format!("NUMT: {}, \n", self.NUMT).as_ref();
+        out_str += format!("NUMX: {}, ", self.NUMX).as_ref();
+        out_str += format!("NUMT: {}, ", self.NUMT).as_ref();
         for seg in &self.TEXTHEADERS {
-            out_str += format!("\tTEXTHEADER: {}, \n", seg).as_ref()
+            out_str += format!("[TEXTHEADER: {}], ", seg).as_ref()
         }
-        out_str += format!("NUMDES: {}, \n", self.NUMDES).as_ref();
+        out_str += format!("NUMDES: {}, ", self.NUMDES).as_ref();
         for seg in &self.DEXTHEADERS {
-            out_str += format!("\tDEXTHEADER: {}, \n", seg).as_ref()
+            out_str += format!("[DEXTHEADER: {}], ", seg).as_ref()
         }
-        out_str += format!("NUMRES: {}, \n", self.NUMRES).as_ref();
+        out_str += format!("NUMRES: {}, ", self.NUMRES).as_ref();
         for seg in &self.RESHEADERS {
-            out_str += format!("\tRESHEADER: {}, \n", seg).as_ref()
+            out_str += format!("[RESHEADER: {}], ", seg).as_ref()
         }
-        out_str += format!("UDHDL: {}, \n", self.UDHDL).as_ref();
-        out_str += format!("UDHOFL: {}, \n", self.UDHOFL).as_ref();
-        out_str += format!("UDHD: {}, \n", self.UDHD).as_ref();
-        out_str += format!("XHDL: {}, \n", self.XHDL).as_ref();
-        out_str += format!("XHDLOFL: {}, \n", self.XHDLOFL).as_ref();
+        out_str += format!("UDHDL: {}, ", self.UDHDL).as_ref();
+        out_str += format!("UDHOFL: {}, ", self.UDHOFL).as_ref();
+        out_str += format!("UDHD: {}, ", self.UDHD).as_ref();
+        out_str += format!("XHDL: {}, ", self.XHDL).as_ref();
+        out_str += format!("XHDLOFL: {}, ", self.XHDLOFL).as_ref();
         out_str += format!("XHD: {}", self.XHD).as_ref();
-        write!(f, "NitfHeader: [{}]", out_str)
+        write!(f, "[NitfHeader: {}]", out_str)
     }
 }
 

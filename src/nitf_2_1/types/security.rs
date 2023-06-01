@@ -150,21 +150,21 @@ impl Security {
 impl Display for Security {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("\tCLAS: {},\n", self.CLAS).as_ref();
-        out_str += format!("\tCLSY: {},\n", self.CLSY).as_ref();
-        out_str += format!("\tCODE: {},\n", self.CODE).as_ref();
-        out_str += format!("\tCTLH: {},\n", self.CTLH).as_ref();
-        out_str += format!("\tREL: {},\n", self.REL).as_ref();
-        out_str += format!("\tDCTP: {},\n", self.DCTP).as_ref();
-        out_str += format!("\tDCDT: {},\n", self.DCDT).as_ref();
-        out_str += format!("\tDCXM: {},\n", self.DCXM).as_ref();
-        out_str += format!("\tDG: {},\n", self.DG).as_ref();
-        out_str += format!("\tDGDT: {},\n", self.DGDT).as_ref();
-        out_str += format!("\tCLTX: {},\n", self.CLTX).as_ref();
-        out_str += format!("\tCATP: {},\n", self.CATP).as_ref();
-        out_str += format!("\tCAUT: {},\n", self.CAUT).as_ref();
-        out_str += format!("\tCRSN: {},\n", self.CRSN).as_ref();
-        out_str += format!("\tSRDT: {},\n", self.SRDT).as_ref();
+        out_str += format!("\tCLAS: {}, ", self.CLAS).as_ref();
+        out_str += format!("\tCLSY: {}, ", self.CLSY).as_ref();
+        out_str += format!("\tCODE: {}, ", self.CODE).as_ref();
+        out_str += format!("\tCTLH: {}, ", self.CTLH).as_ref();
+        out_str += format!("\tREL: {}, ", self.REL).as_ref();
+        out_str += format!("\tDCTP: {}, ", self.DCTP).as_ref();
+        out_str += format!("\tDCDT: {}, ", self.DCDT).as_ref();
+        out_str += format!("\tDCXM: {}, ", self.DCXM).as_ref();
+        out_str += format!("\tDG: {}, ", self.DG).as_ref();
+        out_str += format!("\tDGDT: {}, ", self.DGDT).as_ref();
+        out_str += format!("\tCLTX: {}, ", self.CLTX).as_ref();
+        out_str += format!("\tCATP: {}, ", self.CATP).as_ref();
+        out_str += format!("\tCAUT: {}, ", self.CAUT).as_ref();
+        out_str += format!("\tCRSN: {}, ", self.CRSN).as_ref();
+        out_str += format!("\tSRDT: {}, ", self.SRDT).as_ref();
         out_str += format!("\tCTLN: {}", self.CTLN).as_ref();
         return write!(f, "{}", out_str);
     }
