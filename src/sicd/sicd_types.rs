@@ -1,7 +1,7 @@
 #![allow(non_camel_case_types)]
 use std::ops::Index;
 
-use super::param_types::{Poly1D, Poly2D, XYZ, RowCol};
+use super::param_types::*;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -85,7 +85,7 @@ pub struct ImageData {
     pub FirstCol: u64,
     pub FullImage: FullImage,
     pub SCPPixel: RowCol,
-    pub ValidData: Option<ValidData>
+    pub ValidData: Option<ValidDataRC>
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -111,12 +111,12 @@ pub struct FullImage {
     pub NumCols: u64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct ValidData {
+pub struct ValidDataRC {
     pub size: u64,
-    pub Vertex: Vec<Vertex>,
+    pub Vertex: Vec<VertexRC>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Vertex {
+pub struct VertexRC {
     pub index: usize,
     pub Row: u64,
     pub Col: u64
@@ -124,7 +124,55 @@ pub struct Vertex {
 
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct GeoData {}
+pub struct GeoData {
+    EarthModel: EarthModel,
+    SCP: SCP,
+    ImageCorners: ImageCorners,
+    ValidData: Option<ValidDataLL>,
+    GeoInfo: Option<Vec<GeoInfo>>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum EarthModel {
+    WGS_84,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct SCP {
+    ECF: XYZ,
+    LLH: LLH
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct ImageCorners {
+    ICP: Vec<VertexLL>
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct VertexLL {
+    index: usize,
+    Lat: f64,
+    Lon: f64,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct ValidDataLL {
+    size: u64,
+    Vertex: Vec<VertexLL>
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct GeoInfo {
+    name: String,
+    Desc: Option<String>,
+    Point: Option<LL>,
+    Line: Option<Line>,
+    Polygon: Option<Polygon>
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct Line {
+    size: u64,
+    Endpoint: Vec<VertexLL>
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct Polygon {
+    size: u64,
+    Vertex: Vec<VertexLL>
+}
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Grid {}
