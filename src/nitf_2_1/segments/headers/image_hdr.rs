@@ -336,7 +336,7 @@ impl Display for ImageHeader {
         out_str += format!("IDATIM: {}, ", self.IDATIM).as_ref();
         out_str += format!("TGTID: {}, ", self.TGTID).as_ref();
         out_str += format!("IID2: {}, ", self.IID2).as_ref();
-        out_str += format!("SECURITY: [\n{}], ", self.SECURITY).as_ref();
+        out_str += format!("SECURITY: [{}], ", self.SECURITY).as_ref();
         out_str += format!("ENCRYP: {}, ", self.ENCRYP).as_ref();
         out_str += format!("ISORCE: {}, ", self.ISORCE).as_ref();
         out_str += format!("NROWS: {}, ", self.NROWS).as_ref();

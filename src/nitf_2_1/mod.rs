@@ -91,21 +91,21 @@ impl Nitf {
 impl Display for Nitf {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("{}\n", self.nitf_header).as_ref();
+        out_str += format!("{}", self.nitf_header).as_ref();
         for segment in &self.image_segments {
-            out_str += format!("{}\n", segment).as_ref();
+            out_str += format!("{}", segment).as_ref();
         }
         for segment in &self.graphic_segments {
-            out_str += format!("{}\n", segment).as_ref();
+            out_str += format!("{}", segment).as_ref();
         }
         for segment in &self.text_segments {
-            out_str += format!("{}\n", segment).as_ref();
+            out_str += format!("{}", segment).as_ref();
         }
         for segment in &self.data_extension_segments {
-            out_str += format!("{}\n", segment).as_ref();
+            out_str += format!("{}", segment).as_ref();
         }
         for segment in &self.reserved_extension_segments {
-            out_str += format!("{}\n", segment).as_ref();
+            out_str += format!("{}", segment).as_ref();
         }
         write!(f, "{}", out_str)
     }
