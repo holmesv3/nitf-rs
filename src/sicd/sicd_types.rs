@@ -189,14 +189,12 @@ pub struct Grid {
     pub TimeCOAPoly: Poly2D,
     pub Row: DirectionParams,
     pub Col: DirectionParams,
-
-
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum ImagePlane {
     GROUND,
     SLANT,
-    OTHER
+    OTHER,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum Type {
@@ -204,14 +202,14 @@ pub enum Type {
     RGZERO,
     XRGYCR,
     XCTYAT,
-    PLANE
+    PLANE,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct DirectionParams {
     pub UVectECF: XYZ,
     pub SS: f64,
     pub ImpRespWid: f64,
-    pub Sgn: i8,  // TODO: Maybe use an actual enum here
+    pub Sgn: i8, // TODO: Maybe use an actual enum here
     pub ImpRespBW: f64,
     pub KCtr: f64,
     pub DeltaK1: f64,
@@ -235,7 +233,6 @@ pub struct Wgt {
     pub index: usize,
     pub Wgt: f64,
 }
-
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Timeline {
@@ -277,7 +274,7 @@ pub struct RcvAPC {
     pub RcvAPCPoly: RcvAPCPoly,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct RcvAPCPoly{
+pub struct RcvAPCPoly {
     pub index: usize,
     pub X: Poly1D,
     pub Y: Poly1D,
@@ -343,7 +340,7 @@ pub struct TxSequence {
 pub struct TxStep {
     pub index: usize,
     pub WFIndex: Option<usize>,
-    pub TxPolarization: Option<TxStepPolarization>
+    pub TxPolarization: Option<TxStepPolarization>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum TxStepPolarization {
@@ -361,8 +358,8 @@ pub struct RcvChannels {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ChanParameters {
     pub index: usize,
-    pub TxRcvPolarization: String,  // TODO: Implement this enum
-    pub RcvAPCIndex: Option<u64>
+    pub TxRcvPolarization: String, // TODO: Implement this enum
+    pub RcvAPCIndex: Option<u64>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Area {
@@ -372,7 +369,7 @@ pub struct Area {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Corner {
     #[serde(rename = "$value")]
-    pub ACP: Vec<ACP>
+    pub ACP: Vec<ACP>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ACP {
@@ -387,7 +384,7 @@ pub struct Plane {
     pub XDir: XDir,
     pub YDir: YDir,
     pub SegmentList: Option<SegmentList>,
-    pub Orientation: Option<Orientation>
+    pub Orientation: Option<Orientation>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RefPt {
@@ -422,7 +419,7 @@ pub struct Segment {
     pub StartSample: u64,
     pub EndLine: u64,
     pub EndSample: u64,
-    pub Identifier: String
+    pub Identifier: String,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum Orientation {
@@ -433,11 +430,10 @@ pub enum Orientation {
     ARBITRARY,
 }
 
-
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageFormation {
     pub RcvChanProc: RcvChanProc,
-    pub TxRcvPolarizationProc: String,  // TODO: implement this enum
+    pub TxRcvPolarizationProc: String, // TODO: implement this enum
     pub TStartProc: f64,
     pub TEndProc: f64,
     pub TxFrequencyProc: TxFrequencyProc,
@@ -561,7 +557,6 @@ pub enum NoiseLevelType {
     RELATIVE,
 }
 
-
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Antenna {
     pub Tx: Option<AntennaType>,
@@ -595,7 +590,6 @@ pub struct Elem {
     pub GainPoly: Poly2D,
     pub PhasePoly: Poly2D,
 }
-
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ErrorStatistics {
@@ -678,7 +672,6 @@ pub struct Decorr {
     pub DecorrRate: f64,
 }
 
-
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct MatchInfo {
     pub NumMatchTypes: u64,
@@ -690,16 +683,15 @@ pub struct MatchType {
     pub TypeID: String,
     pub CurrentIndex: Option<usize>,
     pub NumMatchCollections: u64,
-    pub MatchCollection: Option<Vec<MatchCollection>>
+    pub MatchCollection: Option<Vec<MatchCollection>>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct MatchCollection {
     pub index: usize,
     pub CoreName: String,
     pub MatchIndex: Option<usize>,
-    pub Parameter: Option<Vec<Parameter>>
+    pub Parameter: Option<Vec<Parameter>>,
 }
-
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RgAzComp {
@@ -734,7 +726,6 @@ pub struct Rma {
     pub RMAT: Option<RMAlgo>,
     pub RMCR: Option<RMAlgo>,
     pub INCA: Option<INCA>,
-
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum RMAlgoType {
