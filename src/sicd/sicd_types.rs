@@ -10,19 +10,19 @@ pub struct Sicd {
     pub ImageCreation: Option<ImageCreation>,
     pub ImageData: ImageData,
     pub GeoData: GeoData,
-    pub Grid: Grid,
+    pub Grid: Grid,  // TODO
     pub Timeline: Timeline,
     pub Position: Position,
-    pub RadarCollection: RadarCollection,
-    pub ImageFormation: ImageFormation,
+    pub RadarCollection: RadarCollection,  // TODO
+    pub ImageFormation: ImageFormation,  // TODO
     pub SCPCOA: ScpCoa,
     pub Radiometric: Option<Radiometric>,
     pub Antenna: Option<Antenna>,
-    pub ErrorStatistics: Option<ErrorStatistics>,
+    pub ErrorStatistics: Option<ErrorStatistics>,  // TODO
     pub MatchInfo: Option<MatchInfo>,
     pub RgAzComp: Option<RgAzComp>,
-    pub Pfa: Option<Pfa>,
-    pub Rma: Option<Rma>,
+    pub PFA: Option<Pfa>,
+    pub RMA: Option<Rma>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -320,10 +320,32 @@ pub struct Elem {
 pub struct ErrorStatistics {}
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct MatchInfo {}
+pub struct MatchInfo {
+    pub NumMatchTypes: u64,
+    pub MatchType: Vec<MatchType>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct MatchType {
+    pub index: usize,
+    pub TypeID: String,
+    pub CurrentIndex: Option<usize>,
+    pub NumMatchCollections: u64,
+    pub MatchCollection: Option<Vec<MatchCollection>>
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct MatchCollection {
+    pub index: usize,
+    pub CoreName: String,
+    pub MatchIndex: Option<usize>,
+    pub Parameter: Option<Vec<Parameter>>
+}
+
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct RgAzComp {}
+pub struct RgAzComp {
+    pub AzSF: f64,
+    pub KazPoly: Poly1D,
+}
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Pfa {
@@ -346,4 +368,38 @@ pub struct STDeskew {
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Rma {}
+pub struct Rma {
+    pub RMAlgoType: RMAlgoType,
+    pub ImageType: ImageType,
+    pub RMAT: Option<RMAlgo>,
+    pub RMCR: Option<RMAlgo>,
+    pub INCA: Option<INCA>,
+
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum RMAlgoType {
+    OMEGA_K,
+    CSA,
+    RG_DOP,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum ImageType {
+    RMAT,
+    RMCR,
+    INCA,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct RMAlgo {
+    pub PosRef: XYZ,
+    pub VelRef: XYZ,
+    pub DopConeAngRef: f64,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct INCA {
+    pub TimeCAPoly: Poly1D,
+    pub R_CA_SCP: f64,
+    pub FreqZero: f64,
+    pub DRateSFPoly: Poly2D,
+    pub DopCentroidPoly: Option<Poly2D>,
+    pub DopCentroidCOA: Option<bool>,
+}
