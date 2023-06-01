@@ -14,7 +14,7 @@ pub struct Sicd {
     pub Timeline: Timeline,
     pub Position: Position,
     pub RadarCollection: RadarCollection,
-    pub ImageFormation: ImageFormation,  // TODO
+    pub ImageFormation: ImageFormation,
     pub SCPCOA: ScpCoa,
     pub Radiometric: Option<Radiometric>,
     pub Antenna: Option<Antenna>,
@@ -435,7 +435,89 @@ pub enum Orientation {
 
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct ImageFormation {}
+pub struct ImageFormation {
+    pub RcvChanProc: RcvChanProc,
+    pub TxRcvPolarizationProc: String,  // TODO: implement this enum
+    pub TStartProc: f64,
+    pub TEndProc: f64,
+    pub TxFrequencyProc: TxFrequencyProc,
+    pub SegmentIdentifier: Option<String>,
+    pub ImageFormAlgo: ImageFormAlgo,
+    pub STBeamComp: STBeamComp,
+    pub ImageBeamComp: ImageBeamComp,
+    pub AzAutofocus: AzAutofocus,
+    pub RgAutofocus: RgAutofocus,
+    pub Processing: Option<Vec<Processing>>,
+    pub PolarizationCalibration: Option<PolCal>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct RcvChanProc {
+    pub NumChanProc: u64,
+    pub PRFScaleFactor: Option<f64>,
+    pub ChanIndex: usize,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct TxFrequencyProc {
+    pub MinProc: f64,
+    pub MaxProc: f64,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum ImageFormAlgo {
+    PFA,
+    RMA,
+    RGAZCOMP,
+    OTHER,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum STBeamComp {
+    NO,
+    GLOBAL,
+    SV,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum ImageBeamComp {
+    NO,
+    SV,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum AzAutofocus {
+    NO,
+    GLOBAL,
+    SV,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum RgAutofocus {
+    NO,
+    GLOBAL,
+    SV,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct Processing {
+    pub Type: String,
+    pub Applied: bool,
+    pub Parameter: Option<Vec<Parameter>>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct PolCal {
+    pub DistortCorrectionApplied: bool,
+    pub Distortion: Distortion,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct Distortion {
+    pub CalibrationDate: Option<String>,
+    pub A: f64,
+    pub F1: CMPLX,
+    pub Q1: CMPLX,
+    pub Q2: CMPLX,
+    pub F2: CMPLX,
+    pub Q3: CMPLX,
+    pub Q4: CMPLX,
+    pub GainErrorA: Option<f64>,
+    pub GainErrorF1: Option<f64>,
+    pub GainErrorF2: Option<f64>,
+    pub PhaseErrorF1: Option<f64>,
+    pub PhaseErrorF2: Option<f64>,
+}
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ScpCoa {
