@@ -15,6 +15,11 @@ Current project goals are
 
 
 ## Example
+In your `Cargo.toml`, include `nitf-rs` as a dependency, or, for the 'latest-and-greatest' features..
+```toml
+nitf-rs = {git="https://github.com/holmesv3/nitf-rs.git"}
+```
+### Usage
 ```rust
 use nitf_rs::read_nitf;
 use std::path::Path;
@@ -22,10 +27,8 @@ use std::path::Path;
 let nitf_file: String = get_nitf_file();
 let nitf_path = Path::new(&nitf_file);
 
-// Read the file and parse all available metadata
+// Read the file and print all metadata
 let nitf = read_nitf(nitf_path);
-
-// Print all metadata
 println!("{}", &nitf);
 
 // Read image data, check that the dimensions are what we expect
@@ -33,6 +36,10 @@ let im_seg = &nitf.image_segments[0];
 let data = im_seg.data_to_array();
 println!("Meta NROWS: {}, data.nrows(): {}", im_seg.meta.NROWS.val, data.nrows());
 println!("Meta NCOLS: {}, data.ncols(): {}", im_seg.meta.NCOLS.val, data.ncols());
+
+// If you have a SICD file, parse and print the metadata
+let sicd_meta = &nitf.parse_sicd_meta().unwrap();
+println!("{:#?}", sicd_meta);
 ```
 
 ## Current Functionality
