@@ -19,7 +19,7 @@ use sicd_types::{
     scpcoa::ScpCoa,
     radiometric::Radiometric,
     antenna::Antenna,
-    ErrorStatistics::ErrorStatistics,
+    error_statistics::ErrorStatistics,
     match_info::MatchInfo,
     pfa::Pfa,
 };

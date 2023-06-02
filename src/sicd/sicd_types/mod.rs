@@ -14,7 +14,7 @@ pub mod image_formation;
 pub mod scpcoa;
 pub mod radiometric;
 pub mod antenna;
-pub mod ErrorStatistics;
+pub mod error_statistics;
 pub mod match_info;
 pub mod pfa;
 
@@ -111,3 +111,29 @@ pub struct ParameterStruct {
     pub value: String,
 }
 
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    fn test_rowcol() {}
+    #[test]
+    fn test_cmplx() {}
+    #[test]
+    fn test_xyz() {}
+    #[test]
+    fn test_llh() {}
+    #[test]
+    fn test_ll() {}
+    #[test]
+    fn test_coef1d() {}
+    #[test]
+    fn test_poly1d() {}
+    #[test]
+    fn test_coef2d() {}
+    #[test]
+    fn test_poly2d() {}
+    #[test]
+    fn test_xyzpoly() {}
+    #[test]
+    fn test_parameterstruct() {}
+}

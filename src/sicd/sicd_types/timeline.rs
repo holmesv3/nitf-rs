@@ -28,3 +28,20 @@ pub struct IppSet {
     pub IPPEnd: u64,
     pub IPPPoly: Poly1D,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Timeline;
+    use serde_xml_rs::from_str;
+    #[test]
+    fn test_timeline () {
+        let xml_str = r#"<Timeline><CollectStart>0</CollectStart>
+            <CollectDuration>0</CollectDuration><IPP size="1"><Set index="1">
+            <TStart>0</TStart><TEnd>0</TEnd><IPPStart>0</IPPStart><IPPEnd>0
+            </IPPEnd><IPPPoly order1="0"><Coef exponent1="0">0</Coef></IPPPoly>
+            </Set></IPP></Timeline>"#;
+        assert!(match from_str::<Timeline>(&xml_str) {
+            Ok(_) => true, Err(_) => false,
+        }) 
+    }
+}
