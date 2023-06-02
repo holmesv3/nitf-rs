@@ -1,6 +1,22 @@
-//! Sicd metadata type definitions
-use ndarray::{Array1, Array2};
+//! Common types and metadata definition for SICD structure
 use serde::Deserialize;
+use ndarray::{Array1, Array2};
+
+pub mod collection_info;
+pub mod image_creation;
+pub mod image_data;
+pub mod geo_data;
+pub mod grid;
+pub mod timeline;
+pub mod position;
+pub mod radar_collection;
+pub mod image_formation;
+pub mod scpcoa;
+pub mod radiometric;
+pub mod antenna;
+pub mod ErrorStatistics;
+pub mod match_info;
+pub mod pfa;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RowCol {
@@ -86,3 +102,12 @@ pub struct XyzPoly {
     pub Y: Poly1D,
     pub Z: Poly1D,
 }
+
+pub type Parameter = Option<Vec<ParameterStruct>>;
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct ParameterStruct {
+    pub name: String,
+    #[serde(rename = "$value")]
+    pub value: String,
+}
+

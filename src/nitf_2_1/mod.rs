@@ -7,7 +7,7 @@ use serde_xml_rs::from_str;
 use std::fmt::Display;
 use std::fs::File;
 
-use crate::sicd::sicd_types::Sicd;
+use crate::sicd::Sicd;
 use segments::{DataExtension, FileHeader, Graphic, Image, ReservedExtension, Text};
 
 /// Top level NITF interface
