@@ -128,3 +128,27 @@ pub struct INCA {
     pub DopCentroidPoly: Option<Poly2D>,
     pub DopCentroidCOA: Option<bool>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{ImageFormation};
+    use serde_xml_rs::from_str;
+
+    #[test]
+    fn test_image_formation() {
+        let xml_str = r#"<ImageFormation><RcvChanProc><NumChanProc>1
+            </NumChanProc><ChanIndex>1</ChanIndex></RcvChanProc>
+            <TxRcvPolarizationProc>V:V</TxRcvPolarizationProc><TStartProc>0
+            </TStartProc><TEndProc>0</TEndProc><TxFrequencyProc><MinProc>0
+            </MinProc><MaxProc>0</MaxProc></TxFrequencyProc><ImageFormAlgo>
+            PFA</ImageFormAlgo><STBeamComp>NO</STBeamComp><ImageBeamComp>NO
+            </ImageBeamComp><AzAutofocus>NO</AzAutofocus><RgAutofocus>NO
+            </RgAutofocus><Processing><Type>Processing</Type><Applied>true
+            </Applied><Parameter name="param">true</Parameter></Processing>
+            </ImageFormation>"#;
+        assert!(match from_str::<ImageFormation>(&xml_str) {
+                Ok(_) => true, Err(_) => false,
+        }) 
+    }
+    // TODO: Test RgAzComp, RMA
+}
