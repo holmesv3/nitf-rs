@@ -47,3 +47,23 @@ pub struct VertexRC {
     pub Row: u64,
     pub Col: u64,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::ImageData;
+    use serde_xml_rs::from_str;
+
+    #[test]
+    fn test_image_data() {
+        let xml_str = r#"<ImageData><PixelType>RE32F_IM32F</PixelType><NumRows>0
+            </NumRows><NumCols>10077</NumCols><FirstRow>0</FirstRow><FirstCol>0
+            </FirstCol><FullImage><NumRows>0</NumRows><NumCols>0</NumCols>
+            </FullImage><SCPPixel><Row>0</Row><Col>0</Col></SCPPixel>
+            <ValidData size="2"><Vertex index="1"><Row>0</Row><Col>0</Col>
+            </Vertex><Vertex index="2"><Row>0</Row><Col>0</Col></Vertex>
+            </ValidData></ImageData>"#;
+        assert!(match from_str::<ImageData>(xml_str) {
+            Ok(_) => true, Err(_) => false
+        })
+    }
+}
