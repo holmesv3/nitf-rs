@@ -7,21 +7,21 @@ use serde::Deserialize;
 // TODO: Write tests
 pub mod sicd_types;
 use sicd_types::{
+    antenna::Antenna,
     collection_info::CollectionInfo,
-    image_creation::ImageCreation,
-    image_data::ImageData,
+    error_statistics::ErrorStatistics,
     geo_data::GeoData,
     grid::Grid,
-    timeline::Timeline,
-    position::Position,
-    radar_collection::RadarCollection,
+    image_creation::ImageCreation,
+    image_data::ImageData,
     image_formation::{ImageFormation, RgAzComp, Rma},
-    scpcoa::ScpCoa,
-    radiometric::Radiometric,
-    antenna::Antenna,
-    error_statistics::ErrorStatistics,
     match_info::MatchInfo,
     pfa::Pfa,
+    position::Position,
+    radar_collection::RadarCollection,
+    radiometric::Radiometric,
+    scpcoa::ScpCoa,
+    timeline::Timeline,
 };
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -44,4 +44,3 @@ pub struct Sicd {
     pub PFA: Option<Pfa>,
     pub RMA: Option<Rma>,
 }
-

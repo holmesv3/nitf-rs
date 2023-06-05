@@ -1,5 +1,5 @@
+use super::{Poly1D, Poly2D, XYZ};
 use serde::Deserialize;
-use super::{XYZ, Poly1D, Poly2D};
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Pfa {
@@ -35,7 +35,8 @@ mod tests {
             </SpatialFreqSFPoly><Krg1>0</Krg1><Krg2>0</Krg2><Kaz1>0</Kaz1><Kaz2>
             0</Kaz2></PFA>"#;
         assert!(match from_str::<Pfa>(xml_str) {
-            Ok(_) => true, Err(_) => false
+            Ok(_) => true,
+            Err(_) => false,
         })
     }
 }

@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use super::Parameter;
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ErrorStatistics {
@@ -88,7 +88,7 @@ mod tests {
     use serde_xml_rs::from_str;
 
     #[test]
-    fn test_errror_statistics () {
+    fn test_errror_statistics() {
         let xml_str = r#"<ErrorStatistics><Components><PosVelErr><Frame>RIC_ECI
             </Frame><P1>0</P1><P2>0</P2><P3>0</P3><V1>0</V1><V2>0</V2><V3>0</V3>
             <CorrCoefs><P1P2>0</P1P2><P1P3>0</P1P3><P1V1>0</P1V1><P1V2>0</P1V2>
@@ -100,7 +100,8 @@ mod tests {
             </TropoRangeVertical><TropoRangeSlant>0</TropoRangeSlant>
             </TropoError></Components></ErrorStatistics>"#;
         assert!(match from_str::<ErrorStatistics>(&xml_str) {
-            Ok(_) => true, Err(_) => false,
-        }) 
+            Ok(_) => true,
+            Err(_) => false,
+        })
     }
 }

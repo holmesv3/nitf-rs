@@ -36,8 +36,8 @@ pub enum ModeType {
 
 #[cfg(test)]
 mod tests {
-    use serde_xml_rs::from_str;
     use super::CollectionInfo;
+    use serde_xml_rs::from_str;
 
     #[test]
     fn test_collection_info() {
@@ -46,7 +46,8 @@ mod tests {
             </RadarMode><Classification>UNCLASSIFIED</Classification>
             <Parameter name="param1">value</Parameter></CollectionInfo>"#;
         assert!(match from_str::<CollectionInfo>(&xml_str) {
-            Ok(_) => true, Err(_) => false,
-        });    
+            Ok(_) => true,
+            Err(_) => false,
+        });
     }
 }

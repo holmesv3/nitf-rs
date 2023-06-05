@@ -55,15 +55,13 @@ To the best of my knowledge, these function as expected.
 There is no logic built around the inputs yet (in progress)
 
 ## New from last version (that I remember)
-- Added a `sicd` module and feature flag for including `serde` to parse sicd metadata. (only active on `crates.io` branch)
+- Added a `sicd` metadata parsing capability
 
 If you have questions, would like to contribute, or would like to request 
 something be added, you can ask on [this Discord server](https://discord.gg/Kg7NwN4XgS), or create an issue.
 
 ## Next in line
-- Might rework the top-level segment definitions
-  - Feels like the functionality of everything is too deep
-  - Shift the current `subheader` and `Datasegment` stuff a level down, provide more utility at the `nitf.___` level
+- Improve documentation, examples
 - Now that some basic `enum`/`struct`'s are in place, can begin to define within interface functions
   - First goal is going to be to read different types of data from an image segment for `P` IMODE value
   - ... Then think about how to do other values for `IMODE`

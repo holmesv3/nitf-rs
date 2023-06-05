@@ -1,5 +1,5 @@
+use super::{Parameter, Poly2D, XYZ};
 use serde::Deserialize;
-use super::{Poly2D, XYZ, Parameter};
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Grid {
     pub ImagePlane: ImagePlane,
@@ -57,7 +57,7 @@ mod tests {
     use super::Grid;
     use serde_xml_rs::from_str;
     #[test]
-    fn test_grid () {
+    fn test_grid() {
         let xml_str = r#"<Grid><ImagePlane>SLANT</ImagePlane><Type>RGAZIM</Type>
             <TimeCOAPoly order1="0" order2="0"><Coef exponent1="0" exponent2="0"
             >0</Coef></TimeCOAPoly><Row><UVectECF><X>0</X><Y>0</Y><Z>0</Z>
@@ -71,7 +71,8 @@ mod tests {
             <Coef exponent1="0" exponent2="0">-0</Coef></DeltaKCOAPoly></Col>
             </Grid>"#;
         assert!(match from_str::<Grid>(&xml_str) {
-            Ok(_) => true, Err(_) => false,
-        }) 
+            Ok(_) => true,
+            Err(_) => false,
+        })
     }
 }

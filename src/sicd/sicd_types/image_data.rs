@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use super::RowCol;
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageData {
@@ -63,7 +63,8 @@ mod tests {
             </Vertex><Vertex index="2"><Row>0</Row><Col>0</Col></Vertex>
             </ValidData></ImageData>"#;
         assert!(match from_str::<ImageData>(xml_str) {
-            Ok(_) => true, Err(_) => false
+            Ok(_) => true,
+            Err(_) => false,
         })
     }
 }

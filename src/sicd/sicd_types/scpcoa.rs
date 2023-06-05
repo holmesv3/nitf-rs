@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use super::XYZ;
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ScpCoa {
@@ -39,7 +39,8 @@ mod tests {
             <IncidenceAng>0</IncidenceAng><TwistAng>0</TwistAng><SlopeAng>0
             </SlopeAng><AzimAng>0</AzimAng><LayoverAng>0</LayoverAng></SCPCOA>"#;
         assert!(match from_str::<ScpCoa>(&xml_str) {
-                Ok(_) => true, Err(_) => false,
-        }) 
+            Ok(_) => true,
+            Err(_) => false,
+        })
     }
 }

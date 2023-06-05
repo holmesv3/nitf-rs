@@ -1,7 +1,5 @@
-
+use super::{Poly1D, Poly2D, XyzPoly};
 use serde::Deserialize;
-use super::{XyzPoly, Poly1D, Poly2D};
-
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Antenna {
@@ -70,7 +68,8 @@ mod tests {
             <EBFreqShift>false</EBFreqShift><MLFreqDilation>true
             </MLFreqDilation></Tx></Antenna>"#;
         assert!(match from_str::<Antenna>(&xml_str) {
-            Ok(_) => true, Err(_) => false
+            Ok(_) => true,
+            Err(_) => false,
         })
     }
 }

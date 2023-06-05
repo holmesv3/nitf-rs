@@ -1,5 +1,5 @@
+use super::{Parameter, Poly1D, Poly2D, CMPLX, XYZ};
 use serde::Deserialize;
-use super::{Parameter, XYZ, CMPLX, Poly1D, Poly2D};
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageFormation {
     pub RcvChanProc: RcvChanProc,
@@ -85,13 +85,11 @@ pub struct Distortion {
     pub PhaseErrorF2: Option<f64>,
 }
 
-
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RgAzComp {
     pub AzSF: f64,
     pub KazPoly: Poly1D,
 }
-
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Rma {
@@ -131,7 +129,7 @@ pub struct INCA {
 
 #[cfg(test)]
 mod tests {
-    use super::{ImageFormation};
+    use super::ImageFormation;
     use serde_xml_rs::from_str;
 
     #[test]
@@ -147,8 +145,9 @@ mod tests {
             </Applied><Parameter name="param">true</Parameter></Processing>
             </ImageFormation>"#;
         assert!(match from_str::<ImageFormation>(&xml_str) {
-                Ok(_) => true, Err(_) => false,
-        }) 
+            Ok(_) => true,
+            Err(_) => false,
+        })
     }
     // TODO: Test RgAzComp, RMA
 }

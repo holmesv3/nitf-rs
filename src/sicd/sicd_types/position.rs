@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use super::{Poly1D, XyzPoly};
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Position {
@@ -41,7 +41,8 @@ mod tests {
             </Coef></Y><Z order1="0"><Coef exponent1="0">0</Coef></Z>
             </RcvAPCPoly></RcvAPC></Position>"#;
         assert!(match from_str::<Position>(&xml_str) {
-                Ok(_) => true, Err(_) => false,
-            })     
-        }
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
 }

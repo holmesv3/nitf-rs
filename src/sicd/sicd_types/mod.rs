@@ -1,22 +1,22 @@
 //! Common types and metadata definition for SICD structure
-use serde::Deserialize;
 use ndarray::{Array1, Array2};
+use serde::Deserialize;
 
+pub mod antenna;
 pub mod collection_info;
-pub mod image_creation;
-pub mod image_data;
+pub mod error_statistics;
 pub mod geo_data;
 pub mod grid;
-pub mod timeline;
-pub mod position;
-pub mod radar_collection;
+pub mod image_creation;
+pub mod image_data;
 pub mod image_formation;
-pub mod scpcoa;
-pub mod radiometric;
-pub mod antenna;
-pub mod error_statistics;
 pub mod match_info;
 pub mod pfa;
+pub mod position;
+pub mod radar_collection;
+pub mod radiometric;
+pub mod scpcoa;
+pub mod timeline;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RowCol {

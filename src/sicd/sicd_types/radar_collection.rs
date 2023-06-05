@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use super::{Parameter, XYZ};
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RadarCollection {
@@ -150,7 +150,6 @@ pub enum Orientation {
     ARBITRARY,
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::RadarCollection;
@@ -177,7 +176,8 @@ mod tests {
             </SampleSpacing><NumSamples>0</NumSamples><FirstSample>0
             </FirstSample></YDir></Plane></Area></RadarCollection>"#;
         assert!(match from_str::<RadarCollection>(&xml_str) {
-                Ok(_) => true, Err(_) => false,
-            })     
-        }
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
 }

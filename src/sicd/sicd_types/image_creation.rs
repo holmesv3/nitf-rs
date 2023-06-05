@@ -13,7 +13,7 @@ mod tests {
     use super::ImageCreation;
     use serde_xml_rs::from_str;
     #[test]
-    fn test_imagecreation () {
+    fn test_imagecreation() {
         let xml_str = r#"<Grid><ImagePlane>SLANT</ImagePlane><Type>RGAZIM</Type>
             <TimeCOAPoly order1="0" order2="0"><Coef exponent1="0" exponent2="0"
             >0</Coef></TimeCOAPoly><Row><UVectECF><X>0</X><Y>0</Y><Z>0</Z>
@@ -27,7 +27,8 @@ mod tests {
             <Coef exponent1="0" exponent2="0">-0</Coef></DeltaKCOAPoly></Col>
             </Grid>"#;
         assert!(match from_str::<ImageCreation>(&xml_str) {
-            Ok(_) => true, Err(_) => false,
-        }) 
+            Ok(_) => true,
+            Err(_) => false,
+        })
     }
 }

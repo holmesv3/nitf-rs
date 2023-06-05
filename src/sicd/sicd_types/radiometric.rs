@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use super::Poly2D;
+use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Radiometric {
