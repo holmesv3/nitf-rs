@@ -8,14 +8,14 @@ A rust NITF file interface
 
 Current project goals are
 - Finish implementing version 2.1 reading (maybe writing)
-  - Verify header/subheader field entries (see [`NitfField`](https://docs.rs/nitf-rs/0.1.4/nitf_rs/nitf_2_1/types/struct.NitfField.html)
-  - Implement logic for various header/subheader inputs 
+  - Verify header/subheader field entries (see [`NitfField`](https://docs.rs/nitf-rs/0.1.4/nitf_rs/nitf_2_1/types/struct.NitfField.html))
+  - Implement logic for various header/subheader inputs
       - For example, return data from an image segment as an array with the appropriate format (right now only `Complex32` supported)
 - Expand with features for various applications of the standard (SICD as a first step)
 
 
 ## Example
-In your `Cargo.toml`, include `nitf-rs` as a dependency, or, for the 'latest-and-greatest' features..
+In your `Cargo.toml`, include `nitf-rs` as a dependency, or, for the 'latest-and-greatest' features, pull it from the `main` repository branch
 ```toml
 nitf-rs = {git="https://github.com/holmesv3/nitf-rs.git"}
 ```
@@ -56,8 +56,9 @@ There is no logic built around the inputs yet (in progress)
 
 ## New from last version (that I remember)
 - Added a `sicd` metadata parsing capability
+- Added basic `eval` methods on `SICD` polynomial objects (1D, 2D, and Xyz)
 
-If you have questions, would like to contribute, or would like to request 
+If you have questions, would like to contribute, or would like to request
 something be added, you can ask on [this Discord server](https://discord.gg/Kg7NwN4XgS), or create an issue.
 
 ## Next in line
