@@ -67,6 +67,15 @@ impl Poly1D {
         }
         poly
     }
+
+    /// Evaluate the polynomial at a point
+    pub fn eval(&self, x: f64) -> f64 {
+        let mut res = 0f64;
+        for coef in &self.Coefs {
+            res += coef.Value * x.powi(coef.exponent1 as i32)
+        }
+        res
+    }
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -94,6 +103,14 @@ impl Poly2D {
         }
         poly
     }
+    /// Evaluate the polynomial at a point
+    pub fn eval(&self, x: f64, y: f64) -> f64 {
+        let mut res = 0f64;
+        for coef in &self.Coefs {
+            res += coef.Value * x.powi(coef.exponent1 as i32) * y.powi(coef.exponent2 as i32)
+        }
+        res
+    }
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -110,7 +127,6 @@ pub struct ParameterStruct {
     #[serde(rename = "$value")]
     pub value: String,
 }
-
 
 // #[cfg(test)]
 // mod tests {
