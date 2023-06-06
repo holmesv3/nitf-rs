@@ -119,6 +119,14 @@ pub struct XyzPoly {
     pub Y: Poly1D,
     pub Z: Poly1D,
 }
+impl XyzPoly {
+    pub fn eval(&self, t: f64) -> Vec<f64> {
+        let x_pos = self.X.eval(t);
+        let y_pos = self.Y.eval(t);
+        let z_pos = self.Z.eval(t);
+        vec![x_pos, y_pos, z_pos]
+    }
+}
 
 pub type Parameter = Option<Vec<ParameterStruct>>;
 #[derive(Debug, Deserialize, PartialEq, Clone)]
