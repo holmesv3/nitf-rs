@@ -33,7 +33,12 @@ pub struct ScpCoa {
     pub layover_ang: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum SideOfTrack {
+pub struct SideOfTrack {
+    #[serde(rename = "$text")]
+    pub value: SideOfTrackEnum
+} 
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum SideOfTrackEnum {
     L,
     R,
 }
@@ -41,10 +46,10 @@ pub enum SideOfTrack {
 #[cfg(test)]
 mod tests {
     use super::ScpCoa;
-    use serde_xml_rs::from_str;
+    use quick_xml::de::from_str;
 
     #[test]
-    fn test_image_formation() {
+    fn test_scpcoa() {
         let xml_str = r#"<SCPCOA><SCPTime>0</SCPTime><ARPPos><X>0</X><Y>0</Y><Z>
             0</Z></ARPPos><ARPVel><X>0</X><Y>0</Y><Z>0</Z></ARPVel><ARPAcc><X>0
             </X><Y>0</Y><Z>0</Z></ARPAcc><SideOfTrack>L</SideOfTrack>

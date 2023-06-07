@@ -15,7 +15,12 @@ pub struct GeoData {
     pub geo_info: Option<Vec<GeoInfo>>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum EarthModel {
+pub struct EarthModel {
+    #[serde(rename = "$text")]
+    pub value: EarthModelEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum EarthModelEnum {
     WGS_84,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -32,6 +37,7 @@ pub struct ImageCorners {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ICP {
+    #[serde(rename = "@index")]
     pub index: String,
     #[serde(rename = "Lat")]
     pub lat: f64,
@@ -40,12 +46,14 @@ pub struct ICP {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ValidDataLL {
+    #[serde(rename = "@size")]
     pub size: u64,
     #[serde(rename = "Vertex")]
     pub vertex: Vec<IdxLL>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct GeoInfo {
+    #[serde(rename = "@name")]
     pub name: String,
     #[serde(rename = "Desc")]
     pub desc: Option<Vec<String>>,
@@ -58,12 +66,14 @@ pub struct GeoInfo {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Line {
+    #[serde(rename = "@size")]
     pub size: u64,
     #[serde(rename = "Endpoint")]
     pub endpoint: Vec<IdxLL>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Polygon {
+    #[serde(rename = "@size")]
     pub size: u64,
     #[serde(rename = "Vertex")]
     pub vertex: Vec<IdxLL>,
@@ -72,7 +82,7 @@ pub struct Polygon {
 #[cfg(test)]
 mod tests {
     use super::GeoData;
-    use serde_xml_rs::from_str;
+    use quick_xml::de::from_str;
     #[test]
     fn test_geo_data() {
         let xml_str = r#"<GeoData><EarthModel>WGS_84</EarthModel>

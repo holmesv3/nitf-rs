@@ -27,6 +27,7 @@ pub struct RowCol {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct IdxRowCol {
+    #[serde(rename = "@index")]
     pub index: usize,
     #[serde(rename = "Row")]
     pub row: u64,
@@ -60,6 +61,7 @@ pub struct LLH {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct IdxLLH {
+    #[serde(rename = "@index")]
     pub index: usize,
     #[serde(rename = "Lat")]
     pub lat: f64,
@@ -77,6 +79,7 @@ pub struct LL {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct IdxLL {
+    #[serde(rename = "@index")]
     pub index: usize,
     #[serde(rename = "Lat")]
     pub lat: f64,
@@ -84,63 +87,70 @@ pub struct IdxLL {
     pub lon: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Coef1D {
+pub struct Coef1d {
+    #[serde(rename = "@exponent1")]
     pub exponent1: usize,
     #[serde(rename = "$value")]
     pub value: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Poly1D {
+pub struct Poly1d {
+    #[serde(rename = "@order1")]
     pub order1: usize,
     #[serde(rename = "$value")]
-    pub coefs: Vec<Coef1D>,
+    pub coefs: Vec<Coef1d>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Coef2D {
+pub struct Coef2d {
+    #[serde(rename = "@exponent1")]
     pub exponent1: usize,
+    #[serde(rename = "@exponent2")]
     pub exponent2: usize,
     #[serde(rename = "$value")]
     pub value: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Poly2D {
+pub struct Poly2d {
+    #[serde(rename = "@order1")]
     pub order1: usize,
+    #[serde(rename = "@order2")]
     pub order2: usize,
     #[serde(rename = "$value")]
-    pub coefs: Vec<Coef2D>,
+    pub coefs: Vec<Coef2d>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct XyzPoly {
     #[serde(rename = "X")]
-    pub x: Poly1D,
+    pub x: Poly1d,
     #[serde(rename = "Y")]
-    pub y: Poly1D,
+    pub y: Poly1d,
     #[serde(rename = "Z")]
-    pub z: Poly1D,
+    pub z: Poly1d,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct IdxXyzPoly {
+    #[serde(rename = "@index")]
     pub index: usize,
     #[serde(rename = "X")]
-    pub x: Poly1D,
+    pub x: Poly1d,
     #[serde(rename = "Y")]
-    pub y: Poly1D,
+    pub y: Poly1d,
     #[serde(rename = "Z")]
-    pub z: Poly1D,
+    pub z: Poly1d,
 }
 
 pub type Parameter = Option<Vec<ParameterStruct>>;
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ParameterStruct {
+    #[serde(rename = "@name")]
     pub name: String,
     #[serde(rename = "$value")]
     pub value: String,
 }
 
-
-impl Poly1D {
+impl Poly1d {
     /// Parse the data in the polynomial to an array object
     pub fn to_array(&self) -> Array1<f64> {
         let mut poly = Array1::zeros(self.order1 + 1);
@@ -160,7 +170,7 @@ impl Poly1D {
         res
     }
 }
-impl Poly2D {
+impl Poly2d {
     /// Parse the data in the polynomial to an array object
     pub fn to_array(&self) -> Array2<f64> {
         let mut poly = Array2::zeros((self.order1 + 1, self.order2 + 1));
@@ -189,31 +199,182 @@ impl XyzPoly {
     }
 }
 
-
-
-// #[cfg(test)]
-// mod tests {
-
-//     #[test]
-//     fn test_rowcol() {}
-//     #[test]
-//     fn test_cmplx() {}
-//     #[test]
-//     fn test_xyz() {}
-//     #[test]
-//     fn test_llh() {}
-//     #[test]
-//     fn test_ll() {}
-//     #[test]
-//     fn test_coef1d() {}
-//     #[test]
-//     fn test_poly1d() {}
-//     #[test]
-//     fn test_coef2d() {}
-//     #[test]
-//     fn test_poly2d() {}
-//     #[test]
-//     fn test_xyzpoly() {}
-//     #[test]
-//     fn test_parameterstruct() {}
-// }
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quick_xml::de::from_str;
+    
+    #[test]
+    fn test_row_col() {
+        let xml_str = r#"
+        <RowCol>
+            <Row>0</Row>
+            <Col>0</Col>
+        </RowCol>
+        "#;
+        assert!(match from_str::<RowCol>(xml_str) {
+            Ok(_) => true, Err(_) => false
+        })
+    }
+    #[test]
+    fn test_idx_row_col() {
+        let xml_str = r#"
+        <IdxRowCol index = "0">
+            <Row>0</Row>
+            <Col>0</Col>
+        </IdxRowCol>
+        "#;
+        assert!(match from_str::<IdxRowCol>(xml_str) {
+            Ok(_) => true, Err(_) => false
+        })
+    }
+    #[test]
+    fn test_cmplx() {
+        let xml_str = r#"
+        <CMPLX>
+            <Real>0</Real>
+            <Imag>0</Imag>
+        </CMPLX>
+        "#;
+        assert!(match from_str::<CMPLX>(xml_str) {
+            Ok(_) => true, Err(_) => false
+        })
+    }
+    #[test]
+    fn test_xyz() {
+        let xml_str = r#"
+        <XYZ>
+            <X>0</X>
+            <Y>0</Y>
+            <Z>0</Z>
+        </XYZ>
+        "#;
+        assert!(match from_str::<XYZ>(xml_str) {
+            Ok(_) => true, Err(_) => false
+        })
+    }
+    #[test]
+    fn test_llh() {
+        let xml_str = r#"
+        <LLH>
+            <Lat>0</Lat>
+            <Lon>0</Lon>
+            <HAE>0</HAE>
+        </LLH>
+        "#;
+        assert!(match from_str::<LLH>(xml_str) {
+            Ok(_) => true, Err(_) => false
+        })
+    }
+    #[test]
+    fn test_idx_llh() {
+        let xml_str = r#"
+        <IdxLLH index = "0">
+            <Lat>0</Lat>
+            <Lon>0</Lon>
+            <HAE>0</HAE>
+        </IdxLLH>
+        "#;
+        assert!(match from_str::<IdxLLH>(xml_str) {
+            Ok(_) => true, Err(_) => false
+        })
+    }
+    #[test]
+    fn test_ll() {
+        let xml_str = r#"
+        <LL>
+            <Lat>0</Lat>
+            <Lon>0</Lon>
+        </LL>
+        "#;
+        assert!(match from_str::<LL>(xml_str) {
+            Ok(_) => true, Err(_) => false
+        })
+    }
+    #[test]
+    fn test_idx_ll() {
+        let xml_str = r#"
+        <IdxLL index = "0">
+            <Lat>0</Lat>
+            <Lon>0</Lon>
+        </IdxLL>
+        "#;
+        assert!(match from_str::<IdxLL>(xml_str) {
+            Ok(_) => true, Err(_) => false
+        })
+    }
+    #[test]
+    fn test_poly1d() {
+        let xml_str = r#"
+        <Poly1d order1="1">
+            <Coef1d exponent1="0">0</Coef1d>
+            <Coef1d exponent1="1">0</Coef1d>
+        </Poly1d>
+        "#;
+        assert!(match from_str::<Poly1d>(xml_str) {
+            Ok(_) => true, Err(_) => false
+        })
+    }
+    #[test]
+    fn test_poly2d() {
+        let xml_str = r#"
+        <Poly2d order1 = "1" order2 = "1">
+            <Coef2d exponent1="0" exponent2="0">0</Coef2d>
+            <Coef2d exponent1="1" exponent2="0">0</Coef2d>
+            <Coef2d exponent1="0" exponent2="1">0</Coef2d>
+            <Coef2d exponent1="1" exponent2="1">0</Coef2d>
+        </Poly2d>
+        "#;
+        assert!(match from_str::<Poly2d>(xml_str) {
+            Ok(_) => true, Err(_) => false
+        })
+    }
+    #[test]
+    fn test_xyz_poly() {
+        let xml_str = r#"
+        <XyzPoly>
+            <X order1="0">
+                <Coef1d exponent1="0">0</Coef1d>
+            </X>
+            <Y order1="0">
+                <Coef1d exponent1="0">0</Coef1d>
+            </Y>
+            <Z order1="0">
+                <Coef1d exponent1="0">0</Coef1d>
+            </Z>
+        </XyzPoly>
+        "#;
+        assert!(match from_str::<XyzPoly>(xml_str) {
+            Ok(_) => true, Err(_) => false
+        })
+    }
+    #[test]
+    fn test_idx_xyz_poly() {
+        let xml_str = r#"
+        <IdxXyzPoly index="0">
+            <X order1="0">
+                <Coef1d exponent1="0">0</Coef1d>
+            </X>
+            <Y order1="0">
+                <Coef1d exponent1="0">0</Coef1d>
+            </Y>
+            <Z order1="0">
+                <Coef1d exponent1="0">0</Coef1d>
+            </Z>
+        </IdxXyzPoly>
+        "#;
+        assert!(match from_str::<IdxXyzPoly>(xml_str) {
+            Ok(_) => true, Err(_) => false
+        })
+    }
+    #[test]
+    fn test_parameter() {
+        let xml_str = r#"
+            <Parameter name="Param0">TestP0</Parameter>
+            <Parameter name="Param1">TestP1</Parameter>
+        "#;
+        assert!(match from_str::<Parameter>(xml_str) {
+            Ok(_) => true, Err(_) => false
+        })
+    }
+}

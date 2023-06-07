@@ -52,7 +52,12 @@ pub struct PosVelErr {
     pub position_decorr: Option<Decorr>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum Frame {
+pub struct Frame {
+    #[serde(rename = "$text")]
+    pub value: FrameEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum FrameEnum {
     ECF,
     RIC_ECF,
     RIC_ECI,
@@ -132,7 +137,7 @@ pub struct Decorr {
 #[cfg(test)]
 mod tests {
     use super::ErrorStatistics;
-    use serde_xml_rs::from_str;
+    use quick_xml::de::from_str;
 
     #[test]
     fn test_errror_statistics() {

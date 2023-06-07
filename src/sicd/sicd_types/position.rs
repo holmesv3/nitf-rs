@@ -14,6 +14,7 @@ pub struct Position {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RcvAPC {
+    #[serde(rename = "@size")]
     pub size: usize,
     #[serde(rename = "RcvAPCPoly")]
     pub rcv_apc_poly: Vec<IdxXyzPoly>,
@@ -22,7 +23,7 @@ pub struct RcvAPC {
 #[cfg(test)]
 mod tests {
     use super::Position;
-    use serde_xml_rs::from_str;
+    use quick_xml::de::from_str;
 
     #[test]
     fn test_position() {

@@ -24,19 +24,26 @@ pub struct ImageData {
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum PixelType {
+pub struct PixelType {
+    #[serde(rename = "$text")]
+    pub value: PixelTypeEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum PixelTypeEnum {
     RE32F_IM32F,
     RE16I_IM16I,
     AMP8I_PHS8I,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct AmpTable {
+    #[serde(rename = "@size")]
     pub size: u16,  // 256
     #[serde(rename = "Amplitude")]
     pub amplitude: Vec<Amplitude>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Amplitude {
+    #[serde(rename = "@index")]
     pub index: u8,  // [0, 255]
     #[serde(rename = "$value")]
     pub value: f64,
@@ -50,6 +57,7 @@ pub struct FullImage {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ValidDataRC {
+    #[serde(rename = "@size")]
     pub size: u64,
     #[serde(rename = "Vertex")]
     pub vertex: Vec<IdxRowCol>,
@@ -58,17 +66,36 @@ pub struct ValidDataRC {
 #[cfg(test)]
 mod tests {
     use super::ImageData;
-    use serde_xml_rs::from_str;
+    use quick_xml::de::from_str;
 
     #[test]
     fn test_image_data() {
-        let xml_str = r#"<ImageData><PixelType>RE32F_IM32F</PixelType><NumRows>0
-            </NumRows><NumCols>10077</NumCols><FirstRow>0</FirstRow><FirstCol>0
-            </FirstCol><FullImage><NumRows>0</NumRows><NumCols>0</NumCols>
-            </FullImage><SCPPixel><Row>0</Row><Col>0</Col></SCPPixel>
-            <ValidData size="2"><Vertex index="1"><Row>0</Row><Col>0</Col>
-            </Vertex><Vertex index="2"><Row>0</Row><Col>0</Col></Vertex>
-            </ValidData></ImageData>"#;
+        let xml_str = r#"
+        <ImageData>
+            <PixelType>RE32F_IM32F</PixelType>
+            <NumRows>0</NumRows>
+            <NumCols>10077</NumCols>
+            <FirstRow>0</FirstRow>
+            <FirstCol>0</FirstCol>
+            <FullImage>
+                <NumRows>0</NumRows>
+                <NumCols>0</NumCols>
+            </FullImage>
+            <SCPPixel>
+                <Row>0</Row>
+                <Col>0</Col>
+            </SCPPixel>
+            <ValidData size="2">
+                <Vertex index="1">
+                    <Row>0</Row>
+                    <Col>0</Col>
+                </Vertex>
+                <Vertex index="2">
+                    <Row>0</Row>
+                    <Col>0</Col>
+                </Vertex>
+            </ValidData>
+        </ImageData>"#;
         assert!(match from_str::<ImageData>(xml_str) {
             Ok(_) => true,
             Err(_) => false,

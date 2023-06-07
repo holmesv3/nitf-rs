@@ -10,6 +10,7 @@ pub struct MatchInfo {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct MatchType {
+    #[serde(rename = "@index")]
     pub index: usize,
     #[serde(rename = "TypeID")]
     pub type_id: String,
@@ -22,6 +23,7 @@ pub struct MatchType {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct MatchCollection {
+    #[serde(rename = "@index")]
     pub index: usize,
     #[serde(rename = "CoreName")]
     pub core_name: String,

@@ -12,9 +12,10 @@ readme = "README-crates.md"
 [dependencies]
 num-complex = "0.4.3"
 memmap2 = "0.5.10"
-ndarray = {version = "0.15.6", features = ["serde"]}
+ndarray = {version = "0.15.6"}
 serde = {version = "1.0.163", features = ["derive"]}
-serde-xml-rs = {version = "0.6.0"}
+quick-xml = {version = "0.28.2", features = ["serialize"]}
+
 
 
 

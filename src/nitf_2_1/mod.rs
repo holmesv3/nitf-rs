@@ -3,7 +3,7 @@
 pub mod segments;
 pub mod types;
 
-use serde_xml_rs::from_str;
+use quick_xml::{de::from_str, DeError};
 use std::fmt::Display;
 use std::fs::File;
 
@@ -81,7 +81,7 @@ impl Nitf {
         return nitf;
     }
 
-    pub fn parse_sicd_meta(&self) -> Result<Sicd, serde_xml_rs::Error> {
+    pub fn parse_sicd_meta(&self) -> Result<Sicd, DeError> {
         let xml_str = String::from_utf8(self.data_extension_segments[0].data[..].to_vec()).unwrap();
         from_str(&xml_str)
     }

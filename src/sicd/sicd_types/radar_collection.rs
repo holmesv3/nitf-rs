@@ -29,12 +29,14 @@ pub struct TxFrequency {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Waveform {
+    #[serde(rename = "@size")]
     pub size: u64,
     #[serde(rename = "WFParameters")]
     pub wf_parameters: Vec<WFParameters>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct WFParameters {
+    #[serde(rename = "@index")]
     pub index: usize,
     #[serde(rename = "TxPulseLength")]
     pub tx_pulse_length: Option<f64>,
@@ -58,12 +60,22 @@ pub struct WFParameters {
     pub rcv_fm_rate: Option<f64>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum RcvDemodType {
+pub struct RcvDemodType {
+    #[serde(rename = "$text")]
+    pub value: RcvDemodTypeEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum RcvDemodTypeEnum {
     STRETCH,
     CHIRP,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum TxPolarization {
+pub struct TxPolarization {
+    #[serde(rename = "$text")]
+    pub value: TxPolarizationEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum TxPolarizationEnum {
     V,
     H,
     RHC,
@@ -74,12 +86,14 @@ pub enum TxPolarization {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct TxSequence {
+    #[serde(rename = "@size")]
     pub size: u64,
     #[serde(rename = "TxStep")]
     pub tx_step: Vec<TxStep>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct TxStep {
+    #[serde(rename = "@index")]
     pub index: usize,
     #[serde(rename = "WFIndex")]
     pub wf_index: Option<usize>,
@@ -87,7 +101,12 @@ pub struct TxStep {
     pub tx_polarization: Option<TxStepPolarization>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum TxStepPolarization {
+pub struct TxStepPolarization {
+    #[serde(rename = "$text")]
+    pub value: TxStepPolarizationEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum TxStepPolarizationEnum {
     V,
     H,
     RHC,
@@ -96,12 +115,14 @@ pub enum TxStepPolarization {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RcvChannels {
+    #[serde(rename = "@size")]
     pub size: u64,
     #[serde(rename = "ChanParameters")]
     pub chan_parameters: Vec<ChanParameters>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ChanParameters {
+    #[serde(rename = "@index")]
     pub index: usize,
     #[serde(rename = "TxRcvPolarization")]
     pub tx_rcv_polarization: String, // TODO: Implement this enum
@@ -135,6 +156,7 @@ pub struct Plane {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RefPt {
+    #[serde(rename = "@name")]
     pub name: Option<String>,
     #[serde(rename = "ECF")]
     pub ecf: XYZ,
@@ -167,12 +189,14 @@ pub struct YDir {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct SegmentList {
+    #[serde(rename = "@size")]
     pub size: Option<String>,
     #[serde(rename = "Segment")]
     pub segment: Vec<Segment>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Segment {
+    #[serde(rename = "@index")]
     pub index: usize,
     #[serde(rename = "StartLine")]
     pub start_line: u64,
@@ -186,7 +210,12 @@ pub struct Segment {
     pub identifier: String,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum Orientation {
+pub struct Orientation {
+    #[serde(rename = "$text")]
+    pub value: OrientationEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum OrientationEnum {
     UP,
     DOWN,
     LEFT,
@@ -197,7 +226,7 @@ pub enum Orientation {
 #[cfg(test)]
 mod tests {
     use super::RadarCollection;
-    use serde_xml_rs::from_str;
+    use quick_xml::de::from_str;
 
     #[test]
     fn test_radar_collection() {

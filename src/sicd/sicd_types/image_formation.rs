@@ -1,4 +1,4 @@
-use super::{Parameter, Poly1D, Poly2D, CMPLX, XYZ};
+use super::{Parameter, Poly1d, Poly2d, CMPLX, XYZ};
 use serde::Deserialize;
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageFormation {
@@ -46,31 +46,56 @@ pub struct TxFrequencyProc {
     pub max_proc: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum ImageFormAlgo {
+pub struct ImageFormAlgo {
+    #[serde(rename = "$text")]
+    pub value: ImageFormAlgoEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum ImageFormAlgoEnum {
     PFA,
     RMA,
     RGAZCOMP,
     OTHER,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum STBeamComp {
+pub struct STBeamComp {
+    #[serde(rename = "$text")]
+    pub value: STBeamCompEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum STBeamCompEnum {
     NO,
     GLOBAL,
     SV,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum ImageBeamComp {
+pub struct ImageBeamComp {
+    #[serde(rename = "$text")]
+    pub value: ImageBeamCompEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum ImageBeamCompEnum {
     NO,
     SV,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum AzAutofocus {
+pub struct AzAutofocus {
+    #[serde(rename = "$text")]
+    pub value: AzAutofocusEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum AzAutofocusEnum {
     NO,
     GLOBAL,
     SV,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum RgAutofocus {
+pub struct RgAutofocus {
+    #[serde(rename = "$text")]
+    pub value: RgAutofocusEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum RgAutofocusEnum {
     NO,
     GLOBAL,
     SV,
@@ -126,7 +151,7 @@ pub struct RgAzComp {
     #[serde(rename = "AzSF")]
     pub az_sf: f64,
     #[serde(rename = "KazPoly")]
-    pub kaz_poly: Poly1D,
+    pub kaz_poly: Poly1d,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -143,13 +168,23 @@ pub struct Rma {
     pub inca: Option<INCA>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum RMAlgoType {
+pub struct RMAlgoType {
+    #[serde(rename = "$text")]
+    pub value: RMAlgoTypeEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum RMAlgoTypeEnum {
     OMEGA_K,
     CSA,
     RG_DOP,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum ImageType {
+pub struct ImageType {
+    #[serde(rename = "$text")]
+    pub value: ImageTypeEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum ImageTypeEnum {
     RMAT,
     RMCR,
     INCA,
@@ -166,15 +201,15 @@ pub struct RMAlgo {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct INCA {
     #[serde(rename = "TimeCAPoly")]
-    pub time_ca_poly: Poly1D,
+    pub time_ca_poly: Poly1d,
     #[serde(rename = "R_CA_SCP")]
     pub r_ca_scp: f64,
     #[serde(rename = "FreqZero")]
     pub freq_zero: f64,
     #[serde(rename = "DRateSFPoly")]
-    pub d_rate_sf_poly: Poly2D,
+    pub d_rate_sf_poly: Poly2d,
     #[serde(rename = "DopCentroidPoly")]
-    pub dop_centroid_poly: Option<Poly2D>,
+    pub dop_centroid_poly: Option<Poly2d>,
     #[serde(rename = "DopCentroidCOA")]
     pub dop_centroid_coa: Option<bool>,
 }
@@ -182,7 +217,7 @@ pub struct INCA {
 #[cfg(test)]
 mod tests {
     use super::ImageFormation;
-    use serde_xml_rs::from_str;
+    use quick_xml::de::from_str;
 
     #[test]
     fn test_image_formation() {

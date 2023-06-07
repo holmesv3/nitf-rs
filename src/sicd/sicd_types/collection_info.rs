@@ -21,8 +21,14 @@ pub struct CollectionInfo {
     #[serde(rename = "Parameter")]
     pub parameter: Parameter,
 }
+
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum CollectType {
+pub struct  CollectType {
+    #[serde(rename = "$text")]
+    pub value: CollectTypeEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum CollectTypeEnum {
     MONOSTATIC,
     BISTATIC,
 }
@@ -37,7 +43,12 @@ pub struct RadarMode {
     pub mode_id: Option<String>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum ModeType {
+pub struct ModeType {
+    #[serde(rename = "$text")]
+    pub value: ModeTypeEnum
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum ModeTypeEnum {
     SPOTLIGHT,
     STRIPMAP,
     #[serde(rename = "DYNAMIC STRIPMAP")]
@@ -47,7 +58,7 @@ pub enum ModeType {
 #[cfg(test)]
 mod tests {
     use super::CollectionInfo;
-    use serde_xml_rs::from_str;
+    use quick_xml::de::from_str;
 
     #[test]
     fn test_collection_info() {

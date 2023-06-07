@@ -15,7 +15,7 @@ pub struct ImageCreation {
 #[cfg(test)]
 mod tests {
     use super::ImageCreation;
-    use serde_xml_rs::from_str;
+    use quick_xml::de::from_str;
     #[test]
     fn test_imagecreation() {
         let xml_str = r#"<Grid><ImagePlane>SLANT</ImagePlane><Type>RGAZIM</Type>
