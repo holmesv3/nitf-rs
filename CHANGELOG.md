@@ -9,4 +9,4 @@
 ## 0.1.6
 - Added `nitf_rs::sicd` module
   - Structs using `serde_xml_rs` for `sicd` data parsing
-  - Added `parse_sicd_meta()` to `sNitf`
+  - Added `parse_sicd_meta()` to `Nitf`
