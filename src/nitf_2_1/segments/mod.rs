@@ -21,13 +21,8 @@ use std::ops::Deref;
 use std::string::FromUtf8Error;
 
 use headers::NitfSegmentHeader;
+
 /// Segment structure definition
-///
-///
-///     pub meta: T  // header metadata fields defined in module
-///     pub header_offset: u64  // byte offset of header start
-///     pub header_size: usize  // byte size of header
-///
 #[derive(Default, Debug)]
 pub struct Segment<T> {
     /// Header fields defined in module

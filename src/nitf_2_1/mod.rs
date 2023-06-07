@@ -81,6 +81,16 @@ impl Nitf {
         return nitf;
     }
 
+    /// Read [Sicd] metadata from the nitf file
+    /// 
+    /// # Example
+    /// 
+    ///     use std::path::Path;
+    ///     use nitf_rs::read_nitf;
+    ///
+    ///     let nitf_path = Path::new("../example.nitf");
+    ///     let nitf = read_nitf(nitf_path);
+    ///     let sicd = nitf.parse_sicd_meta().unwrap();
     pub fn parse_sicd_meta(&self) -> Result<Sicd, DeError> {
         let xml_str = String::from_utf8(self.data_extension_segments[0].data[..].to_vec()).unwrap();
         from_str(&xml_str)

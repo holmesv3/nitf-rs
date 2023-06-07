@@ -72,9 +72,9 @@ impl Image {
     /// # Example
     ///
     ///     use std::path::Path;
-    ///     use nitf_rs::{read_nitf, data_to_array};
+    ///     use nitf_rs::read_nitf;
     ///
-    ///     let nitf_path = Path::new(<path-to-file>);
+    ///     let nitf_path = Path::new("../example.nitf");
     ///     let nitf = read_nitf(nitf_path);
     ///     let data = nitf.image_segments[0].data_to_array();
     pub fn data_to_array(&self) -> Array2<ImageDataType> {
