@@ -174,9 +174,11 @@ pub struct RMAlgoType {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum RMAlgoTypeEnum {
-    OMEGA_K,
+    #[serde(rename = "OMEGA_K")]
+    OMEGAK,
     CSA,
-    RG_DOP,
+    #[serde(rename = "RG_DOP")]
+    RGDOP,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageType {

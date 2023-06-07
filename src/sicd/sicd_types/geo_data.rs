@@ -21,7 +21,8 @@ pub struct EarthModel {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum EarthModelEnum {
-    WGS_84,
+    #[serde(rename = "WGS_84")]
+    WGS84,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct SCP {

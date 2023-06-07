@@ -52,7 +52,7 @@ pub enum ModeTypeEnum {
     SPOTLIGHT,
     STRIPMAP,
     #[serde(rename = "DYNAMIC STRIPMAP")]
-    DYNAMIC_STRIPMAP,
+    DYNAMICSTRIPMAP,
 }
 
 #[cfg(test)]
