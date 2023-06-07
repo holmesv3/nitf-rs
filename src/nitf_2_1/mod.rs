@@ -11,21 +11,36 @@ use crate::sicd::Sicd;
 use segments::{DataExtension, FileHeader, Graphic, Image, ReservedExtension, Text};
 
 /// Top level NITF interface
-///
-/// Collection of [Segment] and [DataSegment] objects
 #[derive(Default, Debug)]
 pub struct Nitf {
-    /// Nitf file header. See [NitfHeader] for `meta` fields
+    /// Nitf file header.
+    ///     
+    /// See [NitfHeader](segments::headers::nitf_file_hdr) for `meta` fields
     pub nitf_header: FileHeader,
-    /// Vector of image segments. See [ImageHeader] for `meta` fields
+
+    /// Vector of image segments.
+    ///     
+    /// See [ImageHeader](segments::headers::image_hdr) for `meta` fields
     pub image_segments: Vec<Image>,
-    /// Vector of graphics segments. See [GraphicHeader] for `meta` fields
+
+    /// Vector of graphics segments.
+    ///     
+    /// See [GraphicHeader](segments::headers::graphic_hdr) for `meta` fields
     pub graphic_segments: Vec<Graphic>,
-    /// Vector of text segments. See [TextHeader] for `meta` fields
+
+    /// Vector of text segments.
+    ///     
+    /// See [TextHeader](segments::headers::text_hdr) for `meta` fields
     pub text_segments: Vec<Text>,
-    /// Vector of data extension segments. See [DataExtensionHeader] for `meta` fields
+
+    /// Vector of data extension segments.
+    ///     
+    /// See [DataExtensionHeader](segments::headers::data_extension_hdr) for `meta` fields
     pub data_extension_segments: Vec<DataExtension>,
-    /// Vector of reserved extension segments. See [ReservedExtensionHeader] for `meta` fields
+
+    /// Vector of reserved extension segments.
+    ///     
+    /// See [ReservedExtensionHeader](segments::headers::reserved_extension_hdr) for `meta` fields
     pub reserved_extension_segments: Vec<ReservedExtension>,
 }
 
@@ -82,9 +97,9 @@ impl Nitf {
     }
 
     /// Read [Sicd] metadata from the nitf file
-    /// 
+    ///
     /// # Example
-    /// 
+    ///
     ///     use std::path::Path;
     ///     use nitf_rs::read_nitf;
     ///
