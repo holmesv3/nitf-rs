@@ -1,8 +1,8 @@
 # Changes by version
 
 ## 0.1.7 (In development)
-- Switched to using `quick_xml` for better `.xml` specific syntax support
-- Added simple `eval()` functions to `sicd` polynomials
+- Switched to using `quick_xml` for better `.xml` syntax support
+- Added `eval()` functions to `sicd` polynomials
 - Renamed all `sicd` struct members to snake_case
 - Added unit tests for basic sicd types (RowCol, LLH, etc.)
 

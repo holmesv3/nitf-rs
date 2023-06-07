@@ -16,7 +16,7 @@ pub struct Grid {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImagePlane {
     #[serde(rename = "$text")]
-    pub value: ImagePlaneEnum
+    pub value: ImagePlaneEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum ImagePlaneEnum {
@@ -27,7 +27,7 @@ pub enum ImagePlaneEnum {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct GridType {
     #[serde(rename = "$text")]
-    pub value: GridTypeEnum
+    pub value: GridTypeEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum GridTypeEnum {

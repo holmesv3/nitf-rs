@@ -48,7 +48,7 @@ pub struct TxFrequencyProc {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageFormAlgo {
     #[serde(rename = "$text")]
-    pub value: ImageFormAlgoEnum
+    pub value: ImageFormAlgoEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum ImageFormAlgoEnum {
@@ -60,7 +60,7 @@ pub enum ImageFormAlgoEnum {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct STBeamComp {
     #[serde(rename = "$text")]
-    pub value: STBeamCompEnum
+    pub value: STBeamCompEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum STBeamCompEnum {
@@ -71,7 +71,7 @@ pub enum STBeamCompEnum {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageBeamComp {
     #[serde(rename = "$text")]
-    pub value: ImageBeamCompEnum
+    pub value: ImageBeamCompEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum ImageBeamCompEnum {
@@ -81,7 +81,7 @@ pub enum ImageBeamCompEnum {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct AzAutofocus {
     #[serde(rename = "$text")]
-    pub value: AzAutofocusEnum
+    pub value: AzAutofocusEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum AzAutofocusEnum {
@@ -92,7 +92,7 @@ pub enum AzAutofocusEnum {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RgAutofocus {
     #[serde(rename = "$text")]
-    pub value: RgAutofocusEnum
+    pub value: RgAutofocusEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum RgAutofocusEnum {
@@ -170,7 +170,7 @@ pub struct Rma {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RMAlgoType {
     #[serde(rename = "$text")]
-    pub value: RMAlgoTypeEnum
+    pub value: RMAlgoTypeEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum RMAlgoTypeEnum {
@@ -181,7 +181,7 @@ pub enum RMAlgoTypeEnum {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageType {
     #[serde(rename = "$text")]
-    pub value: ImageTypeEnum
+    pub value: ImageTypeEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum ImageTypeEnum {

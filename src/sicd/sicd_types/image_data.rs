@@ -1,4 +1,4 @@
-use super::{RowCol, IdxRowCol};
+use super::{IdxRowCol, RowCol};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -26,7 +26,7 @@ pub struct ImageData {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct PixelType {
     #[serde(rename = "$text")]
-    pub value: PixelTypeEnum
+    pub value: PixelTypeEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum PixelTypeEnum {
@@ -37,14 +37,14 @@ pub enum PixelTypeEnum {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct AmpTable {
     #[serde(rename = "@size")]
-    pub size: u16,  // 256
+    pub size: u16, // 256
     #[serde(rename = "Amplitude")]
     pub amplitude: Vec<Amplitude>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Amplitude {
     #[serde(rename = "@index")]
-    pub index: u8,  // [0, 255]
+    pub index: u8, // [0, 255]
     #[serde(rename = "$value")]
     pub value: f64,
 }

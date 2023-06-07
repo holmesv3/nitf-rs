@@ -1,4 +1,4 @@
-use super::{XyzPoly, IdxXyzPoly};
+use super::{IdxXyzPoly, XyzPoly};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]

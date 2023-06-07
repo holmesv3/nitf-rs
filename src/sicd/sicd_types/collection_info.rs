@@ -23,9 +23,9 @@ pub struct CollectionInfo {
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct  CollectType {
+pub struct CollectType {
     #[serde(rename = "$text")]
-    pub value: CollectTypeEnum
+    pub value: CollectTypeEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum CollectTypeEnum {
@@ -45,7 +45,7 @@ pub struct RadarMode {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ModeType {
     #[serde(rename = "$text")]
-    pub value: ModeTypeEnum
+    pub value: ModeTypeEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum ModeTypeEnum {

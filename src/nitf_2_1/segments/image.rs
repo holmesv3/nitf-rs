@@ -32,7 +32,6 @@ pub enum ImageDataType {
     C64(Complex64),
 }
 
-
 impl Image {
     pub fn initialize(reader: &mut File, header_size: u32, data_size: u64) -> Self {
         let header_offset = reader.stream_position().unwrap();
@@ -103,7 +102,7 @@ impl Image {
                 *elm = ImageDataType::C32(item);
             }
         }
-        return arr
+        return arr;
     }
 }
 
@@ -112,5 +111,3 @@ impl Display for Image {
         write!(f, "{}", self.meta)
     }
 }
-
-

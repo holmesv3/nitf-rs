@@ -1,4 +1,4 @@
-use super::{LL, LLH, XYZ, IdxLL};
+use super::{IdxLL, LL, LLH, XYZ};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -17,7 +17,7 @@ pub struct GeoData {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct EarthModel {
     #[serde(rename = "$text")]
-    pub value: EarthModelEnum
+    pub value: EarthModelEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum EarthModelEnum {

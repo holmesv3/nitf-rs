@@ -35,8 +35,8 @@ pub struct ScpCoa {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct SideOfTrack {
     #[serde(rename = "$text")]
-    pub value: SideOfTrackEnum
-} 
+    pub value: SideOfTrackEnum,
+}
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum SideOfTrackEnum {
     L,

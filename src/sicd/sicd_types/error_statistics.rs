@@ -54,7 +54,7 @@ pub struct PosVelErr {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Frame {
     #[serde(rename = "$text")]
-    pub value: FrameEnum
+    pub value: FrameEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum FrameEnum {

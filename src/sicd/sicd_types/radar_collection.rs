@@ -1,4 +1,4 @@
-use super::{Parameter, XYZ, IdxLLH};
+use super::{IdxLLH, Parameter, XYZ};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -62,7 +62,7 @@ pub struct WFParameters {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RcvDemodType {
     #[serde(rename = "$text")]
-    pub value: RcvDemodTypeEnum
+    pub value: RcvDemodTypeEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum RcvDemodTypeEnum {
@@ -72,7 +72,7 @@ pub enum RcvDemodTypeEnum {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct TxPolarization {
     #[serde(rename = "$text")]
-    pub value: TxPolarizationEnum
+    pub value: TxPolarizationEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum TxPolarizationEnum {
@@ -103,7 +103,7 @@ pub struct TxStep {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct TxStepPolarization {
     #[serde(rename = "$text")]
-    pub value: TxStepPolarizationEnum
+    pub value: TxStepPolarizationEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum TxStepPolarizationEnum {
@@ -212,7 +212,7 @@ pub struct Segment {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Orientation {
     #[serde(rename = "$text")]
-    pub value: OrientationEnum
+    pub value: OrientationEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum OrientationEnum {
