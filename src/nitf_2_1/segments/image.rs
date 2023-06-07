@@ -1,7 +1,7 @@
 //! Image  segment definition and associated functions
 use memmap2::{Mmap, MmapOptions};
 use ndarray::Array2;
-use num_complex::Complex32;
+use num_complex::{Complex32, Complex64};
 use std::fmt::Display;
 use std::io::SeekFrom::Start;
 use std::{fs::File, io::Seek, ops::Deref};
@@ -22,6 +22,14 @@ pub struct Image {
     pub data_offset: u64,
     /// Data size in bytes
     pub data_size: u64,
+}
+
+#[derive(Clone, Debug)]
+pub enum ImageDataType {
+    F32(f32),
+    F64(f64),
+    C32(Complex32),
+    C64(Complex64),
 }
 
 impl Image {
@@ -51,6 +59,10 @@ impl Image {
         }
     }
 
+    pub fn actual_data_to_array(&self) -> Array2<ImageDataType> {
+        todo!();
+    }
+
     // TODO: Implement reading a slice of the data into an array, as opposed to the whole thing.
     // TODO: Support various data types based on header information
     /// Read image data from image segment into an array
@@ -60,16 +72,19 @@ impl Image {
     /// # Example
     ///
     ///     use std::path::Path;
-    ///     use nitf_rs::{read_nitf, data_to_array};
+    ///     use nitf_rs::read_nitf;
     ///
-    ///     let nitf_path = Path::new(<path-to-file>);
+    ///     let nitf_path = Path::new("../example.nitf");
     ///     let nitf = read_nitf(nitf_path);
-    ///     let data = data_to_array(&nitf.image_segments[0]);
-    pub fn data_to_array(&self) -> Array2<Complex32> {
+    ///     let data = nitf.image_segments[0].data_to_array();
+    pub fn data_to_array(&self) -> Array2<ImageDataType> {
+        // TODO: implement other data types, modes
+        return self.get_c32_array();
+    }
+    fn get_c32_array(&self) -> Array2<ImageDataType> {
         let n_row: usize = self.meta.NROWS.string.parse().unwrap();
         let n_col: usize = self.meta.NCOLS.string.parse().unwrap();
-
-        let mut arr = Array2::from_elem((n_row, n_col), Complex32::default());
+        let mut arr = Array2::from_elem((n_row, n_col), ImageDataType::C32(Complex32::default()));
 
         let mut real: [u8; 4] = [0u8; 4];
         let mut imag: [u8; 4] = [0u8; 4];
@@ -80,11 +95,11 @@ impl Image {
             for elm in row {
                 real.copy_from_slice(data_chunks.next().unwrap());
                 imag.copy_from_slice(data_chunks.next().unwrap());
-
-                *elm = Complex32 {
+                let item = Complex32 {
                     re: f32::from_be_bytes(real),
                     im: f32::from_be_bytes(imag),
                 };
+                *elm = ImageDataType::C32(item);
             }
         }
         return arr;

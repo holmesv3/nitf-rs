@@ -1,44 +1,62 @@
-use super::{Poly1D, Poly2D, XyzPoly};
+use super::{Poly1d, Poly2d, XyzPoly};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Antenna {
-    pub Tx: Option<AntennaType>,
-    pub Rcv: Option<AntennaType>,
-    pub TwoWay: Option<AntennaType>,
+    #[serde(rename = "Tx")]
+    pub tx: Option<AntennaType>,
+    #[serde(rename = "Rcv")]
+    pub rcv: Option<AntennaType>,
+    #[serde(rename = "TwoWay")]
+    pub two_way: Option<AntennaType>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct AntennaType {
-    pub XAxisPoly: XyzPoly,
-    pub YAxisPoly: XyzPoly,
-    pub FreqZero: f64,
-    pub EB: Option<EB>,
-    pub Array: Array,
-    pub Elem: Option<Elem>,
-    pub GainBSPoly: Option<Poly1D>,
-    pub EBFreqShift: Option<bool>,
-    pub MLFreqDilation: Option<bool>,
+    #[serde(rename = "XAxisPoly")]
+    pub x_axis_poly: XyzPoly,
+    #[serde(rename = "YAxisPoly")]
+    pub y_axis_poly: XyzPoly,
+    #[serde(rename = "FreqZero")]
+    pub freq_zero: f64,
+    #[serde(rename = "EB")]
+    pub eb: Option<EB>,
+    #[serde(rename = "Array")]
+    pub array: Array,
+    #[serde(rename = "Elem")]
+    pub elem: Option<Elem>,
+    #[serde(rename = "GainBSPoly")]
+    pub gain_bs_poly: Option<Poly1d>,
+    #[serde(rename = "EBFreqShift")]
+    pub eb_freq_shift: Option<bool>,
+    #[serde(rename = "MLFreqDilation")]
+    pub ml_freq_dilation: Option<bool>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct EB {
-    pub DCXPoly: Poly1D,
-    pub DCYPoly: Poly1D,
+    #[serde(rename = "DCXPoly")]
+    pub dcx_poly: Poly1d,
+    #[serde(rename = "DCYPoly")]
+    pub dcy_poly: Poly1d,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Array {
-    pub GainPoly: Poly2D,
-    pub PhasePoly: Poly2D,
+    #[serde(rename = "GainPoly")]
+    pub gain_poly: Poly2d,
+    #[serde(rename = "PhasePoly")]
+    pub phase_poly: Poly2d,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Elem {
-    pub GainPoly: Poly2D,
-    pub PhasePoly: Poly2D,
+    #[serde(rename = "GainPoly")]
+    pub gain_poly: Poly2d,
+    #[serde(rename = "PhasePoly")]
+    pub phase_poly: Poly2d,
 }
 
 #[cfg(test)]
 mod tests {
     use super::Antenna;
-    use serde_xml_rs::from_str;
+    use quick_xml::de::from_str;
     #[test]
     fn test_antenna() {
         let xml_str = r#"<Antenna><Tx><XAxisPoly><X order1="1">

@@ -20,50 +20,143 @@ pub mod timeline;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RowCol {
-    pub Row: u64,
-    pub Col: u64,
+    #[serde(rename = "Row")]
+    pub row: u64,
+    #[serde(rename = "Col")]
+    pub col: u64,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct IdxRowCol {
+    #[serde(rename = "@index")]
+    pub index: usize,
+    #[serde(rename = "Row")]
+    pub row: u64,
+    #[serde(rename = "Col")]
+    pub col: u64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct CMPLX {
-    pub Real: f64,
-    pub Imag: f64,
+    #[serde(rename = "Real")]
+    pub real: f64,
+    #[serde(rename = "Imag")]
+    pub imag: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct XYZ {
-    pub X: f64,
-    pub Y: f64,
-    pub Z: f64,
+    #[serde(rename = "X")]
+    pub x: f64,
+    #[serde(rename = "Y")]
+    pub y: f64,
+    #[serde(rename = "Z")]
+    pub z: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct LLH {
-    pub Lat: f64,
-    pub Lon: f64,
-    pub HAE: f64,
+    #[serde(rename = "Lat")]
+    pub lat: f64,
+    #[serde(rename = "Lon")]
+    pub lon: f64,
+    #[serde(rename = "HAE")]
+    pub hae: f64,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct IdxLLH {
+    #[serde(rename = "@index")]
+    pub index: usize,
+    #[serde(rename = "Lat")]
+    pub lat: f64,
+    #[serde(rename = "Lon")]
+    pub lon: f64,
+    #[serde(rename = "HAE")]
+    pub hae: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct LL {
-    pub Lat: f64,
-    pub Lon: f64,
+    #[serde(rename = "Lat")]
+    pub lat: f64,
+    #[serde(rename = "Lon")]
+    pub lon: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Coef1D {
+pub struct IdxLL {
+    #[serde(rename = "@index")]
+    pub index: usize,
+    #[serde(rename = "Lat")]
+    pub lat: f64,
+    #[serde(rename = "Lon")]
+    pub lon: f64,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct Coef1d {
+    #[serde(rename = "@exponent1")]
     pub exponent1: usize,
     #[serde(rename = "$value")]
-    pub Value: f64,
+    pub value: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Poly1D {
+pub struct Poly1d {
+    #[serde(rename = "@order1")]
     pub order1: usize,
     #[serde(rename = "$value")]
-    pub Coefs: Vec<Coef1D>,
+    pub coefs: Vec<Coef1d>,
 }
-impl Poly1D {
+
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct Coef2d {
+    #[serde(rename = "@exponent1")]
+    pub exponent1: usize,
+    #[serde(rename = "@exponent2")]
+    pub exponent2: usize,
+    #[serde(rename = "$value")]
+    pub value: f64,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct Poly2d {
+    #[serde(rename = "@order1")]
+    pub order1: usize,
+    #[serde(rename = "@order2")]
+    pub order2: usize,
+    #[serde(rename = "$value")]
+    pub coefs: Vec<Coef2d>,
+}
+
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct XyzPoly {
+    #[serde(rename = "X")]
+    pub x: Poly1d,
+    #[serde(rename = "Y")]
+    pub y: Poly1d,
+    #[serde(rename = "Z")]
+    pub z: Poly1d,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct IdxXyzPoly {
+    #[serde(rename = "@index")]
+    pub index: usize,
+    #[serde(rename = "X")]
+    pub x: Poly1d,
+    #[serde(rename = "Y")]
+    pub y: Poly1d,
+    #[serde(rename = "Z")]
+    pub z: Poly1d,
+}
+
+pub type Parameter = Option<Vec<ParameterStruct>>;
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct ParameterStruct {
+    #[serde(rename = "@name")]
+    pub name: String,
+    #[serde(rename = "$value")]
+    pub value: String,
+}
+
+impl Poly1d {
     /// Parse the data in the polynomial to an array object
     pub fn to_array(&self) -> Array1<f64> {
         let mut poly = Array1::zeros(self.order1 + 1);
-        for coef in &self.Coefs {
+        for coef in &self.coefs {
             let term = coef.exponent1;
-            poly[term] = coef.Value;
+            poly[term] = coef.value;
         }
         poly
     }
@@ -71,94 +164,163 @@ impl Poly1D {
     /// Evaluate the polynomial at a point
     pub fn eval(&self, x: f64) -> f64 {
         let mut res = 0f64;
-        for coef in &self.Coefs {
-            res += coef.Value * x.powi(coef.exponent1 as i32)
+        for coef in &self.coefs {
+            res += coef.value * x.powi(coef.exponent1 as i32)
         }
         res
     }
 }
-
-#[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Coef2D {
-    pub exponent1: usize,
-    pub exponent2: usize,
-    #[serde(rename = "$value")]
-    pub Value: f64,
-}
-#[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Poly2D {
-    pub order1: usize,
-    pub order2: usize,
-    #[serde(rename = "$value")]
-    pub Coefs: Vec<Coef2D>,
-}
-impl Poly2D {
+impl Poly2d {
     /// Parse the data in the polynomial to an array object
     pub fn to_array(&self) -> Array2<f64> {
         let mut poly = Array2::zeros((self.order1 + 1, self.order2 + 1));
-        for coef in &self.Coefs {
+        for coef in &self.coefs {
             let term1 = coef.exponent1;
             let term2 = coef.exponent2;
-            poly[[term1, term2]] = coef.Value;
+            poly[[term1, term2]] = coef.value;
         }
         poly
     }
     /// Evaluate the polynomial at a point
     pub fn eval(&self, x: f64, y: f64) -> f64 {
         let mut res = 0f64;
-        for coef in &self.Coefs {
-            res += coef.Value * x.powi(coef.exponent1 as i32) * y.powi(coef.exponent2 as i32)
+        for coef in &self.coefs {
+            res += coef.value * x.powi(coef.exponent1 as i32) * y.powi(coef.exponent2 as i32)
         }
         res
     }
 }
-
-#[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct XyzPoly {
-    pub X: Poly1D,
-    pub Y: Poly1D,
-    pub Z: Poly1D,
-}
 impl XyzPoly {
     pub fn eval(&self, t: f64) -> Vec<f64> {
-        let x_pos = self.X.eval(t);
-        let y_pos = self.Y.eval(t);
-        let z_pos = self.Z.eval(t);
+        let x_pos = self.x.eval(t);
+        let y_pos = self.y.eval(t);
+        let z_pos = self.z.eval(t);
         vec![x_pos, y_pos, z_pos]
     }
 }
 
-pub type Parameter = Option<Vec<ParameterStruct>>;
-#[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct ParameterStruct {
-    pub name: String,
-    #[serde(rename = "$value")]
-    pub value: String,
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use quick_xml::de::from_str;
+
+    #[test]
+    fn test_row_col() {
+        let xml = r#"<RowCol><Row>0</Row><Col>0</Col></RowCol>"#;
+        assert!(match from_str::<RowCol>(xml) {
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
+    #[test]
+    fn test_idx_row_col() {
+        let xml = r#"<IdxRowCol index="0"><Row>0</Row><Col>0</Col></IdxRowCol>
+        "#;
+        assert!(match from_str::<IdxRowCol>(xml) {
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
+    #[test]
+    fn test_cmplx() {
+        let xml = r#"<CMPLX><Real>0</Real><Imag>0</Imag></CMPLX>"#;
+        assert!(match from_str::<CMPLX>(xml) {
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
+    #[test]
+    fn test_xyz() {
+        let xml = r#"<XYZ><X>0</X><Y>0</Y><Z>0</Z></XYZ>"#;
+        assert!(match from_str::<XYZ>(xml) {
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
+    #[test]
+    fn test_llh() {
+        let xml = r#"<LLH><Lat>0</Lat><Lon>0</Lon><HAE>0</HAE></LLH>"#;
+        assert!(match from_str::<LLH>(xml) {
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
+    #[test]
+    fn test_idx_llh() {
+        let xml = r#"
+            <IdxLLH index="0"><Lat>0</Lat><Lon>0</Lon><HAE>0</HAE></IdxLLH>"#;
+        assert!(match from_str::<IdxLLH>(xml) {
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
+    #[test]
+    fn test_ll() {
+        let xml = r#"<LL><Lat>0</Lat><Lon>0</Lon></LL>"#;
+        assert!(match from_str::<LL>(xml) {
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
+    #[test]
+    fn test_idx_ll() {
+        let xml = r#"<IdxLL index="0"><Lat>0</Lat><Lon>0</Lon></IdxLL>"#;
+        assert!(match from_str::<IdxLL>(xml) {
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
+    #[test]
+    fn test_poly1d() {
+        let xml = r#"<Poly1d order1="1"><Coef1d exponent1="0">0</Coef1d>
+            <Coef1d exponent1="1">0</Coef1d></Poly1d>"#;
+        assert!(match from_str::<Poly1d>(xml) {
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
+    #[test]
+    fn test_poly2d() {
+        let xml = r#"<Poly2d order1 = "1" order2 = "1">
+            <Coef2d exponent1="0" exponent2="0">0</Coef2d>
+            <Coef2d exponent1="1" exponent2="0">0</Coef2d>
+            <Coef2d exponent1="0" exponent2="1">0</Coef2d>
+            <Coef2d exponent1="1" exponent2="1">0</Coef2d></Poly2d>"#;
+        assert!(match from_str::<Poly2d>(xml) {
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
+    #[test]
+    fn test_xyz_poly() {
+        let xml = r#"<XyzPoly>
+            <X order1="0"><Coef1d exponent1="0">0</Coef1d></X>
+            <Y order1="0"><Coef1d exponent1="0">0</Coef1d></Y>
+            <Z order1="0"><Coef1d exponent1="0">0</Coef1d></Z></XyzPoly>"#;
+        assert!(match from_str::<XyzPoly>(xml) {
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
+    #[test]
+    fn test_idx_xyz_poly() {
+        let xml = r#"<IdxXyzPoly index="0">
+            <X order1="0"><Coef1d exponent1="0">0</Coef1d></X>
+            <Y order1="0"><Coef1d exponent1="0">0</Coef1d></Y>
+            <Z order1="0"><Coef1d exponent1="0">0</Coef1d></Z></IdxXyzPoly>"#;
+        assert!(match from_str::<IdxXyzPoly>(xml) {
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
+    #[test]
+    fn test_parameter() {
+        let xml = r#"
+            <Parameter name="Param0">TestP0</Parameter>
+            <Parameter name="Param1">TestP1</Parameter>"#;
+        assert!(match from_str::<Parameter>(xml) {
+            Ok(_) => true,
+            Err(_) => false,
+        })
+    }
 }
-
-// #[cfg(test)]
-// mod tests {
-
-//     #[test]
-//     fn test_rowcol() {}
-//     #[test]
-//     fn test_cmplx() {}
-//     #[test]
-//     fn test_xyz() {}
-//     #[test]
-//     fn test_llh() {}
-//     #[test]
-//     fn test_ll() {}
-//     #[test]
-//     fn test_coef1d() {}
-//     #[test]
-//     fn test_poly1d() {}
-//     #[test]
-//     fn test_coef2d() {}
-//     #[test]
-//     fn test_poly2d() {}
-//     #[test]
-//     fn test_xyzpoly() {}
-//     #[test]
-//     fn test_parameterstruct() {}
-// }

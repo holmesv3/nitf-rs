@@ -16,7 +16,7 @@ use nitf_2_1::Nitf;
 ///     use std::path::Path;
 ///     use nitf_rs::read_nitf;
 ///
-///     let nitf_path = Path::new("<path-to-file>");
+///     let nitf_path = Path::new("../example.nitf");
 ///     let nitf = read_nitf(nitf_path);
 pub fn read_nitf(path: &Path) -> Nitf {
     let mut reader = File::open(path).unwrap();

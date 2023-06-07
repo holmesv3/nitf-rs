@@ -3,18 +3,32 @@ use serde::Deserialize;
 use super::Parameter;
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct CollectionInfo {
-    pub CollectorName: String,
-    pub IlluminatorName: Option<String>,
-    pub CoreName: String,
-    pub CollectType: Option<CollectType>,
-    pub RadarMode: RadarMode,
+    #[serde(rename = "CollectorName")]
+    pub collector_name: String,
+    #[serde(rename = "IlluminatorName")]
+    pub illuminator_name: Option<String>,
+    #[serde(rename = "CoreName")]
+    pub core_name: String,
+    #[serde(rename = "CollectType")]
+    pub collect_type: Option<CollectType>,
+    #[serde(rename = "RadarMode")]
+    pub radar_mode: RadarMode,
     #[serde(default = "default_classification")]
-    pub Classification: String,
-    pub CountryCode: Option<Vec<String>>,
-    pub Parameter: Parameter,
+    #[serde(rename = "Classification")]
+    pub classification: String,
+    #[serde(rename = "CountryCode")]
+    pub country_code: Option<Vec<String>>,
+    #[serde(rename = "Parameter")]
+    pub parameter: Parameter,
+}
+
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct CollectType {
+    #[serde(rename = "$text")]
+    pub value: CollectTypeEnum,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum CollectType {
+pub enum CollectTypeEnum {
     MONOSTATIC,
     BISTATIC,
 }
@@ -23,11 +37,18 @@ fn default_classification() -> String {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RadarMode {
-    pub ModeType: ModeType,
-    pub ModeID: Option<String>,
+    #[serde(rename = "ModeType")]
+    pub mode_type: ModeType,
+    #[serde(rename = "ModeID")]
+    pub mode_id: Option<String>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum ModeType {
+pub struct ModeType {
+    #[serde(rename = "$text")]
+    pub value: ModeTypeEnum,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum ModeTypeEnum {
     SPOTLIGHT,
     STRIPMAP,
     #[serde(rename = "DYNAMIC STRIPMAP")]
@@ -37,7 +58,7 @@ pub enum ModeType {
 #[cfg(test)]
 mod tests {
     use super::CollectionInfo;
-    use serde_xml_rs::from_str;
+    use quick_xml::de::from_str;
 
     #[test]
     fn test_collection_info() {

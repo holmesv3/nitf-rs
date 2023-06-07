@@ -2,16 +2,20 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageCreation {
-    pub Application: Option<String>,
-    pub DateTime: Option<String>,
-    pub Site: Option<String>,
-    pub Profile: Option<String>,
+    #[serde(rename = "Application")]
+    pub application: Option<String>,
+    #[serde(rename = "DateTime")]
+    pub date_time: Option<String>,
+    #[serde(rename = "Site")]
+    pub site: Option<String>,
+    #[serde(rename = "Profile")]
+    pub profile: Option<String>,
 }
 
 #[cfg(test)]
 mod tests {
     use super::ImageCreation;
-    use serde_xml_rs::from_str;
+    use quick_xml::de::from_str;
     #[test]
     fn test_imagecreation() {
         let xml_str = r#"<Grid><ImagePlane>SLANT</ImagePlane><Type>RGAZIM</Type>

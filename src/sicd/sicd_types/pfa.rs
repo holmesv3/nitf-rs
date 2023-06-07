@@ -1,30 +1,42 @@
-use super::{Poly1D, Poly2D, XYZ};
+use super::{Poly1d, Poly2d, XYZ};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Pfa {
-    pub FPN: XYZ,
-    pub IPN: XYZ,
-    pub PolarAngRefTime: f64,
-    pub PolarAngPoly: Poly1D,
-    pub SpatialFreqSFPoly: Poly1D,
-    pub Krg1: f64,
-    pub Krg2: f64,
-    pub Kaz1: f64,
-    pub Kaz2: f64,
-    pub STDeskew: Option<STDeskew>,
+    #[serde(rename = "FPN")]
+    pub fpn: XYZ,
+    #[serde(rename = "IPN")]
+    pub ipn: XYZ,
+    #[serde(rename = "PolarAngRefTime")]
+    pub polar_ang_ref_time: f64,
+    #[serde(rename = "PolarAngPoly")]
+    pub polar_ang_poly: Poly1d,
+    #[serde(rename = "SpatialFreqSFPoly")]
+    pub spatial_freq_sf_poly: Poly1d,
+    #[serde(rename = "Krg1")]
+    pub krg1: f64,
+    #[serde(rename = "Krg2")]
+    pub krg2: f64,
+    #[serde(rename = "Kaz1")]
+    pub kaz1: f64,
+    #[serde(rename = "Kaz2")]
+    pub kaz2: f64,
+    #[serde(rename = "STDeskew")]
+    pub st_deskew: Option<STDeskew>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct STDeskew {
-    pub Applied: bool,
-    pub STDSPhasePoly: Poly2D,
+    #[serde(rename = "Applied")]
+    pub applied: bool,
+    #[serde(rename = "STDSPhasePoly")]
+    pub stds_phase_poly: Poly2d,
 }
 
 #[cfg(test)]
 mod tests {
     use super::Pfa;
-    use serde_xml_rs::from_str;
+    use quick_xml::de::from_str;
 
     #[test]
     fn test_pfa() {
