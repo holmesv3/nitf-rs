@@ -2,10 +2,14 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageCreation {
-    pub Application: Option<String>,
-    pub DateTime: Option<String>,
-    pub Site: Option<String>,
-    pub Profile: Option<String>,
+    #[serde(rename = "Application")]
+    pub application: Option<String>,
+    #[serde(rename = "DateTime")]
+    pub date_time: Option<String>,
+    #[serde(rename = "Site")]
+    pub site: Option<String>,
+    #[serde(rename = "Profile")]
+    pub profile: Option<String>,
 }
 
 #[cfg(test)]

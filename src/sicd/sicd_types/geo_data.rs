@@ -1,13 +1,18 @@
-use super::{LL, LLH, XYZ};
+use super::{LL, LLH, XYZ, IdxLL};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct GeoData {
-    pub EarthModel: EarthModel,
-    pub SCP: SCP,
-    pub ImageCorners: ImageCorners,
-    pub ValidData: Option<ValidDataLL>,
-    pub GeoInfo: Option<Vec<GeoInfo>>,
+    #[serde(rename = "EarthModel")]
+    pub earth_model: EarthModel,
+    #[serde(rename = "SCP")]
+    pub scp: SCP,
+    #[serde(rename = "ImageCorners")]
+    pub image_corners: ImageCorners,
+    #[serde(rename = "ValidData")]
+    pub valid_data: Option<ValidDataLL>,
+    #[serde(rename = "GeoInfo")]
+    pub geo_info: Option<Vec<GeoInfo>>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum EarthModel {
@@ -15,54 +20,53 @@ pub enum EarthModel {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct SCP {
-    pub ECF: XYZ,
-    pub LLH: LLH,
+    #[serde(rename = "ECF")]
+    pub ecf: XYZ,
+    #[serde(rename = "LLH")]
+    pub llh: LLH,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageCorners {
-    pub ICP: Vec<ICP>,
+    #[serde(rename = "ICP")]
+    pub icp: Vec<ICP>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ICP {
     pub index: String,
-    pub Lat: f64,
-    pub Lon: f64,
+    #[serde(rename = "Lat")]
+    pub lat: f64,
+    #[serde(rename = "Lon")]
+    pub lon: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ValidDataLL {
     pub size: u64,
-    pub Vertex: Vec<VertexLL>,
+    #[serde(rename = "Vertex")]
+    pub vertex: Vec<IdxLL>,
 }
-#[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct VertexLL {
-    pub index: usize,
-    pub Lat: f64,
-    pub Lon: f64,
-}
-
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct GeoInfo {
     pub name: String,
-    pub Desc: Option<Vec<String>>,
-    pub Point: Option<LL>,
-    pub Line: Option<Line>,
-    pub Polygon: Option<Polygon>,
+    #[serde(rename = "Desc")]
+    pub desc: Option<Vec<String>>,
+    #[serde(rename = "Point")]
+    pub point: Option<LL>,
+    #[serde(rename = "Line")]
+    pub line: Option<Line>,
+    #[serde(rename = "Polygon")]
+    pub polygon: Option<Polygon>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Line {
     pub size: u64,
-    pub Endpoint: Vec<Endpoint>,
-}
-#[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Endpoint {
-    pub index: usize,
-    pub Lat: f64,
-    pub Lon: f64,
+    #[serde(rename = "Endpoint")]
+    pub endpoint: Vec<IdxLL>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Polygon {
     pub size: u64,
-    pub Vertex: Vec<VertexLL>,
+    #[serde(rename = "Vertex")]
+    pub vertex: Vec<IdxLL>,
 }
 
 #[cfg(test)]

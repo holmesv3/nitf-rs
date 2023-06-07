@@ -3,22 +3,34 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Pfa {
-    pub FPN: XYZ,
-    pub IPN: XYZ,
-    pub PolarAngRefTime: f64,
-    pub PolarAngPoly: Poly1D,
-    pub SpatialFreqSFPoly: Poly1D,
-    pub Krg1: f64,
-    pub Krg2: f64,
-    pub Kaz1: f64,
-    pub Kaz2: f64,
-    pub STDeskew: Option<STDeskew>,
+    #[serde(rename = "FPN")]
+    pub fpn: XYZ,
+    #[serde(rename = "IPN")]
+    pub ipn: XYZ,
+    #[serde(rename = "PolarAngRefTime")]
+    pub polar_ang_ref_time: f64,
+    #[serde(rename = "PolarAngPoly")]
+    pub polar_ang_poly: Poly1D,
+    #[serde(rename = "SpatialFreqSFPoly")]
+    pub spatial_freq_sf_poly: Poly1D,
+    #[serde(rename = "Krg1")]
+    pub krg1: f64,
+    #[serde(rename = "Krg2")]
+    pub krg2: f64,
+    #[serde(rename = "Kaz1")]
+    pub kaz1: f64,
+    #[serde(rename = "Kaz2")]
+    pub kaz2: f64,
+    #[serde(rename = "STDeskew")]
+    pub st_deskew: Option<STDeskew>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct STDeskew {
-    pub Applied: bool,
-    pub STDSPhasePoly: Poly2D,
+    #[serde(rename = "Applied")]
+    pub applied: bool,
+    #[serde(rename = "STDSPhasePoly")]
+    pub stds_phase_poly: Poly2D,
 }
 
 #[cfg(test)]

@@ -2,11 +2,16 @@ use super::{Parameter, Poly2D, XYZ};
 use serde::Deserialize;
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Grid {
-    pub ImagePlane: ImagePlane,
-    pub Type: Type,
-    pub TimeCOAPoly: Poly2D,
-    pub Row: DirectionParams,
-    pub Col: DirectionParams,
+    #[serde(rename = "ImagePlane")]
+    pub image_plane: ImagePlane,
+    #[serde(rename = "Type")]
+    pub type_grid: GridType,
+    #[serde(rename = "TimeCOAPoly")]
+    pub time_coa_poly: Poly2D,
+    #[serde(rename = "Row")]
+    pub row: DirectionParams,
+    #[serde(rename = "Col")]
+    pub col: DirectionParams,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum ImagePlane {
@@ -15,7 +20,7 @@ pub enum ImagePlane {
     OTHER,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub enum Type {
+pub enum GridType {
     RGAZIM,
     RGZERO,
     XRGYCR,
@@ -24,32 +29,47 @@ pub enum Type {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct DirectionParams {
-    pub UVectECF: XYZ,
-    pub SS: f64,
-    pub ImpRespWid: f64,
-    pub Sgn: i8, // TODO: Maybe use an actual enum here
-    pub ImpRespBW: f64,
-    pub KCtr: f64,
-    pub DeltaK1: f64,
-    pub DeltaK2: f64,
-    pub DeltaKCOAPoly: Option<Poly2D>,
-    pub WgtType: Option<WgtType>,
-    pub WgtFunct: Option<WgtFunct>,
+    #[serde(rename = "UVectECF")]
+    pub u_vect_ecf: XYZ,
+    #[serde(rename = "SS")]
+    pub ss: f64,
+    #[serde(rename = "ImpRespWid")]
+    pub imp_resp_wid: f64,
+    #[serde(rename = "Sgn")]
+    pub sgn: i8, // TODO: Maybe use an actual enum here
+    #[serde(rename = "ImpRespBW")]
+    pub imp_resp_bw: f64,
+    #[serde(rename = "KCtr")]
+    pub k_ctr: f64,
+    #[serde(rename = "DeltaK1")]
+    pub delta_k1: f64,
+    #[serde(rename = "DeltaK2")]
+    pub delta_k2: f64,
+    #[serde(rename = "DeltaKCOAPoly")]
+    pub delta_kcoa_poly: Option<Poly2D>,
+    #[serde(rename = "WgtType")]
+    pub wgt_type: Option<WgtType>,
+    #[serde(rename = "WgtFunct")]
+    pub wgt_funct: Option<WgtFunct>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct WgtType {
-    pub WindowName: String,
-    pub Parameter: Parameter,
+    #[serde(rename = "WindowName")]
+    pub window_name: String,
+    #[serde(rename = "Parameter")]
+    pub parameter: Parameter,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct WgtFunct {
     pub size: u64,
-    pub Wgt: Vec<Wgt>,
+    #[serde(rename = "Wgt")]
+    pub wgt: Vec<Wgt>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Wgt {
     pub index: usize,
-    pub Wgt: f64,
+    #[serde(rename = "$value")]
+    pub value: f64,
 }
 
 #[cfg(test)]

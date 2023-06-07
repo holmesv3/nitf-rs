@@ -7,5 +7,5 @@
 ## 0.1.6
 - Added `nitf_rs::sicd` module
   - Structs using `serde_xml_rs` for `sicd` data parsing
-    - Due 
+    - Due to lack of good support for `.xml` specific syntax, may switch this later
   - Added `parse_sicd_meta()` to `sNitf`

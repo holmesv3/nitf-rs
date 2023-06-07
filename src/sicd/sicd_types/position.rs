@@ -1,24 +1,22 @@
-use super::{Poly1D, XyzPoly};
+use super::{XyzPoly, IdxXyzPoly};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Position {
-    pub ARPPoly: XyzPoly,
-    pub GRPPoly: Option<XyzPoly>,
-    pub TxAPCPoly: Option<XyzPoly>,
-    pub RcvApc: Option<RcvAPC>,
+    #[serde(rename = "ARPPoly")]
+    pub arp_poly: XyzPoly,
+    #[serde(rename = "GRPPoly")]
+    pub grp_poly: Option<XyzPoly>,
+    #[serde(rename = "TxAPCPoly")]
+    pub tx_apc_poly: Option<XyzPoly>,
+    #[serde(rename = "RcvApc")]
+    pub rcv_apc: Option<RcvAPC>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RcvAPC {
     pub size: usize,
-    pub RcvAPCPoly: RcvAPCPoly,
-}
-#[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct RcvAPCPoly {
-    pub index: usize,
-    pub X: Poly1D,
-    pub Y: Poly1D,
-    pub Z: Poly1D,
+    #[serde(rename = "RcvAPCPoly")]
+    pub rcv_apc_poly: Vec<IdxXyzPoly>,
 }
 
 #[cfg(test)]

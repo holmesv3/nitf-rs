@@ -20,62 +20,80 @@ pub mod timeline;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RowCol {
-    pub Row: u64,
-    pub Col: u64,
+    #[serde(rename = "Row")]
+    pub row: u64,
+    #[serde(rename = "Col")]
+    pub col: u64,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct IdxRowCol {
+    pub index: usize,
+    #[serde(rename = "Row")]
+    pub row: u64,
+    #[serde(rename = "Col")]
+    pub col: u64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct CMPLX {
-    pub Real: f64,
-    pub Imag: f64,
+    #[serde(rename = "Real")]
+    pub real: f64,
+    #[serde(rename = "Imag")]
+    pub imag: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct XYZ {
-    pub X: f64,
-    pub Y: f64,
-    pub Z: f64,
+    #[serde(rename = "X")]
+    pub x: f64,
+    #[serde(rename = "Y")]
+    pub y: f64,
+    #[serde(rename = "Z")]
+    pub z: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct LLH {
-    pub Lat: f64,
-    pub Lon: f64,
-    pub HAE: f64,
+    #[serde(rename = "Lat")]
+    pub lat: f64,
+    #[serde(rename = "Lon")]
+    pub lon: f64,
+    #[serde(rename = "HAE")]
+    pub hae: f64,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct IdxLLH {
+    pub index: usize,
+    #[serde(rename = "Lat")]
+    pub lat: f64,
+    #[serde(rename = "Lon")]
+    pub lon: f64,
+    #[serde(rename = "HAE")]
+    pub hae: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct LL {
-    pub Lat: f64,
-    pub Lon: f64,
+    #[serde(rename = "Lat")]
+    pub lat: f64,
+    #[serde(rename = "Lon")]
+    pub lon: f64,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct IdxLL {
+    pub index: usize,
+    #[serde(rename = "Lat")]
+    pub lat: f64,
+    #[serde(rename = "Lon")]
+    pub lon: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Coef1D {
     pub exponent1: usize,
     #[serde(rename = "$value")]
-    pub Value: f64,
+    pub value: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Poly1D {
     pub order1: usize,
     #[serde(rename = "$value")]
-    pub Coefs: Vec<Coef1D>,
-}
-impl Poly1D {
-    /// Parse the data in the polynomial to an array object
-    pub fn to_array(&self) -> Array1<f64> {
-        let mut poly = Array1::zeros(self.order1 + 1);
-        for coef in &self.Coefs {
-            let term = coef.exponent1;
-            poly[term] = coef.Value;
-        }
-        poly
-    }
-
-    /// Evaluate the polynomial at a point
-    pub fn eval(&self, x: f64) -> f64 {
-        let mut res = 0f64;
-        for coef in &self.Coefs {
-            res += coef.Value * x.powi(coef.exponent1 as i32)
-        }
-        res
-    }
+    pub coefs: Vec<Coef1D>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -83,49 +101,34 @@ pub struct Coef2D {
     pub exponent1: usize,
     pub exponent2: usize,
     #[serde(rename = "$value")]
-    pub Value: f64,
+    pub value: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Poly2D {
     pub order1: usize,
     pub order2: usize,
     #[serde(rename = "$value")]
-    pub Coefs: Vec<Coef2D>,
-}
-impl Poly2D {
-    /// Parse the data in the polynomial to an array object
-    pub fn to_array(&self) -> Array2<f64> {
-        let mut poly = Array2::zeros((self.order1 + 1, self.order2 + 1));
-        for coef in &self.Coefs {
-            let term1 = coef.exponent1;
-            let term2 = coef.exponent2;
-            poly[[term1, term2]] = coef.Value;
-        }
-        poly
-    }
-    /// Evaluate the polynomial at a point
-    pub fn eval(&self, x: f64, y: f64) -> f64 {
-        let mut res = 0f64;
-        for coef in &self.Coefs {
-            res += coef.Value * x.powi(coef.exponent1 as i32) * y.powi(coef.exponent2 as i32)
-        }
-        res
-    }
+    pub coefs: Vec<Coef2D>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct XyzPoly {
-    pub X: Poly1D,
-    pub Y: Poly1D,
-    pub Z: Poly1D,
+    #[serde(rename = "X")]
+    pub x: Poly1D,
+    #[serde(rename = "Y")]
+    pub y: Poly1D,
+    #[serde(rename = "Z")]
+    pub z: Poly1D,
 }
-impl XyzPoly {
-    pub fn eval(&self, t: f64) -> Vec<f64> {
-        let x_pos = self.X.eval(t);
-        let y_pos = self.Y.eval(t);
-        let z_pos = self.Z.eval(t);
-        vec![x_pos, y_pos, z_pos]
-    }
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct IdxXyzPoly {
+    pub index: usize,
+    #[serde(rename = "X")]
+    pub x: Poly1D,
+    #[serde(rename = "Y")]
+    pub y: Poly1D,
+    #[serde(rename = "Z")]
+    pub z: Poly1D,
 }
 
 pub type Parameter = Option<Vec<ParameterStruct>>;
@@ -135,6 +138,58 @@ pub struct ParameterStruct {
     #[serde(rename = "$value")]
     pub value: String,
 }
+
+
+impl Poly1D {
+    /// Parse the data in the polynomial to an array object
+    pub fn to_array(&self) -> Array1<f64> {
+        let mut poly = Array1::zeros(self.order1 + 1);
+        for coef in &self.coefs {
+            let term = coef.exponent1;
+            poly[term] = coef.value;
+        }
+        poly
+    }
+
+    /// Evaluate the polynomial at a point
+    pub fn eval(&self, x: f64) -> f64 {
+        let mut res = 0f64;
+        for coef in &self.coefs {
+            res += coef.value * x.powi(coef.exponent1 as i32)
+        }
+        res
+    }
+}
+impl Poly2D {
+    /// Parse the data in the polynomial to an array object
+    pub fn to_array(&self) -> Array2<f64> {
+        let mut poly = Array2::zeros((self.order1 + 1, self.order2 + 1));
+        for coef in &self.coefs {
+            let term1 = coef.exponent1;
+            let term2 = coef.exponent2;
+            poly[[term1, term2]] = coef.value;
+        }
+        poly
+    }
+    /// Evaluate the polynomial at a point
+    pub fn eval(&self, x: f64, y: f64) -> f64 {
+        let mut res = 0f64;
+        for coef in &self.coefs {
+            res += coef.value * x.powi(coef.exponent1 as i32) * y.powi(coef.exponent2 as i32)
+        }
+        res
+    }
+}
+impl XyzPoly {
+    pub fn eval(&self, t: f64) -> Vec<f64> {
+        let x_pos = self.x.eval(t);
+        let y_pos = self.y.eval(t);
+        let z_pos = self.z.eval(t);
+        vec![x_pos, y_pos, z_pos]
+    }
+}
+
+
 
 // #[cfg(test)]
 // mod tests {

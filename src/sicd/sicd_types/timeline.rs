@@ -4,29 +4,38 @@ use std::ops::Index;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Timeline {
-    pub CollectStart: String,
-    pub CollectDuration: f64,
-    pub IPP: Option<IppParams>,
+    #[serde(rename = "CollectStart")]
+    pub collect_start: String,
+    #[serde(rename = "CollectDuration")]
+    pub collect_duration: f64,
+    #[serde(rename = "IPP")]
+    pub ipp: Option<IppParams>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct IppParams {
-    pub Set: Vec<IppSet>,
+    #[serde(rename = "Set")]
+    pub set: Vec<IppSet>,
 }
 impl Index<usize> for IppParams {
     type Output = IppSet;
     fn index(&self, index: usize) -> &Self::Output {
-        &self.Set[index]
+        &self.set[index]
     }
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct IppSet {
-    pub TStart: f64,
-    pub TEnd: f64,
-    pub IPPStart: u64,
-    pub IPPEnd: u64,
-    pub IPPPoly: Poly1D,
+    #[serde(rename = "TStart")]
+    pub t_start: f64,
+    #[serde(rename = "TEnd")]
+    pub t_end: f64,
+    #[serde(rename = "IPPStart")]
+    pub ipp_start: u64,
+    #[serde(rename = "IPPEnd")]
+    pub ipp_end: u64,
+    #[serde(rename = "IPPPoly")]
+    pub ipp_poly: Poly1D,
 }
 
 #[cfg(test)]

@@ -2,30 +2,48 @@ use super::{Parameter, Poly1D, Poly2D, CMPLX, XYZ};
 use serde::Deserialize;
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageFormation {
-    pub RcvChanProc: RcvChanProc,
-    pub TxRcvPolarizationProc: String, // TODO: implement this enum
-    pub TStartProc: f64,
-    pub TEndProc: f64,
-    pub TxFrequencyProc: TxFrequencyProc,
-    pub SegmentIdentifier: Option<String>,
-    pub ImageFormAlgo: ImageFormAlgo,
-    pub STBeamComp: STBeamComp,
-    pub ImageBeamComp: ImageBeamComp,
-    pub AzAutofocus: AzAutofocus,
-    pub RgAutofocus: RgAutofocus,
-    pub Processing: Option<Vec<Processing>>,
-    pub PolarizationCalibration: Option<PolCal>,
+    #[serde(rename = "RcvChanProc")]
+    pub rcv_chan_proc: RcvChanProc,
+    #[serde(rename = "TxRcvPolarizationProc")]
+    pub tx_rcv_polarization_proc: String, // TODO: implement this enum
+    #[serde(rename = "TStartProc")]
+    pub t_start_proc: f64,
+    #[serde(rename = "TEndProc")]
+    pub t_end_proc: f64,
+    #[serde(rename = "TxFrequencyProc")]
+    pub tx_frequency_proc: TxFrequencyProc,
+    #[serde(rename = "SegmentIdentifier")]
+    pub segment_identifier: Option<String>,
+    #[serde(rename = "ImageFormAlgo")]
+    pub image_form_algo: ImageFormAlgo,
+    #[serde(rename = "STBeamComp")]
+    pub st_beam_comp: STBeamComp,
+    #[serde(rename = "ImageBeamComp")]
+    pub image_beam_comp: ImageBeamComp,
+    #[serde(rename = "AzAutofocus")]
+    pub az_autofocus: AzAutofocus,
+    #[serde(rename = "RgAutofocus")]
+    pub rg_autofocus: RgAutofocus,
+    #[serde(rename = "Processing")]
+    pub processing: Option<Vec<Processing>>,
+    #[serde(rename = "PolarizationCalibration")]
+    pub polarization_calibration: Option<PolCal>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RcvChanProc {
-    pub NumChanProc: u64,
-    pub PRFScaleFactor: Option<f64>,
-    pub ChanIndex: usize,
+    #[serde(rename = "NumChanProc")]
+    pub num_chan_proc: u64,
+    #[serde(rename = "PRFScaleFactor")]
+    pub prf_scale_factor: Option<f64>,
+    #[serde(rename = "ChanIndex")]
+    pub chan_index: usize,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct TxFrequencyProc {
-    pub MinProc: f64,
-    pub MaxProc: f64,
+    #[serde(rename = "MinProc")]
+    pub min_proc: f64,
+    #[serde(rename = "MaxProc")]
+    pub max_proc: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum ImageFormAlgo {
@@ -59,45 +77,70 @@ pub enum RgAutofocus {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Processing {
-    pub Type: String,
-    pub Applied: bool,
-    pub Parameter: Parameter,
+    #[serde(rename = "Type")]
+    pub type_proc: String,
+    #[serde(rename = "Applied")]
+    pub applied: bool,
+    #[serde(rename = "Parameter")]
+    pub parameter: Parameter,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct PolCal {
-    pub DistortCorrectionApplied: bool,
-    pub Distortion: Distortion,
+    #[serde(rename = "DistortCorrectionApplied")]
+    pub distort_correction_applied: bool,
+    #[serde(rename = "Distortion")]
+    pub distortion: Distortion,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Distortion {
-    pub CalibrationDate: Option<String>,
-    pub A: f64,
-    pub F1: CMPLX,
-    pub Q1: CMPLX,
-    pub Q2: CMPLX,
-    pub F2: CMPLX,
-    pub Q3: CMPLX,
-    pub Q4: CMPLX,
-    pub GainErrorA: Option<f64>,
-    pub GainErrorF1: Option<f64>,
-    pub GainErrorF2: Option<f64>,
-    pub PhaseErrorF1: Option<f64>,
-    pub PhaseErrorF2: Option<f64>,
+    #[serde(rename = "CalibrationDate")]
+    pub calibration_date: Option<String>,
+    #[serde(rename = "A")]
+    pub a: f64,
+    #[serde(rename = "F1")]
+    pub f1: CMPLX,
+    #[serde(rename = "Q1")]
+    pub q1: CMPLX,
+    #[serde(rename = "Q2")]
+    pub q2: CMPLX,
+    #[serde(rename = "F2")]
+    pub f2: CMPLX,
+    #[serde(rename = "Q3")]
+    pub q3: CMPLX,
+    #[serde(rename = "Q4")]
+    pub q4: CMPLX,
+    #[serde(rename = "GainErrorA")]
+    pub gain_error_a: Option<f64>,
+    #[serde(rename = "GainErrorF1")]
+    pub gain_error_f1: Option<f64>,
+    #[serde(rename = "GainErrorF2")]
+    pub gain_error_f2: Option<f64>,
+    #[serde(rename = "PhaseErrorF1")]
+    pub phase_error_f1: Option<f64>,
+    #[serde(rename = "PhaseErrorF2")]
+    pub phase_error_f2: Option<f64>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RgAzComp {
-    pub AzSF: f64,
-    pub KazPoly: Poly1D,
+    #[serde(rename = "AzSF")]
+    pub az_sf: f64,
+    #[serde(rename = "KazPoly")]
+    pub kaz_poly: Poly1D,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Rma {
-    pub RMAlgoType: RMAlgoType,
-    pub ImageType: ImageType,
-    pub RMAT: Option<RMAlgo>,
-    pub RMCR: Option<RMAlgo>,
-    pub INCA: Option<INCA>,
+    #[serde(rename = "RMAlgoType")]
+    pub rm_algo_type: RMAlgoType,
+    #[serde(rename = "ImageType")]
+    pub image_type: ImageType,
+    #[serde(rename = "RMAT")]
+    pub rmat: Option<RMAlgo>,
+    #[serde(rename = "RMCR")]
+    pub rmcr: Option<RMAlgo>,
+    #[serde(rename = "INCA")]
+    pub inca: Option<INCA>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum RMAlgoType {
@@ -113,18 +156,27 @@ pub enum ImageType {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RMAlgo {
-    pub PosRef: XYZ,
-    pub VelRef: XYZ,
-    pub DopConeAngRef: f64,
+    #[serde(rename = "PosRef")]
+    pub pos_ref: XYZ,
+    #[serde(rename = "VelRef")]
+    pub vel_ref: XYZ,
+    #[serde(rename = "DopConeAngRef")]
+    pub dop_cone_ang_ref: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct INCA {
-    pub TimeCAPoly: Poly1D,
-    pub R_CA_SCP: f64,
-    pub FreqZero: f64,
-    pub DRateSFPoly: Poly2D,
-    pub DopCentroidPoly: Option<Poly2D>,
-    pub DopCentroidCOA: Option<bool>,
+    #[serde(rename = "TimeCAPoly")]
+    pub time_ca_poly: Poly1D,
+    #[serde(rename = "R_CA_SCP")]
+    pub r_ca_scp: f64,
+    #[serde(rename = "FreqZero")]
+    pub freq_zero: f64,
+    #[serde(rename = "DRateSFPoly")]
+    pub d_rate_sf_poly: Poly2D,
+    #[serde(rename = "DopCentroidPoly")]
+    pub dop_centroid_poly: Option<Poly2D>,
+    #[serde(rename = "DopCentroidCOA")]
+    pub dop_centroid_coa: Option<bool>,
 }
 
 #[cfg(test)]

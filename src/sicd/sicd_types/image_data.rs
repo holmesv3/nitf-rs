@@ -1,17 +1,26 @@
-use super::RowCol;
+use super::{RowCol, IdxRowCol};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageData {
-    pub PixelType: PixelType,
-    pub AmpTable: Option<AmpTable>,
-    pub NumRows: u64,
-    pub NumCols: u64,
-    pub FirstRow: u64,
-    pub FirstCol: u64,
-    pub FullImage: FullImage,
-    pub SCPPixel: RowCol,
-    pub ValidData: Option<ValidDataRC>,
+    #[serde(rename = "PixelType")]
+    pub pixel_type: PixelType,
+    #[serde(rename = "AmpTable")]
+    pub amp_table: Option<AmpTable>,
+    #[serde(rename = "NumRows")]
+    pub num_rows: u64,
+    #[serde(rename = "NumCols")]
+    pub num_cols: u64,
+    #[serde(rename = "FirstRow")]
+    pub first_row: u64,
+    #[serde(rename = "FirstCol")]
+    pub first_col: u64,
+    #[serde(rename = "FullImage")]
+    pub full_image: FullImage,
+    #[serde(rename = "SCPPixel")]
+    pub scp_pixel: RowCol,
+    #[serde(rename = "ValidData")]
+    pub valid_data: Option<ValidDataRC>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -22,30 +31,28 @@ pub enum PixelType {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct AmpTable {
-    pub size: u16,
-    pub Amplitude: Vec<Amplitude>,
+    pub size: u16,  // 256
+    #[serde(rename = "Amplitude")]
+    pub amplitude: Vec<Amplitude>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Amplitude {
-    pub index: u8,
+    pub index: u8,  // [0, 255]
     #[serde(rename = "$value")]
     pub value: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct FullImage {
-    pub NumRows: u64,
-    pub NumCols: u64,
+    #[serde(rename = "NumRows")]
+    pub num_rows: u64,
+    #[serde(rename = "NumCols")]
+    pub num_cols: u64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ValidDataRC {
     pub size: u64,
-    pub Vertex: Vec<VertexRC>,
-}
-#[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct VertexRC {
-    pub index: usize,
-    pub Row: u64,
-    pub Col: u64,
+    #[serde(rename = "Vertex")]
+    pub vertex: Vec<IdxRowCol>,
 }
 
 #[cfg(test)]
