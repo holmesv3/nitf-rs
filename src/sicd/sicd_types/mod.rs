@@ -333,15 +333,9 @@ mod tests {
     fn test_xyz_poly() {
         let xml_str = r#"
         <XyzPoly>
-            <X order1="0">
-                <Coef1d exponent1="0">0</Coef1d>
-            </X>
-            <Y order1="0">
-                <Coef1d exponent1="0">0</Coef1d>
-            </Y>
-            <Z order1="0">
-                <Coef1d exponent1="0">0</Coef1d>
-            </Z>
+            <X order1="0"><Coef1d exponent1="0">0</Coef1d></X>
+            <Y order1="0"><Coef1d exponent1="0">0</Coef1d></Y>
+            <Z order1="0"><Coef1d exponent1="0">0</Coef1d></Z>
         </XyzPoly>
         "#;
         assert!(match from_str::<XyzPoly>(xml_str) {
@@ -352,15 +346,9 @@ mod tests {
     fn test_idx_xyz_poly() {
         let xml_str = r#"
         <IdxXyzPoly index="0">
-            <X order1="0">
-                <Coef1d exponent1="0">0</Coef1d>
-            </X>
-            <Y order1="0">
-                <Coef1d exponent1="0">0</Coef1d>
-            </Y>
-            <Z order1="0">
-                <Coef1d exponent1="0">0</Coef1d>
-            </Z>
+            <X order1="0"><Coef1d exponent1="0">0</Coef1d></X>
+            <Y order1="0"><Coef1d exponent1="0">0</Coef1d></Y>
+            <Z order1="0"><Coef1d exponent1="0">0</Coef1d></Z>
         </IdxXyzPoly>
         "#;
         assert!(match from_str::<IdxXyzPoly>(xml_str) {
