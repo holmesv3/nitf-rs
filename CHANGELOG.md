@@ -1,6 +1,6 @@
 # Changes by version
 
-## 0.1.7 (In development)
+## 0.1.7
 - Switched to using `quick_xml` for better `.xml` syntax support
 - Added `eval()` functions to `sicd` polynomials
 - Renamed all `sicd` struct members to snake_case
