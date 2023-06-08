@@ -15,11 +15,7 @@ Current project goals are
 
 
 ## Example
-In your `Cargo.toml`, include `nitf-rs` as a dependency, or, for the 'latest-and-greatest' features, pull it from the `main` repository branch
-```toml
-nitf-rs = {git="https://github.com/holmesv3/nitf-rs.git"}
-```
-### Usage
+
 ```rust
 use nitf_rs::read_nitf;
 use std::path::Path;
@@ -53,10 +49,6 @@ In my own testing, I have only been able to find files to verify parsing for:
 To the best of my knowledge, these function as expected.
 
 There is no logic built around the inputs yet (in progress)
-
-## New from last version (that I remember)
-- Added a `sicd` metadata parsing capability
-- Added basic `eval` methods on `SICD` polynomial objects (1D, 2D, and Xyz)
 
 If you have questions, would like to contribute, or would like to request
 something be added, you can ask on [this Discord server](https://discord.gg/Kg7NwN4XgS), or create an issue.
