@@ -3,11 +3,10 @@
 pub mod segments;
 pub mod types;
 
-use quick_xml::{de::from_str, DeError};
 use std::fmt::Display;
 use std::fs::File;
+use std::path::Path;
 
-use crate::sicd::Sicd;
 use segments::{DataExtension, FileHeader, Graphic, Image, ReservedExtension, Text};
 
 /// Top level NITF interface
@@ -43,6 +42,21 @@ pub struct Nitf {
     /// See [ReservedExtensionHeader](segments::headers::reserved_extension_hdr) for `meta` fields
     pub reserved_extension_segments: Vec<ReservedExtension>,
 }
+
+/// Construct a [Nitf] object from a file `path`.
+///
+/// # Example
+///
+///     use std::path::Path;
+///     use nitf_rs::read_nitf;
+///
+///     let nitf_path = Path::new("../example.nitf");
+///     let nitf = read_nitf(nitf_path);
+pub fn read_nitf(path: &Path) -> Nitf {
+    let mut reader = File::open(path).unwrap();
+    return Nitf::from_file(&mut reader);
+}
+
 
 impl Nitf {
     pub fn from_file(reader: &mut File) -> Self {
@@ -96,20 +110,6 @@ impl Nitf {
         return nitf;
     }
 
-    /// Read [Sicd] metadata from the nitf file
-    ///
-    /// # Example
-    ///
-    ///     use std::path::Path;
-    ///     use nitf_rs::read_nitf;
-    ///
-    ///     let nitf_path = Path::new("../example.nitf");
-    ///     let nitf = read_nitf(nitf_path);
-    ///     let sicd = nitf.parse_sicd_meta().unwrap();
-    pub fn parse_sicd_meta(&self) -> Result<Sicd, DeError> {
-        let xml_str = String::from_utf8(self.data_extension_segments[0].data[..].to_vec()).unwrap();
-        from_str(&xml_str)
-    }
 }
 
 impl Display for Nitf {

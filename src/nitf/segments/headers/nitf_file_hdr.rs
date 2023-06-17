@@ -2,8 +2,8 @@
 use std::fmt::Display;
 use std::io::{Read, Seek};
 
-use crate::nitf_2_1::segments::headers::NitfSegmentHeader;
-use crate::nitf_2_1::types::{field::*, security::*};
+use crate::nitf::segments::headers::NitfSegmentHeader;
+use crate::nitf::types::{field::*, security::*};
 
 /// Metadata for Nitf File Header
 #[allow(non_snake_case)]

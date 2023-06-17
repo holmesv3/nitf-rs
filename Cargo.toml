@@ -1,6 +1,6 @@
 [package]
 name = "nitf-rs"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "Crate to read NITF files."
@@ -10,13 +10,15 @@ readme = "README-crates.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-num-complex = "0.4.3"
+bitvec = "^1.0"
 memmap2 = "0.5.10"
-ndarray = {version = "0.15.6"}
-serde = {version = "1.0.163", features = ["derive"]}
-quick-xml = {version = "0.28.2", features = ["serialize"]}
+ndarray = "^0.15"
+num-complex = "0.4.3"
+serde = {version = "^1.0", features = ["derive"], optional = true}
+quick-xml = {version = "^0.28", features = ["serialize"], optional = true}
 
-
+[features]
+sicd = ["dep:serde", "dep:quick-xml"]
 
 
 

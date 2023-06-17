@@ -2,9 +2,9 @@
 use std::fmt::Display;
 use std::io::{Read, Seek};
 
-use crate::nitf_2_1::segments::headers::NitfSegmentHeader;
-use crate::nitf_2_1::types::field::NitfField;
-use crate::nitf_2_1::types::security::Security;
+use crate::nitf::segments::headers::NitfSegmentHeader;
+use crate::nitf::types::field::NitfField;
+use crate::nitf::types::security::Security;
 
 /// Metadata for Reserved Extension Segment
 ///

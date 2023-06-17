@@ -1,12 +1,18 @@
 //! Image  segment definition and associated functions
 use memmap2::{Mmap, MmapOptions};
-use ndarray::Array2;
+use ndarray::{Array2};
 use num_complex::{Complex32, Complex64};
 use std::fmt::Display;
 use std::io::SeekFrom::Start;
+use std::sync::Arc;
 use std::{fs::File, io::Seek, ops::Deref};
 
-use super::headers::{image_hdr::ImageHeader, NitfSegmentHeader};
+use bitvec::prelude as bv;
+
+use super::headers::{
+    image_hdr::{ImageHeader, Mode}, 
+    NitfSegmentHeader
+};
 
 #[derive(Debug)]
 pub struct Image {
@@ -59,10 +65,6 @@ impl Image {
         }
     }
 
-    pub fn actual_data_to_array(&self) -> Array2<ImageDataType> {
-        todo!();
-    }
-
     // TODO: Implement reading a slice of the data into an array, as opposed to the whole thing.
     // TODO: Support various data types based on header information
     /// Read image data from image segment into an array
@@ -82,12 +84,12 @@ impl Image {
         return self.get_c32_array();
     }
     fn get_c32_array(&self) -> Array2<ImageDataType> {
-        let n_row: usize = self.meta.NROWS.string.parse().unwrap();
-        let n_col: usize = self.meta.NCOLS.string.parse().unwrap();
+        let n_row = self.meta.NROWS.val as usize;
+        let n_col = self.meta.NCOLS.val as usize;
         let mut arr = Array2::from_elem((n_row, n_col), ImageDataType::C32(Complex32::default()));
 
-        let mut real: [u8; 4] = [0u8; 4];
-        let mut imag: [u8; 4] = [0u8; 4];
+        let mut real = [0u8; 4];
+        let mut imag = [0u8; 4];
 
         let data_chunks = &mut self.data.chunks(4); // grab 4 bytes at a time
 
