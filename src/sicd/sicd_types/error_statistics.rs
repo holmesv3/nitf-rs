@@ -59,8 +59,10 @@ pub struct Frame {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum FrameEnum {
     ECF,
-    RIC_ECF,
-    RIC_ECI,
+    #[serde(rename = "RIC_ECF")]
+    RICECF,
+    #[serde(rename = "RIC_ECI")]
+    RICECI,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct CorrCoefs {

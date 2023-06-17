@@ -1,6 +1,4 @@
 //! Sensor Independent Complex Data support
-#![allow(non_camel_case_types)]
-#![allow(non_snake_case)]
 
 use serde::Deserialize;
 

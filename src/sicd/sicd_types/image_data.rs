@@ -30,9 +30,12 @@ pub struct PixelType {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum PixelTypeEnum {
-    RE32F_IM32F,
-    RE16I_IM16I,
-    AMP8I_PHS8I,
+    #[serde(rename = "RE32F_IM32F")]
+    RE32FIM32F,
+    #[serde(rename = "RE16I_IM16I")]
+    RE16IIM16I,
+    #[serde(rename = "AMP8I_PHS8I")]
+    AMP8IPHS8I,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct AmpTable {
