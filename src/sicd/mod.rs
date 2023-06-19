@@ -1,7 +1,8 @@
 //! Sensor Independent Complex Data support
+use quick_xml::de::from_str;
 use std::fs::File;
 use std::path::Path;
-use quick_xml::de::from_str;
+use std::str::from_utf8;
 
 use crate::nitf::Nitf;
 
@@ -36,7 +37,7 @@ pub fn read_sicd(path: &Path) -> Sicd {
 impl Sicd {
     pub fn from_file(reader: &mut File) -> Self {
         let nitf = Nitf::from_file(reader);
-        let sicd_str = String::from_utf8(nitf.data_extension_segments[0].data[..].to_vec()).unwrap();
+        let sicd_str = from_utf8(&nitf.data_extension_segments[0].data[..]).unwrap();
         let sicd_meta: SicdMeta = from_str(&sicd_str).unwrap();
         Self { nitf, sicd_meta }
     }
