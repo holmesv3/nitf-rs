@@ -1,9 +1,7 @@
 //! Nitf file header structure
 
-use std::{
-    fmt::Display,
-    io::{Read, Seek},
-};
+use std::fmt::Display;
+use std::io::{Read, Seek};
 
 use super::headers::{nitf_file_hdr::NitfHeader, NitfSegmentHeader};
 

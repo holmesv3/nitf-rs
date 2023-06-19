@@ -1,18 +1,12 @@
 //! Image  segment definition and associated functions
 use memmap2::{Mmap, MmapOptions};
-use ndarray::{Array2};
+use ndarray::Array2;
 use num_complex::{Complex32, Complex64};
 use std::fmt::Display;
 use std::io::SeekFrom::Start;
-use std::sync::Arc;
 use std::{fs::File, io::Seek, ops::Deref};
 
-use bitvec::prelude as bv;
-
-use super::headers::{
-    image_hdr::{ImageHeader, Mode}, 
-    NitfSegmentHeader
-};
+use super::headers::{image_hdr::ImageHeader, NitfSegmentHeader};
 
 #[derive(Debug)]
 pub struct Image {

@@ -34,7 +34,6 @@ use radiometric::Radiometric;
 use scpcoa::ScpCoa;
 use timeline::Timeline;
 
-
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct SicdMeta {
     #[serde(rename = "CollectionInfo")]

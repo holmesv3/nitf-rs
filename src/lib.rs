@@ -8,7 +8,6 @@ pub mod nitf;
 #[cfg(feature = "sicd")]
 pub mod sicd;
 
-
 // UNIT TESTS
 #[cfg(test)]
 mod tests {

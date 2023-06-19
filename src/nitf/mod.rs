@@ -53,22 +53,21 @@ pub struct Nitf {
 ///     let nitf_path = Path::new("../example.nitf");
 ///     let nitf = read_nitf(nitf_path);
 pub fn read_nitf(path: &Path) -> Nitf {
-    let mut reader = File::open(path).unwrap();
-    return Nitf::from_file(&mut reader);
+    let mut file = File::open(path).unwrap();
+    Nitf::from_file(&mut file)
 }
 
-
 impl Nitf {
-    pub fn from_file(reader: &mut File) -> Self {
+    pub fn from_file(file: &mut File) -> Self {
         let mut nitf = Self::default();
-        nitf.nitf_header.read(reader);
+        nitf.nitf_header.read(file);
 
         let mut n_seg: usize = nitf.nitf_header.meta.NUMI.string.parse().unwrap();
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.meta.IMHEADERS[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
             let data_size = seg_info.item_size.string.parse().unwrap();
-            let seg = Image::initialize(reader, header_size, data_size);
+            let seg = Image::initialize(file, header_size, data_size);
             nitf.image_segments.push(seg);
         }
 
@@ -77,7 +76,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.GRAPHHEADERS[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
             let data_size: u64 = seg_info.item_size.string.parse().unwrap();
-            let seg = Graphic::initialize(reader, header_size, data_size);
+            let seg = Graphic::initialize(file, header_size, data_size);
             nitf.graphic_segments.push(seg);
         }
 
@@ -86,7 +85,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.TEXTHEADERS[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
             let data_size: u64 = seg_info.item_size.string.parse().unwrap();
-            let seg = Text::initialize(reader, header_size, data_size);
+            let seg = Text::initialize(file, header_size, data_size);
             nitf.text_segments.push(seg);
         }
 
@@ -95,7 +94,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.DEXTHEADERS[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
             let data_size: u64 = seg_info.item_size.string.parse().unwrap();
-            let seg = DataExtension::initialize(reader, header_size, data_size);
+            let seg = DataExtension::initialize(file, header_size, data_size);
             nitf.data_extension_segments.push(seg);
         }
 
@@ -104,12 +103,11 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.RESHEADERS[i_seg];
             let header_size = seg_info.subheader_size.string.parse().unwrap();
             let data_size = seg_info.item_size.string.parse().unwrap();
-            let seg = ReservedExtension::initialize(reader, header_size, data_size);
+            let seg = ReservedExtension::initialize(file, header_size, data_size);
             nitf.reserved_extension_segments.push(seg);
         }
-        return nitf;
+        nitf
     }
-
 }
 
 impl Display for Nitf {
