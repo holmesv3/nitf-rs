@@ -28,6 +28,6 @@ where
     fn from_reader(reader: &mut (impl Read + Seek)) -> Self {
         let mut hdr = Self::default();
         hdr.read(reader);
-        return hdr;
+        hdr
     }
 }

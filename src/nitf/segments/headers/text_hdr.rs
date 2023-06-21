@@ -4,35 +4,34 @@ use std::io::{Read, Seek};
 use std::str::FromStr;
 
 use crate::nitf::segments::headers::NitfSegmentHeader;
-use crate::nitf::types::field::{InvalidNitfValue, NitfField};
-use crate::nitf::types::security::Security;
+use crate::nitf::types::{NitfField, Security};
+use crate::nitf::error::NitfError;
 
 /// Text Segment Metadata
-#[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct TextHeader {
     /// File Part Type
-    pub TE: NitfField<String>,
+    pub te: NitfField<String>,
     /// Text Identifier
-    pub TEXTID: NitfField<String>,
+    pub textid: NitfField<String>,
     /// Text Attachment Level
-    pub TXTALVL: NitfField<u16>,
+    pub txtalvl: NitfField<u16>,
     /// Text Date and Time
-    pub TXTDT: NitfField<String>,
+    pub txtdt: NitfField<String>,
     /// Text Title
-    pub TXTTITL: NitfField<String>,
+    pub txttitl: NitfField<String>,
     /// Security information
-    pub SECURITY: Security,
+    pub security: Security,
     /// Encryption
-    pub ENCRYP: NitfField<String>,
+    pub encryp: NitfField<String>,
     /// Text Format
-    pub TXTFMT: NitfField<TextFormat>,
+    pub txtfmt: NitfField<TextFormat>,
     /// Text Extended Subheader Data Length
-    pub TXSHDL: NitfField<u16>,
+    pub txshdl: NitfField<u16>,
     /// Text Extended Subheader Overflow
-    pub TXSOFL: NitfField<u16>,
+    pub txsofl: NitfField<u16>,
     /// Text Extended Subheader Data
-    pub TXSHD: NitfField<String>,
+    pub txshd: NitfField<String>,
 }
 
 /// Formatting specification
@@ -51,48 +50,48 @@ pub enum TextFormat {
 
 impl NitfSegmentHeader for TextHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        self.TE.read(reader, 2u8);
-        self.TEXTID.read(reader, 7u8);
-        self.TXTALVL.read(reader, 3u8);
-        self.TXTDT.read(reader, 14u8);
-        self.TXTTITL.read(reader, 80u8);
-        self.SECURITY.read(reader);
-        self.ENCRYP.read(reader, 1u8);
-        self.TXTFMT.read(reader, 3u8);
-        self.TXSHDL.read(reader, 5u8);
-        let extended_length: u32 = self.TXSHDL.string.parse().unwrap();
+        self.te.read(reader, 2u8);
+        self.textid.read(reader, 7u8);
+        self.txtalvl.read(reader, 3u8);
+        self.txtdt.read(reader, 14u8);
+        self.txttitl.read(reader, 80u8);
+        self.security.read(reader);
+        self.encryp.read(reader, 1u8);
+        self.txtfmt.read(reader, 3u8);
+        self.txshdl.read(reader, 5u8);
+        let extended_length: u32 = self.txshdl.string.parse().unwrap();
         if extended_length != 0 {
-            self.TXSOFL.read(reader, 3u8);
-            self.TXSHD.read(reader, extended_length - 3)
+            self.txsofl.read(reader, 3u8);
+            self.txshd.read(reader, extended_length - 3)
         }
     }
 }
 impl Display for TextHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("TE: {}, ", self.TE).as_ref();
-        out_str += format!("TEXTID: {}, ", self.TEXTID).as_ref();
-        out_str += format!("TXTALVL: {}, ", self.TXTALVL).as_ref();
-        out_str += format!("TXTDT: {}, ", self.TXTDT).as_ref();
-        out_str += format!("TXTTITL: {}, ", self.TXTTITL).as_ref();
-        out_str += format!("SECURITY: [{}], ", self.SECURITY).as_ref();
-        out_str += format!("ENCRYP: {}, ", self.ENCRYP).as_ref();
-        out_str += format!("TXTFMT: {}, ", self.TXTFMT).as_ref();
-        out_str += format!("TXSHDL: {}", self.TXSHDL).as_ref();
-        out_str += format!("TXSOFL: {}", self.TXSOFL).as_ref();
-        out_str += format!("TXSHD: {}", self.TXSHD).as_ref();
+        out_str += format!("TE: {}, ", self.te).as_ref();
+        out_str += format!("TEXTID: {}, ", self.textid).as_ref();
+        out_str += format!("TXTALVL: {}, ", self.txtalvl).as_ref();
+        out_str += format!("TXTDT: {}, ", self.txtdt).as_ref();
+        out_str += format!("TXTTITL: {}, ", self.txttitl).as_ref();
+        out_str += format!("SECURITY: [{}], ", self.security).as_ref();
+        out_str += format!("ENCRYP: {}, ", self.encryp).as_ref();
+        out_str += format!("TXTFMT: {}, ", self.txtfmt).as_ref();
+        out_str += format!("TXSHDL: {}", self.txshdl).as_ref();
+        out_str += format!("TXSOFL: {}", self.txsofl).as_ref();
+        out_str += format!("TXSHD: {}", self.txshd).as_ref();
         write!(f, "[Text Subheader: {}]", out_str)
     }
 }
 impl FromStr for TextFormat {
-    type Err = InvalidNitfValue;
+    type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "MTF" => Ok(Self::MTF),
             "STA" => Ok(Self::STA),
             "UT1" => Ok(Self::UT1),
             "U8S" => Ok(Self::U8S),
-            _ => Err(InvalidNitfValue),
+            _ => Err(NitfError::FieldError),
         }
     }
 }

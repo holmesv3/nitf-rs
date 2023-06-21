@@ -2,6 +2,7 @@
 
 pub mod segments;
 pub mod types;
+pub(crate) mod error;
 
 use std::fmt::Display;
 use std::fs::File;
@@ -48,7 +49,7 @@ pub struct Nitf {
 /// # Example
 ///
 ///     use std::path::Path;
-///     use nitf_rs::read_nitf;
+///     use nitf_rs::nitf::read_nitf;
 ///
 ///     let nitf_path = Path::new("../example.nitf");
 ///     let nitf = read_nitf(nitf_path);
@@ -62,47 +63,47 @@ impl Nitf {
         let mut nitf = Self::default();
         nitf.nitf_header.read(file);
 
-        let mut n_seg: usize = nitf.nitf_header.meta.NUMI.string.parse().unwrap();
+        let mut n_seg = nitf.nitf_header.meta.numi.val as usize;
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.IMHEADERS[i_seg];
-            let header_size = seg_info.subheader_size.string.parse().unwrap();
-            let data_size = seg_info.item_size.string.parse().unwrap();
+            let seg_info = &nitf.nitf_header.meta.imheaders[i_seg];
+            let header_size = seg_info.subheader_size.val;
+            let data_size = seg_info.item_size.val;
             let seg = Image::initialize(file, header_size, data_size);
             nitf.image_segments.push(seg);
         }
 
-        n_seg = nitf.nitf_header.meta.NUMS.string.parse().unwrap();
+        n_seg = nitf.nitf_header.meta.nums.val as usize;
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.GRAPHHEADERS[i_seg];
-            let header_size = seg_info.subheader_size.string.parse().unwrap();
-            let data_size: u64 = seg_info.item_size.string.parse().unwrap();
+            let seg_info = &nitf.nitf_header.meta.graphheaders[i_seg];
+            let header_size = seg_info.subheader_size.val;
+            let data_size: u64 = seg_info.item_size.val;
             let seg = Graphic::initialize(file, header_size, data_size);
             nitf.graphic_segments.push(seg);
         }
 
-        n_seg = nitf.nitf_header.meta.NUMT.string.parse().unwrap();
+        n_seg = nitf.nitf_header.meta.numt.val as usize;
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.TEXTHEADERS[i_seg];
-            let header_size = seg_info.subheader_size.string.parse().unwrap();
-            let data_size: u64 = seg_info.item_size.string.parse().unwrap();
+            let seg_info = &nitf.nitf_header.meta.textheaders[i_seg];
+            let header_size = seg_info.subheader_size.val;
+            let data_size: u64 = seg_info.item_size.val;
             let seg = Text::initialize(file, header_size, data_size);
             nitf.text_segments.push(seg);
         }
 
-        n_seg = nitf.nitf_header.meta.NUMDES.string.parse().unwrap();
+        n_seg = nitf.nitf_header.meta.numdes.val as usize;
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.DEXTHEADERS[i_seg];
-            let header_size = seg_info.subheader_size.string.parse().unwrap();
-            let data_size: u64 = seg_info.item_size.string.parse().unwrap();
+            let seg_info = &nitf.nitf_header.meta.dextheaders[i_seg];
+            let header_size = seg_info.subheader_size.val;
+            let data_size: u64 = seg_info.item_size.val;
             let seg = DataExtension::initialize(file, header_size, data_size);
             nitf.data_extension_segments.push(seg);
         }
 
-        n_seg = nitf.nitf_header.meta.NUMRES.string.parse().unwrap();
+        n_seg = nitf.nitf_header.meta.numres.val as usize;
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.RESHEADERS[i_seg];
-            let header_size = seg_info.subheader_size.string.parse().unwrap();
-            let data_size = seg_info.item_size.string.parse().unwrap();
+            let seg_info = &nitf.nitf_header.meta.resheaders[i_seg];
+            let header_size = seg_info.subheader_size.val;
+            let data_size = seg_info.item_size.val;
             let seg = ReservedExtension::initialize(file, header_size, data_size);
             nitf.reserved_extension_segments.push(seg);
         }

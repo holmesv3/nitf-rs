@@ -1,4 +1,3 @@
-#![allow(clippy::needless_return)]
 //! Crate for reading and manipulating `NITF` files
 
 /// General `NIFT` interface functions and types

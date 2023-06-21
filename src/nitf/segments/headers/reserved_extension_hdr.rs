@@ -3,52 +3,45 @@ use std::fmt::Display;
 use std::io::{Read, Seek};
 
 use crate::nitf::segments::headers::NitfSegmentHeader;
-use crate::nitf::types::field::NitfField;
-use crate::nitf::types::security::Security;
+use crate::nitf::types::{NitfField, Security};
 
 /// Metadata for Reserved Extension Segment
-///
-/// RESDATA is accessed through [Segment] `read_data()` function
-#[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct ReservedExtensionHeader {
     /// File Part Type
-    pub RE: NitfField<String>,
+    pub re: NitfField<String>,
     /// Unique RES Type Identifier
-    pub RESID: NitfField<String>,
+    pub resid: NitfField<String>,
     /// Version of the Data Definition
-    pub RESVER: NitfField<u8>,
+    pub resver: NitfField<u8>,
     /// Security information
-    pub SECURITY: Security,
+    pub security: Security,
     /// User-defined Subheader Length
-    pub RESSHL: NitfField<u16>,
+    pub resshl: NitfField<u16>,
     /// User-Defined Subheader Fields
-    pub RESSHF: NitfField<String>,
-    // User-Defined Data
-    // pub RESDATA: NitfField<String>,  // Determined by NTB?
+    pub resshf: NitfField<String>,
 }
 impl Display for ReservedExtensionHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("RE: {}, ", self.RE).as_ref();
-        out_str += format!("RESID: {}, ", self.RESID).as_ref();
-        out_str += format!("RESVER: {}, ", self.RESVER).as_ref();
-        out_str += format!("SECURITY: [{}], ", self.SECURITY).as_ref();
-        out_str += format!("RESSHL: {}, ", self.RESSHL).as_ref();
-        out_str += format!("RESSHF: {}, ", self.RESSHF).as_ref();
-        // out_str += format!("RESDATA: {}, ", self.RESDATA).as_ref();
+        out_str += format!("RE: {}, ", self.re).as_ref();
+        out_str += format!("RESID: {}, ", self.resid).as_ref();
+        out_str += format!("RESVER: {}, ", self.resver).as_ref();
+        out_str += format!("SECURITY: [{}], ", self.security).as_ref();
+        out_str += format!("RESSHL: {}, ", self.resshl).as_ref();
+        out_str += format!("RESSHF: {}, ", self.resshf).as_ref();
         write!(f, "[Reserved Extension Subheader: {}]", out_str)
     }
 }
 impl NitfSegmentHeader for ReservedExtensionHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        self.RE.read(reader, 2u8);
-        self.RESID.read(reader, 25u8);
-        self.RESVER.read(reader, 2u8);
-        self.SECURITY.read(reader);
-        self.RESSHL.read(reader, 4u8);
-        if self.RESSHL.val != 0 {
-            self.RESSHF.read(reader, self.RESSHL.val);
+        self.re.read(reader, 2u8);
+        self.resid.read(reader, 25u8);
+        self.resver.read(reader, 2u8);
+        self.security.read(reader);
+        self.resshl.read(reader, 4u8);
+        if self.resshl.val != 0 {
+            self.resshf.read(reader, self.resshl.val);
         }
     }
 }

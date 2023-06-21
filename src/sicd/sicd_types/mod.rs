@@ -259,82 +259,64 @@ mod tests {
     use quick_xml::de::from_str;
 
     #[test]
-    fn test_row_col() {
+    fn test_sicd_types() {
         let xml = r#"<RowCol><Row>0</Row><Col>0</Col></RowCol>"#;
         assert!(match from_str::<RowCol>(xml) {
             Ok(_) => true,
             Err(_) => false,
-        })
-    }
-    #[test]
-    fn test_idx_row_col() {
+        });
+
         let xml = r#"<IdxRowCol index="0"><Row>0</Row><Col>0</Col></IdxRowCol>
         "#;
         assert!(match from_str::<IdxRowCol>(xml) {
             Ok(_) => true,
             Err(_) => false,
-        })
-    }
-    #[test]
-    fn test_cmplx() {
+        });
+
         let xml = r#"<CMPLX><Real>0</Real><Imag>0</Imag></CMPLX>"#;
         assert!(match from_str::<CMPLX>(xml) {
             Ok(_) => true,
             Err(_) => false,
-        })
-    }
-    #[test]
-    fn test_xyz() {
+        });
+
         let xml = r#"<XYZ><X>0</X><Y>0</Y><Z>0</Z></XYZ>"#;
         assert!(match from_str::<XYZ>(xml) {
             Ok(_) => true,
             Err(_) => false,
-        })
-    }
-    #[test]
-    fn test_llh() {
+        });
+
         let xml = r#"<LLH><Lat>0</Lat><Lon>0</Lon><HAE>0</HAE></LLH>"#;
         assert!(match from_str::<LLH>(xml) {
             Ok(_) => true,
             Err(_) => false,
-        })
-    }
-    #[test]
-    fn test_idx_llh() {
+        });
+
         let xml = r#"
             <IdxLLH index="0"><Lat>0</Lat><Lon>0</Lon><HAE>0</HAE></IdxLLH>"#;
         assert!(match from_str::<IdxLLH>(xml) {
             Ok(_) => true,
             Err(_) => false,
-        })
-    }
-    #[test]
-    fn test_ll() {
+        });
+
         let xml = r#"<LL><Lat>0</Lat><Lon>0</Lon></LL>"#;
         assert!(match from_str::<LL>(xml) {
             Ok(_) => true,
             Err(_) => false,
-        })
-    }
-    #[test]
-    fn test_idx_ll() {
+        });
+
         let xml = r#"<IdxLL index="0"><Lat>0</Lat><Lon>0</Lon></IdxLL>"#;
         assert!(match from_str::<IdxLL>(xml) {
             Ok(_) => true,
             Err(_) => false,
-        })
-    }
-    #[test]
-    fn test_poly1d() {
+        });
+
         let xml = r#"<Poly1d order1="1"><Coef1d exponent1="0">0</Coef1d>
             <Coef1d exponent1="1">0</Coef1d></Poly1d>"#;
         assert!(match from_str::<Poly1d>(xml) {
             Ok(_) => true,
             Err(_) => false,
-        })
-    }
-    #[test]
-    fn test_poly2d() {
+        });
+        
         let xml = r#"<Poly2d order1 = "1" order2 = "1">
             <Coef2d exponent1="0" exponent2="0">0</Coef2d>
             <Coef2d exponent1="1" exponent2="0">0</Coef2d>
@@ -343,10 +325,8 @@ mod tests {
         assert!(match from_str::<Poly2d>(xml) {
             Ok(_) => true,
             Err(_) => false,
-        })
-    }
-    #[test]
-    fn test_xyz_poly() {
+        });
+
         let xml = r#"<XyzPoly>
             <X order1="0"><Coef1d exponent1="0">0</Coef1d></X>
             <Y order1="0"><Coef1d exponent1="0">0</Coef1d></Y>
@@ -354,10 +334,8 @@ mod tests {
         assert!(match from_str::<XyzPoly>(xml) {
             Ok(_) => true,
             Err(_) => false,
-        })
-    }
-    #[test]
-    fn test_idx_xyz_poly() {
+        });
+
         let xml = r#"<IdxXyzPoly index="0">
             <X order1="0"><Coef1d exponent1="0">0</Coef1d></X>
             <Y order1="0"><Coef1d exponent1="0">0</Coef1d></Y>
@@ -365,16 +343,14 @@ mod tests {
         assert!(match from_str::<IdxXyzPoly>(xml) {
             Ok(_) => true,
             Err(_) => false,
-        })
-    }
-    #[test]
-    fn test_parameter() {
+        });
+
         let xml = r#"
             <Parameter name="Param0">TestP0</Parameter>
             <Parameter name="Param1">TestP1</Parameter>"#;
         assert!(match from_str::<Parameter>(xml) {
             Ok(_) => true,
             Err(_) => false,
-        })
+        });
     }
 }

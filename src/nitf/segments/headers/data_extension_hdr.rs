@@ -4,30 +4,29 @@ use std::io::{Read, Seek};
 use std::str::FromStr;
 
 use crate::nitf::segments::headers::NitfSegmentHeader;
-use crate::nitf::types::field::{InvalidNitfValue, NitfField};
-use crate::nitf::types::security::Security;
+use crate::nitf::types::{NitfField, Security};
+use crate::nitf::error::NitfError;
 
 /// Metadata for Data Extension Segment
-#[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct DataExtensionHeader {
     /// File Part Type
-    pub DE: NitfField<String>,
+    pub de: NitfField<String>,
     /// Unique DES Type Identifier
-    pub DESID: NitfField<String>,
+    pub desid: NitfField<String>,
     /// Check on this registration
     /// Version of the Data Definition
-    pub DESVER: NitfField<u8>,
+    pub desver: NitfField<u8>,
     //// Security information
-    pub SECURITY: Security,
+    pub security: Security,
     /// Overflowed Header Type
-    pub DESOFLW: NitfField<OverflowedHeaderType>,
+    pub desoflw: NitfField<OverflowedHeaderType>,
     /// Data Item Overflowed
-    pub DESITEM: NitfField<u16>,
+    pub desitem: NitfField<u16>,
     /// DES User-defined Subheader Length
-    pub DESSHL: NitfField<u16>,
+    pub desshl: NitfField<u16>,
     /// User-defined Subheader Fields
-    pub DESSHF: NitfField<String>, // TODO: Figure out what to do here
+    pub desshf: NitfField<String>, // TODO: Figure out what to do here
 }
 
 /// Selection of which header/subheader this extension corresponds to
@@ -48,34 +47,34 @@ pub enum OverflowedHeaderType {
 
 impl NitfSegmentHeader for DataExtensionHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        self.DE.read(reader, 2u8);
-        self.DESID.read(reader, 25u8);
-        self.DESVER.read(reader, 2u8);
-        self.SECURITY.read(reader);
-        if self.DESID.string.trim() == "TRE_OVERFLOW" {
-            self.DESOFLW.read(reader, 6u8);
-            self.DESITEM.read(reader, 3u8);
+        self.de.read(reader, 2u8);
+        self.desid.read(reader, 25u8);
+        self.desver.read(reader, 2u8);
+        self.security.read(reader);
+        if self.desid.string.trim() == "TRE_OVERFLOW" {
+            self.desoflw.read(reader, 6u8);
+            self.desitem.read(reader, 3u8);
         }
-        self.DESSHL.read(reader, 4u8);
-        self.DESSHF.read(reader, self.DESSHL.val);
+        self.desshl.read(reader, 4u8);
+        self.desshf.read(reader, self.desshl.val);
     }
 }
 impl Display for DataExtensionHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("DE: {}, ", self.DE).as_ref();
-        out_str += format!("DESID: {}, ", self.DESID).as_ref();
-        out_str += format!("DESVER: {}, ", self.DESVER).as_ref();
-        out_str += format!("SECURITY: [{}], ", self.SECURITY).as_ref();
-        out_str += format!("DESOFLW: {}, ", self.DESOFLW).as_ref();
-        out_str += format!("DESITEM: {}, ", self.DESITEM).as_ref();
-        out_str += format!("DESSHL: {}, ", self.DESSHL).as_ref();
-        out_str += format!("DESSHF: {}", self.DESSHL).as_ref();
+        out_str += format!("DE: {}, ", self.de).as_ref();
+        out_str += format!("DESID: {}, ", self.desid).as_ref();
+        out_str += format!("DESVER: {}, ", self.desver).as_ref();
+        out_str += format!("SECURITY: [{}], ", self.security).as_ref();
+        out_str += format!("DESOFLW: {}, ", self.desoflw).as_ref();
+        out_str += format!("DESITEM: {}, ", self.desitem).as_ref();
+        out_str += format!("DESSHL: {}, ", self.desshl).as_ref();
+        out_str += format!("DESSHF: {}", self.desshl).as_ref();
         write!(f, "[Data Extension Subheader: {}]", out_str)
     }
 }
 impl FromStr for OverflowedHeaderType {
-    type Err = InvalidNitfValue;
+    type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "IXSHD" => Ok(Self::IXSHD),
@@ -83,7 +82,7 @@ impl FromStr for OverflowedHeaderType {
             "TXSHD" => Ok(Self::TXSHD),
             "UDHD" => Ok(Self::UDHD),
             "UDID" => Ok(Self::UDID),
-            _ => Err(InvalidNitfValue),
+            _ => Err(NitfError::FieldError),
         }
     }
 }

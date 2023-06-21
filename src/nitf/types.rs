@@ -1,46 +1,60 @@
-//! Security information
-use std::fmt::Display;
+//! Definition of common types use throughout
+use std::fmt::{Debug, Display};
 use std::io::{Read, Seek};
 use std::str::FromStr;
 
-use super::field::*;
+use crate::nitf::error::NitfError;
+
+/// Lowest level object for file parsing
+#[derive(Default, Clone, Hash, Debug)]
+pub struct NitfField<V: FromStr + Debug> {
+    /// Byte representation
+    pub bytes: Vec<u8>,
+    /// Byte offset in file
+    pub offset: u64,
+    /// String representation of field
+    pub string: String,
+    /// Parsed representation of value
+    pub val: V,
+    /// Number of bytes used to store value in file
+    pub length: u64,
+}
 
 /// Standard security metadata
-#[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct Security {
     /// File Security Classification
-    pub CLAS: NitfField<Classification>,
+    pub clas: NitfField<Classification>,
     /// File Classification Security System
-    pub CLSY: NitfField<String>, // TODO: Check value registry
+    pub clsy: NitfField<String>, // TODO: Check value registry
     /// File Codewords
-    pub CODE: NitfField<String>,
+    pub code: NitfField<String>,
     /// File Control and Handling
-    pub CTLH: NitfField<String>,
+    pub ctlh: NitfField<String>,
     /// File Releasing Instructions
-    pub REL: NitfField<String>,
+    pub rel: NitfField<String>,
     /// File Declassification Type
-    pub DCTP: NitfField<DeclassificationType>,
+    pub dctp: NitfField<DeclassificationType>,
     /// File Declassification Date
-    pub DCDT: NitfField<String>,
+    pub dcdt: NitfField<String>,
     /// File Declassification Exemption
-    pub DCXM: NitfField<DeclassificationExemption>,
+    pub dcxm: NitfField<DeclassificationExemption>,
     /// File Downgrade
-    pub DG: NitfField<Downgrade>,
+    pub dg: NitfField<Downgrade>,
     /// File Downgrade Date
-    pub DGDT: NitfField<String>,
+    pub dgdt: NitfField<String>,
     /// File Classification Text
-    pub CLTX: NitfField<String>,
+    pub cltx: NitfField<String>,
     /// File Classification Authority Type
-    pub CATP: NitfField<ClassificationAuthorityType>,
+    pub catp: NitfField<ClassificationAuthorityType>,
     /// File Classification Authority
-    pub CAUT: NitfField<String>,
+    pub caut: NitfField<String>,
     /// File Classification Reason
-    pub CRSN: NitfField<ClassificationReason>, // TODO: Check value registry
+    pub crsn: NitfField<ClassificationReason>, // TODO: Check value registry
     /// File Security Source Date
-    pub SRDT: NitfField<String>,
+    pub srdt: NitfField<String>,
     /// File Security Control Number
-    pub CTLN: NitfField<String>,
+    pub ctln: NitfField<String>,
 }
 
 /// Classification codes
@@ -127,50 +141,82 @@ pub enum ClassificationReason {
     VALID,
 }
 
+/// Use Default implementation
+impl<V> NitfField<V>
+where
+    V: FromStr + Debug,
+    <V as FromStr>::Err: Debug,
+{
+    /// Read the specified number of bytes and parse the value of a given field
+    pub fn read<T: Sized + Into<u64>>(&mut self, reader: &mut (impl Read + Seek), n_bytes: T) {
+        self.length = n_bytes.into();
+        for _ in 0..self.length {
+            self.bytes.push(0u8)
+        }
+        self.offset = reader.stream_position().unwrap();
+        reader.read_exact(&mut self.bytes).unwrap();
+        let result = String::from_utf8(self.bytes.to_vec());
+        match result {
+            Ok(str) => {
+                self.string = str.trim().to_string();
+                self.val = self.string.parse().unwrap();
+            }
+            Err(err) => {
+                self.string = String::from("Error parsing string");
+                println!("{}", err)
+            }
+        }
+    }
+}
+impl<V: FromStr + Debug> Display for NitfField<V> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", &self.string)
+    }
+}
 impl Security {
     pub fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        self.CLAS.read(reader, 1u8);
-        self.CLSY.read(reader, 2u8);
-        self.CODE.read(reader, 11u8);
-        self.CTLH.read(reader, 2u8);
-        self.REL.read(reader, 20u8);
-        self.DCTP.read(reader, 2u8);
-        self.DCDT.read(reader, 8u8);
-        self.DCXM.read(reader, 4u8);
-        self.DG.read(reader, 1u8);
-        self.DGDT.read(reader, 8u8);
-        self.CLTX.read(reader, 43u8);
-        self.CATP.read(reader, 1u8);
-        self.CAUT.read(reader, 40u8);
-        self.CRSN.read(reader, 1u8);
-        self.SRDT.read(reader, 8u8);
-        self.CTLN.read(reader, 15u8);
+        self.clas.read(reader, 1u8);
+        self.clsy.read(reader, 2u8);
+        self.code.read(reader, 11u8);
+        self.ctlh.read(reader, 2u8);
+        self.rel.read(reader, 20u8);
+        self.dctp.read(reader, 2u8);
+        self.dcdt.read(reader, 8u8);
+        self.dcxm.read(reader, 4u8);
+        self.dg.read(reader, 1u8);
+        self.dgdt.read(reader, 8u8);
+        self.cltx.read(reader, 43u8);
+        self.catp.read(reader, 1u8);
+        self.caut.read(reader, 40u8);
+        self.crsn.read(reader, 1u8);
+        self.srdt.read(reader, 8u8);
+        self.ctln.read(reader, 15u8);
     }
 }
 impl Display for Security {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("CLAS: {}, ", self.CLAS).as_ref();
-        out_str += format!("CLSY: {}, ", self.CLSY).as_ref();
-        out_str += format!("CODE: {}, ", self.CODE).as_ref();
-        out_str += format!("CTLH: {}, ", self.CTLH).as_ref();
-        out_str += format!("REL: {}, ", self.REL).as_ref();
-        out_str += format!("DCTP: {}, ", self.DCTP).as_ref();
-        out_str += format!("DCDT: {}, ", self.DCDT).as_ref();
-        out_str += format!("DCXM: {}, ", self.DCXM).as_ref();
-        out_str += format!("DG: {}, ", self.DG).as_ref();
-        out_str += format!("DGDT: {}, ", self.DGDT).as_ref();
-        out_str += format!("CLTX: {}, ", self.CLTX).as_ref();
-        out_str += format!("CATP: {}, ", self.CATP).as_ref();
-        out_str += format!("CAUT: {}, ", self.CAUT).as_ref();
-        out_str += format!("CRSN: {}, ", self.CRSN).as_ref();
-        out_str += format!("SRDT: {}, ", self.SRDT).as_ref();
-        out_str += format!("CTLN: {}", self.CTLN).as_ref();
-        return write!(f, "{}", out_str);
+        out_str += format!("CLAS: {}, ", self.clas).as_ref();
+        out_str += format!("CLSY: {}, ", self.clsy).as_ref();
+        out_str += format!("CODE: {}, ", self.code).as_ref();
+        out_str += format!("CTLH: {}, ", self.ctlh).as_ref();
+        out_str += format!("REL: {}, ", self.rel).as_ref();
+        out_str += format!("DCTP: {}, ", self.dctp).as_ref();
+        out_str += format!("DCDT: {}, ", self.dcdt).as_ref();
+        out_str += format!("DCXM: {}, ", self.dcxm).as_ref();
+        out_str += format!("DG: {}, ", self.dg).as_ref();
+        out_str += format!("DGDT: {}, ", self.dgdt).as_ref();
+        out_str += format!("CLTX: {}, ", self.cltx).as_ref();
+        out_str += format!("CATP: {}, ", self.catp).as_ref();
+        out_str += format!("CAUT: {}, ", self.caut).as_ref();
+        out_str += format!("CRSN: {}, ", self.crsn).as_ref();
+        out_str += format!("SRDT: {}, ", self.srdt).as_ref();
+        out_str += format!("CTLN: {}", self.ctln).as_ref();
+        write!(f, "{}", out_str)
     }
 }
 impl FromStr for Classification {
-    type Err = InvalidNitfValue;
+    type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "U" => Ok(Self::U),
@@ -178,12 +224,12 @@ impl FromStr for Classification {
             "S" => Ok(Self::S),
             "C" => Ok(Self::C),
             "R" => Ok(Self::R),
-            _ => Err(InvalidNitfValue),
+            _ => Err(NitfError::FieldError),
         }
     }
 }
 impl FromStr for DeclassificationType {
-    type Err = InvalidNitfValue;
+    type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "" => Ok(Self::DEFAULT),
@@ -193,12 +239,12 @@ impl FromStr for DeclassificationType {
             "GE" => Ok(Self::GE),
             "O" => Ok(Self::O),
             "X" => Ok(Self::X),
-            _ => Err(InvalidNitfValue),
+            _ => Err(NitfError::FieldError),
         }
     }
 }
 impl FromStr for DeclassificationExemption {
-    type Err = InvalidNitfValue;
+    type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "" => Ok(Self::DEFAULT),
@@ -219,36 +265,36 @@ impl FromStr for DeclassificationExemption {
             "25X7" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(7)
             "25X8" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(8)
             "25X9" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(9)
-            _ => Err(InvalidNitfValue),
+            _ => Err(NitfError::FieldError),
         }
     }
 }
 impl FromStr for Downgrade {
-    type Err = InvalidNitfValue;
+    type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "" => Ok(Self::DEFAULT),
             "S" => Ok(Self::S),
             "C" => Ok(Self::C),
             "R" => Ok(Self::R),
-            _ => Err(InvalidNitfValue),
+            _ => Err(NitfError::FieldError),
         }
     }
 }
 impl FromStr for ClassificationAuthorityType {
-    type Err = InvalidNitfValue;
+    type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "" => Ok(Self::DEFAULT),
             "O" => Ok(Self::O),
             "D" => Ok(Self::D),
             "M" => Ok(Self::M),
-            _ => Err(InvalidNitfValue),
+            _ => Err(NitfError::FieldError),
         }
     }
 }
 impl FromStr for ClassificationReason {
-    type Err = InvalidNitfValue;
+    type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "" => Ok(Self::DEFAULT),
@@ -260,7 +306,7 @@ impl FromStr for ClassificationReason {
             "F" => Ok(Self::VALID),
             "G" => Ok(Self::VALID),
             "H" => Ok(Self::VALID),
-            _ => Err(InvalidNitfValue),
+            _ => Err(NitfError::FieldError),
         }
     }
 }

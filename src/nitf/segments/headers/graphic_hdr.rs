@@ -4,93 +4,92 @@ use std::io::{Read, Seek};
 use std::str::FromStr;
 
 use crate::nitf::segments::headers::NitfSegmentHeader;
-use crate::nitf::types::field::{InvalidNitfValue, NitfField};
-use crate::nitf::types::security::Security;
+use crate::nitf::types::{NitfField, Security};
+use crate::nitf::error::NitfError;
 
 /// Header fields for Graphic Segment
-#[allow(non_snake_case)]
 #[derive(Default, Clone, Hash, Debug)]
 pub struct GraphicHeader {
     /// File Part Type
-    pub SY: NitfField<String>,
+    pub sy: NitfField<String>,
     /// Graphic Identifier
-    pub SID: NitfField<String>,
+    pub sid: NitfField<String>,
     /// Graphic Name
-    pub SNAME: NitfField<String>,
+    pub sname: NitfField<String>,
     /// Security information
-    pub SECURITY: Security,
+    pub security: Security,
     /// Encryption
-    pub ENCRYP: NitfField<String>,
+    pub encryp: NitfField<String>,
     /// Graphic Type
-    pub SFMT: NitfField<Format>,
+    pub sfmt: NitfField<Format>,
     /// Reserved for Future Use
-    pub SSTRUCT: NitfField<u64>,
+    pub sstruct: NitfField<u64>,
     /// Graphic Display Level
-    pub SDLVL: NitfField<u16>,
+    pub sdlvl: NitfField<u16>,
     /// Graphic Attachment Level
-    pub SALVL: NitfField<u16>,
+    pub salvl: NitfField<u16>,
     /// Graphic Location
-    pub SLOC: NitfField<String>, // TODO: Same image image ILOC type thing
+    pub sloc: NitfField<String>, // TODO: Same image image ILOC type thing
     /// First Graphic Bound Location
-    pub SBND1: NitfField<BoundLocation>,
+    pub sbnd1: NitfField<BoundLocation>,
     /// Graphic Color
-    pub SCOLOR: NitfField<Color>,
+    pub scolor: NitfField<Color>,
     /// Second Graphic Bound Location
-    pub SBND2: NitfField<BoundLocation>,
+    pub sbnd2: NitfField<BoundLocation>,
     /// Reserved for Future Use
-    pub SRES2: NitfField<u8>,
+    pub sres2: NitfField<u8>,
     /// Graphic Extended Subheader Data Length
-    pub SXSHDL: NitfField<u16>,
+    pub sxshdl: NitfField<u16>,
     /// Graphic Extended Subheader Overflow
-    pub SXSOFL: NitfField<u16>,
+    pub sxsofl: NitfField<u16>,
     /// Graphic Extended Subheader Data
-    pub SXSHD: NitfField<String>,
+    pub sxshd: NitfField<String>,
 }
 
 impl Display for GraphicHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("SY: {}, ", self.SY).as_ref();
-        out_str += format!("SID: {}, ", self.SID).as_ref();
-        out_str += format!("SNAME: {}, ", self.SNAME).as_ref();
-        out_str += format!("SECURITY: [{}], ", self.SECURITY).as_ref();
-        out_str += format!("ENCRYP: {}, ", self.ENCRYP).as_ref();
-        out_str += format!("SFMT: {}, ", self.SFMT).as_ref();
-        out_str += format!("SSTRUCT: {}, ", self.SSTRUCT).as_ref();
-        out_str += format!("SDLVL: {}, ", self.SDLVL).as_ref();
-        out_str += format!("SALVL: {}, ", self.SALVL).as_ref();
-        out_str += format!("SLOC: {}, ", self.SLOC).as_ref();
-        out_str += format!("SBND1: {}, ", self.SBND1).as_ref();
-        out_str += format!("SCOLOR: {}, ", self.SCOLOR).as_ref();
-        out_str += format!("SBND2: {}, ", self.SBND2).as_ref();
-        out_str += format!("SRES2: {}, ", self.SRES2).as_ref();
-        out_str += format!("SXSHDL: {}, ", self.SXSHDL).as_ref();
-        out_str += format!("SXSOFL: {}, ", self.SXSOFL).as_ref();
-        out_str += format!("[SXSHD: {}]", self.SXSHD).as_ref();
+        out_str += format!("SY: {}, ", self.sy).as_ref();
+        out_str += format!("SID: {}, ", self.sid).as_ref();
+        out_str += format!("SNAME: {}, ", self.sname).as_ref();
+        out_str += format!("SECURITY: [{}], ", self.security).as_ref();
+        out_str += format!("ENCRYP: {}, ", self.encryp).as_ref();
+        out_str += format!("SFMT: {}, ", self.sfmt).as_ref();
+        out_str += format!("SSTRUCT: {}, ", self.sstruct).as_ref();
+        out_str += format!("SDLVL: {}, ", self.sdlvl).as_ref();
+        out_str += format!("SALVL: {}, ", self.salvl).as_ref();
+        out_str += format!("SLOC: {}, ", self.sloc).as_ref();
+        out_str += format!("SBND1: {}, ", self.sbnd1).as_ref();
+        out_str += format!("SCOLOR: {}, ", self.scolor).as_ref();
+        out_str += format!("SBND2: {}, ", self.sbnd2).as_ref();
+        out_str += format!("SRES2: {}, ", self.sres2).as_ref();
+        out_str += format!("SXSHDL: {}, ", self.sxshdl).as_ref();
+        out_str += format!("SXSOFL: {}, ", self.sxsofl).as_ref();
+        out_str += format!("[SXSHD: {}]", self.sxshd).as_ref();
         write!(f, "[Graphic Subheader: {}]", out_str)
     }
 }
 impl NitfSegmentHeader for GraphicHeader {
     fn read(&mut self, reader: &mut (impl Read + Seek)) {
-        self.SY.read(reader, 2u8);
-        self.SID.read(reader, 10u8);
-        self.SNAME.read(reader, 20u8);
-        self.SECURITY.read(reader);
-        self.ENCRYP.read(reader, 1u8);
-        self.SFMT.read(reader, 1u8);
-        self.SSTRUCT.read(reader, 13u8);
-        self.SDLVL.read(reader, 3u8);
-        self.SALVL.read(reader, 3u8);
-        self.SLOC.read(reader, 10u8);
-        self.SBND1.read(reader, 10u8);
-        self.SCOLOR.read(reader, 1u8);
-        self.SBND2.read(reader, 10u8);
-        self.SRES2.read(reader, 2u8);
-        self.SXSHDL.read(reader, 5u8);
-        let gphx_data_length: u32 = self.SXSHDL.string.parse().unwrap();
+        self.sy.read(reader, 2u8);
+        self.sid.read(reader, 10u8);
+        self.sname.read(reader, 20u8);
+        self.security.read(reader);
+        self.encryp.read(reader, 1u8);
+        self.sfmt.read(reader, 1u8);
+        self.sstruct.read(reader, 13u8);
+        self.sdlvl.read(reader, 3u8);
+        self.salvl.read(reader, 3u8);
+        self.sloc.read(reader, 10u8);
+        self.sbnd1.read(reader, 10u8);
+        self.scolor.read(reader, 1u8);
+        self.sbnd2.read(reader, 10u8);
+        self.sres2.read(reader, 2u8);
+        self.sxshdl.read(reader, 5u8);
+        let gphx_data_length = self.sxshdl.val;
         if gphx_data_length != 0 {
-            self.SXSOFL.read(reader, 3u8);
-            self.SXSHD.read(reader, gphx_data_length - 3);
+            self.sxsofl.read(reader, 3u8);
+            self.sxshd.read(reader, gphx_data_length - 3);
         }
     }
 }
@@ -104,11 +103,11 @@ pub enum Format {
 }
 
 impl FromStr for Format {
-    type Err = InvalidNitfValue;
+    type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "C" => Ok(Self::C),
-            _ => Err(InvalidNitfValue),
+            _ => Err(NitfError::FieldError),
         }
     }
 }
@@ -121,7 +120,7 @@ pub struct BoundLocation {
 }
 
 impl FromStr for BoundLocation {
-    type Err = InvalidNitfValue;
+    type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let n_char_tot = s.len();
         if n_char_tot % 2 == 0 {
@@ -129,9 +128,9 @@ impl FromStr for BoundLocation {
             let n_char = n_char_tot / 2;
             bounds.row = s[..n_char].parse().unwrap();
             bounds.col = s[n_char..].parse().unwrap();
-            return Ok(bounds);
+            Ok(bounds)
         } else {
-            return Err(InvalidNitfValue);
+            Err(NitfError::FieldError)
         }
     }
 }
@@ -147,12 +146,12 @@ pub enum Color {
 }
 
 impl FromStr for Color {
-    type Err = InvalidNitfValue;
+    type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "C" => Ok(Self::C),
             "M" => Ok(Self::M),
-            _ => Err(InvalidNitfValue),
+            _ => Err(NitfError::FieldError),
         }
     }
 }
