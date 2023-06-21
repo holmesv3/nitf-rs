@@ -83,7 +83,7 @@ impl Image {
     fn read_p_mode(&self) -> Result<ArcArray<ImageDType, Ix3>, NitfError> {
 
         todo!("haven't finished this");
-        
+
         // Out array dimensions
         let n_band = self.meta.nbands.val;
         let n_row = self.meta.nrows.val;
@@ -109,7 +109,7 @@ impl Image {
 
         let total_elems = n_row * n_col * n_band as u32;
         // TODO: Maybe need to use the NBPP for something
-        let arr_elem = match self.get_dtype(&bit_per_px) {
+        let arr_elem = match self.get_arr_elem(&bit_per_px) {
             Ok(elm) => elm,
             Err(e) => return Err(e),
         };
@@ -130,7 +130,7 @@ impl Image {
     }
 
     /// This is a rough one... 
-    fn get_dtype(&self, bit_per_px: &u8) -> Result<ImageDType, NitfError> {
+    fn get_arr_elem(&self, bit_per_px: &u8) -> Result<ImageDType, NitfError> {
         match self.meta.pvtype.val {
             PVT::R => {
                 match bit_per_px {
