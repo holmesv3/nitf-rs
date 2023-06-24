@@ -107,7 +107,7 @@ pub struct Processing {
     #[serde(rename = "Applied")]
     pub applied: bool,
     #[serde(rename = "Parameter")]
-    pub parameter: Parameter,
+    pub parameters: Option<Vec<Parameter>>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct PolCal {

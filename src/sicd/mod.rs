@@ -6,10 +6,10 @@ use std::str::from_utf8;
 
 use crate::nitf::Nitf;
 
-use self::sicd_types::SicdMeta;
+use self::v1_3_0::SicdMeta;
 
 // TODO: Write tests
-pub mod sicd_types;
+pub mod v1_3_0;
 
 /// SICD file structure
 #[derive(Debug)]

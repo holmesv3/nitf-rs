@@ -19,7 +19,7 @@ pub struct CollectionInfo {
     #[serde(rename = "CountryCode")]
     pub country_code: Option<Vec<String>>,
     #[serde(rename = "Parameter")]
-    pub parameter: Parameter,
+    pub parameters: Option<Vec<Parameter>>,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]

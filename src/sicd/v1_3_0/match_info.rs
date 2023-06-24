@@ -30,5 +30,5 @@ pub struct MatchCollection {
     #[serde(rename = "MatchIndex")]
     pub match_index: Option<usize>,
     #[serde(rename = "Parameter")]
-    pub parameter: Parameter,
+    pub parameters: Option<Vec<Parameter>>,
 }

@@ -1,4 +1,4 @@
-//! Common types and metadata definition for SICD structure
+//! Common types and metadata definition for SICD Version 1.3.0 [2021-11-30]
 use ndarray::{Array1, Array2};
 use serde::Deserialize;
 
@@ -195,9 +195,8 @@ pub struct IdxXyzPoly {
     pub z: Poly1d,
 }
 
-pub type Parameter = Option<Vec<ParameterStruct>>;
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct ParameterStruct {
+pub struct Parameter {
     #[serde(rename = "@name")]
     pub name: String,
     #[serde(rename = "$value")]

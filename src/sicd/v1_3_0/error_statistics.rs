@@ -7,6 +7,8 @@ pub struct ErrorStatistics {
     pub composite_scp: Option<CompositeSCP>,
     #[serde(rename = "Components")]
     pub components: Option<Components>,
+    #[serde(rename = "Unmodeled")]
+    pub unmodeled: Option<Unmodeled>,
     #[serde(rename = "AdditionalParams")]
     pub additional_params: Parameter,
 }
@@ -128,6 +130,25 @@ pub struct IonoError {
     #[serde(rename = "IonoRangeVertDecorr")]
     pub iono_range_vert_decorr: Option<Decorr>,
 }
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct Unmodeled {
+    #[serde(rename = "Xrow")]
+    pub xrow: f64,
+    #[serde(rename = "Ycol")]
+    pub ycol: f64,
+    #[serde(rename = "XrowYcol")]
+    pub xrow_ycol: f64,
+    #[serde(rename = "UnmodeledDecorr")]
+    pub unmodeled_decorr: Option<UnmodeledDecorr>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct UnmodeledDecorr {
+    #[serde(rename = "Xrow")]
+    pub xrow: Decorr,
+    #[serde(rename = "Ycol")]
+    pub ycol: Decorr,
+}
+
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Decorr {
     #[serde(rename = "CorrCoefZero")]

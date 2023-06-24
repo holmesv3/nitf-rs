@@ -67,7 +67,7 @@ pub struct WgtType {
     #[serde(rename = "WindowName")]
     pub window_name: String,
     #[serde(rename = "Parameter")]
-    pub parameter: Parameter,
+    pub parameters: Option<Vec<Parameter>>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct WgtFunct {

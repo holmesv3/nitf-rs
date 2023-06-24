@@ -18,7 +18,7 @@ pub struct RadarCollection {
     #[serde(rename = "Area")]
     pub area: Option<Area>,
     #[serde(rename = "Parameter")]
-    pub parameter: Parameter,
+    pub parameters: Option<Vec<Parameter>>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct TxFrequency {
@@ -78,11 +78,14 @@ pub struct TxPolarization {
 pub enum TxPolarizationEnum {
     V,
     H,
+    X,
+    Y,
+    S,
+    E,
     RHC,
     LHC,
     OTHER,
     UNKNOWN,
-    SEQUENCE,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct TxSequence {

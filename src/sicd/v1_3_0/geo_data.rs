@@ -57,13 +57,20 @@ pub struct GeoInfo {
     #[serde(rename = "@name")]
     pub name: String,
     #[serde(rename = "Desc")]
-    pub desc: Option<Vec<String>>,
+    pub desc: Option<Vec<Desc>>,
     #[serde(rename = "Point")]
     pub point: Option<LL>,
     #[serde(rename = "Line")]
     pub line: Option<Line>,
     #[serde(rename = "Polygon")]
     pub polygon: Option<Polygon>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct Desc {
+    #[serde(rename = "@name")]
+    pub name: String,
+    #[serde(rename = "$value")]
+    pub value: String,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Line {
