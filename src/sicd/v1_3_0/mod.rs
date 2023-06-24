@@ -1,4 +1,6 @@
 //! Common types and metadata definition for SICD Version 1.3.0 [2021-11-30]
+//! 
+//! Backwards compatible with version 1, 1.1, 1.2.1
 use ndarray::{Array1, Array2};
 use serde::Deserialize;
 
