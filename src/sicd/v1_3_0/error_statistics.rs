@@ -10,7 +10,7 @@ pub struct ErrorStatistics {
     #[serde(rename = "Unmodeled")]
     pub unmodeled: Option<Unmodeled>,
     #[serde(rename = "AdditionalParams")]
-    pub additional_params: Parameter,
+    pub additional_params: Option<Vec<Parameter>>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct CompositeSCP {
