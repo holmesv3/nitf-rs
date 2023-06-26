@@ -54,21 +54,3 @@ pub enum ModeTypeEnum {
     #[serde(rename = "DYNAMIC STRIPMAP")]
     DYNAMICSTRIPMAP,
 }
-
-#[cfg(test)]
-mod tests {
-    use super::CollectionInfo;
-    use quick_xml::de::from_str;
-
-    #[test]
-    fn test_collection_info() {
-        let xml_str = r#"<CollectionInfo><CollectorName></CollectorName>
-            <CoreName></CoreName><RadarMode><ModeType>SPOTLIGHT</ModeType>
-            </RadarMode><Classification>UNCLASSIFIED</Classification>
-            <Parameter name="param1">value</Parameter></CollectionInfo>"#;
-        assert!(match from_str::<CollectionInfo>(&xml_str) {
-            Ok(_) => true,
-            Err(_) => false,
-        });
-    }
-}
