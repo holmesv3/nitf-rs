@@ -8,8 +8,8 @@ use crate::nitf::Nitf;
 
 use self::v1_3_0::SicdMeta;
 
-// TODO: Write tests
 pub mod v1_3_0;
+pub mod dep;
 
 /// SICD file structure
 #[derive(Debug)]

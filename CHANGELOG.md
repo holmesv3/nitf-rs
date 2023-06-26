@@ -4,8 +4,9 @@
 - Moved `read_<nitf format>` functions inside of respective modules
   - e.g, `use nitf_rs::{nitf::read_nitf, sicd::read_sicd};`
 - Added `sicd` feature flag with optional `serde` and `quick-xml` dependencies
-- 
-
+  - Updated to 1.3.0 standard found [here](https://nsgreg.nga.mil/doc/view?i=5381&month=6&day=25&year=2023)
+  - Added pre-version 1.0 compatibility 
+  
 ## 0.1.7
 - Switched to using `quick_xml` for better `.xml` syntax support
 - Added `eval()` functions to `Sicd` polynomials
