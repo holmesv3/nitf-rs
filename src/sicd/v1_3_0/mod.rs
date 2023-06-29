@@ -1,5 +1,5 @@
 //! Common types and metadata definition for SICD Version 1.3.0 [2021-11-30]
-//! 
+//!
 //! Backwards compatible with version 1, 1.1, 1.2.1
 use ndarray::{Array1, Array2};
 use serde::Deserialize;
@@ -317,7 +317,7 @@ mod tests {
             Ok(_) => true,
             Err(_) => false,
         });
-        
+
         let xml = r#"<Poly2d order1 = "1" order2 = "1">
             <Coef2d exponent1="0" exponent2="0">0</Coef2d>
             <Coef2d exponent1="1" exponent2="0">0</Coef2d>
