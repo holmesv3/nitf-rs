@@ -5,10 +5,9 @@ use std::fmt::Display;
 use std::io::{Read, Seek};
 use std::str::FromStr;
 
+use crate::nitf::error::NitfError;
 use crate::nitf::segments::headers::NitfSegmentHeader;
 use crate::nitf::types::{NitfField, Security};
-use crate::nitf::error::NitfError;
-
 
 /// Metadata for Image Segment subheader
 #[derive(Default, Clone, Hash, Debug)]

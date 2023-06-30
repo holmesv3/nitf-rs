@@ -61,4 +61,3 @@ pub struct Elem {
     #[serde(rename = "PhasePoly")]
     pub phase_poly: Poly2D,
 }
-

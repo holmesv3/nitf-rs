@@ -1,16 +1,15 @@
 //! Sensor Independent Complex Data support
+use quick_xml::de::from_str;
+use serde::Deserialize;
 use std::fs::File;
 use std::path::Path;
 use std::str::{from_utf8, FromStr};
 use thiserror::Error;
-use serde::Deserialize;
-use quick_xml::de::from_str;
 
 use crate::nitf::Nitf;
 
-pub mod v1_3_0;
 pub mod dep;
-
+pub mod v1_3_0;
 
 #[derive(Error, Debug)]
 pub enum SicdError {
@@ -92,9 +91,12 @@ impl Sicd {
         let nitf = Nitf::from_file(file);
         let sicd_str = from_utf8(&nitf.data_extension_segments[0].data[..]).unwrap();
         let (version, meta) = parse_sicd(sicd_str).unwrap();
-        Self { nitf, meta, version}
+        Self {
+            nitf,
+            meta,
+            version,
+        }
     }
-
 }
 
 fn parse_sicd(sicd_str: &str) -> Result<(SicdVersion, SicdMeta), SicdError> {
@@ -103,10 +105,13 @@ fn parse_sicd(sicd_str: &str) -> Result<(SicdVersion, SicdMeta), SicdError> {
     use SicdError::Unimpl;
     match sicd_version {
         SicdVersion::V0_3_1 => Err(Unimpl("V0_3_1".to_string())),
-        SicdVersion::V0_4_0 => Err(Unimpl("V0_4_0".to_string())),  // TODO
+        SicdVersion::V0_4_0 => Err(Unimpl("V0_4_0".to_string())), // TODO
         SicdVersion::V0_4_1 => Err(Unimpl("V0_4_1".to_string())),
-        SicdVersion::V0_5_0 => Err(Unimpl("V0_5_0".to_string())),  // TODO
+        SicdVersion::V0_5_0 => Ok((
+            SicdVersion::V0_5_0,
+            SicdMeta::V0_5_0(from_str(sicd_str).unwrap()),
+        )), // TODO
         // For now, we don't need to worry about anything else, since all versions past 1.0 so far are backwards compatible
-        other => Ok((other, SicdMeta::V1(from_str(sicd_str).unwrap())))
+        other => Ok((other, SicdMeta::V1(from_str(sicd_str).unwrap()))),
     }
 }

@@ -1,8 +1,8 @@
 //! Interface for NITF version 2.1
 
+pub(crate) mod error;
 pub mod segments;
 pub mod types;
-pub(crate) mod error;
 
 use std::fmt::Display;
 use std::fs::File;
