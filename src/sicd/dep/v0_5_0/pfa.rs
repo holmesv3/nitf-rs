@@ -1,4 +1,4 @@
-use super::{Poly1d, Poly2d, XYZ};
+use super::{Poly1D, Poly2D, XYZ};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -10,9 +10,9 @@ pub struct Pfa {
     #[serde(rename = "PolarAngRefTime")]
     pub polar_ang_ref_time: f64,
     #[serde(rename = "PolarAngPoly")]
-    pub polar_ang_poly: Poly1d,
+    pub polar_ang_poly: Poly1D,
     #[serde(rename = "SpatialFreqSFPoly")]
-    pub spatial_freq_sf_poly: Poly1d,
+    pub spatial_freq_sf_poly: Poly1D,
     #[serde(rename = "Krg1")]
     pub krg1: f64,
     #[serde(rename = "Krg2")]
@@ -30,5 +30,5 @@ pub struct STDeskew {
     #[serde(rename = "Applied")]
     pub applied: bool,
     #[serde(rename = "STDSPhasePoly")]
-    pub stds_phase_poly: Poly2d,
+    pub stds_phase_poly: Poly2D,
 }

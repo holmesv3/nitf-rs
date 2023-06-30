@@ -3,32 +3,24 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct MatchInfo {
-    #[serde(rename = "NumMatchTypes")]
-    pub num_match_types: u64,
-    #[serde(rename = "MatchType")]
-    pub match_type: Vec<MatchType>,
+    #[serde(rename = "@size")]
+    pub size: usize,
+    #[serde(rename = "Collect")]
+    pub collect: Vec<Collect>    
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct MatchType {
+pub struct Collect {
     #[serde(rename = "@index")]
     pub index: usize,
-    #[serde(rename = "TypeID")]
-    pub type_id: String,
-    #[serde(rename = "CurrentIndex")]
-    pub current_index: Option<usize>,
-    #[serde(rename = "NumMatchCollections")]
-    pub num_match_collections: u64,
-    #[serde(rename = "MatchCollection")]
-    pub match_collection: Option<Vec<MatchCollection>>,
-}
-#[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct MatchCollection {
-    #[serde(rename = "@index")]
-    pub index: usize,
+    #[serde(rename = "CollectorName")]
+    pub collector_name: String,
+    #[serde(rename = "IlluminatorName")]
+    pub illuminator_name: Option<String>,
     #[serde(rename = "CoreName")]
     pub core_name: String,
-    #[serde(rename = "MatchIndex")]
-    pub match_index: Option<usize>,
+    #[serde(rename = "MatchType")]
+    pub match_type: Option<Vec<String>>,
     #[serde(rename = "Parameter")]
-    pub parameters: Option<Vec<Parameter>>,
+    pub parameter: Parameter,
 }
+

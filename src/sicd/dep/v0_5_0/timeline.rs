@@ -1,4 +1,4 @@
-use super::Poly1d;
+use super::Poly1D;
 use serde::Deserialize;
 use std::ops::Index;
 
@@ -35,5 +35,5 @@ pub struct IppSet {
     #[serde(rename = "IPPEnd")]
     pub ipp_end: u64,
     #[serde(rename = "IPPPoly")]
-    pub ipp_poly: Poly1d,
+    pub ipp_poly: Poly1D,
 }

@@ -1,4 +1,4 @@
-use super::{Parameter, Poly1d, Poly2d, CMPLX, XYZ};
+use super::{Parameter, Poly1D, Poly2D, CMPLX, XYZ};
 use serde::Deserialize;
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageFormation {
@@ -150,10 +150,16 @@ pub struct Distortion {
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RgAzComp {
-    #[serde(rename = "AzSF")]
-    pub az_sf: f64,
-    #[serde(rename = "KazPoly")]
-    pub kaz_poly: Poly1d,
+    #[serde(rename = "RgAzRefTime")]
+    pub rg_az_ref_time: f64,
+    #[serde(rename = "Time1")]
+    pub time1: f64,
+    #[serde(rename = "Time2")]
+    pub time2: f64,
+    #[serde(rename = "AzToCosSF")]
+    pub az_to_cos_sf: f64,
+    #[serde(rename = "KazToTimePoly")]
+    pub kaz_to_time_poly: Poly1D,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -164,8 +170,6 @@ pub struct Rma {
     pub image_type: ImageType,
     #[serde(rename = "RMAT")]
     pub rmat: Option<RMAlgo>,
-    #[serde(rename = "RMCR")]
-    pub rmcr: Option<RMAlgo>,
     #[serde(rename = "INCA")]
     pub inca: Option<INCA>,
 }
@@ -190,30 +194,41 @@ pub struct ImageType {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum ImageTypeEnum {
     RMAT,
-    RMCR,
     INCA,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RMAlgo {
+    #[serde(rename = "RefTime")]
+    pub ref_time: f64,
     #[serde(rename = "PosRef")]
     pub pos_ref: XYZ,
-    #[serde(rename = "VelRef")]
-    pub vel_ref: XYZ,
-    #[serde(rename = "DopConeAngRef")]
-    pub dop_cone_ang_ref: f64,
+    #[serde(rename = "UnitVelRef")]
+    pub unit_vel_ref: XYZ,
+    #[serde(rename = "DistRLPoly")]
+    pub dist_rl_poly: Poly1D,
+    #[serde(rename = "CosDCACOAPoly")]
+    pub cos_dcacoa_poly: Poly2D,
+    #[serde(rename = "Kx1")]
+    pub kx1: f64,
+    #[serde(rename = "Kx2")]
+    pub kx2: f64,
+    #[serde(rename = "Ky1")]
+    pub ky1: f64,
+    #[serde(rename = "Ky2")]
+    pub ky2: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct INCA {
     #[serde(rename = "TimeCAPoly")]
-    pub time_ca_poly: Poly1d,
+    pub time_ca_poly: Poly1D,
     #[serde(rename = "R_CA_SCP")]
     pub r_ca_scp: f64,
     #[serde(rename = "FreqZero")]
     pub freq_zero: f64,
     #[serde(rename = "DRateSFPoly")]
-    pub d_rate_sf_poly: Poly2d,
+    pub d_rate_sf_poly: Poly2D,
     #[serde(rename = "DopCentroidPoly")]
-    pub dop_centroid_poly: Option<Poly2d>,
+    pub dop_centroid_poly: Option<Poly2D>,
     #[serde(rename = "DopCentroidCOA")]
     pub dop_centroid_coa: Option<bool>,
 }

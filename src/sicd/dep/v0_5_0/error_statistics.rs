@@ -7,13 +7,18 @@ pub struct ErrorStatistics {
     pub composite_scp: Option<CompositeSCP>,
     #[serde(rename = "Components")]
     pub components: Option<Components>,
-    #[serde(rename = "Unmodeled")]
-    pub unmodeled: Option<Unmodeled>,
     #[serde(rename = "AdditionalParams")]
     pub additional_params: Option<Vec<Parameter>>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct CompositeSCP {
+    #[serde(rename = "RgAzErr")]
+    pub rg_az_err: Option<RgAzErr>,
+    #[serde(rename = "RowColErr")]
+    pub row_col_err: Option<RowColErr>,
+}
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct RgAzErr {
     #[serde(rename = "Rg")]
     pub rg: f64,
     #[serde(rename = "Az")]
@@ -22,11 +27,22 @@ pub struct CompositeSCP {
     pub rg_az: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
+pub struct RowColErr {
+    #[serde(rename = "Row")]
+    pub row: f64,
+    #[serde(rename = "Col")]
+    pub col: f64,
+    #[serde(rename = "RowCol")]
+    pub row_col: f64,
+}
+
+
+#[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Components {
     #[serde(rename = "PosVelErr")]
-    pub pos_vel_err: PosVelErr,
+    pub pos_vel_err: Option<PosVelErr>,
     #[serde(rename = "RadarSensor")]
-    pub radar_sensor: RadarSensor,
+    pub radar_sensor: Option<RadarSensor>,
     #[serde(rename = "TropoErro")]
     pub tropo_erro: Option<TropoError>,
     #[serde(rename = "IonoError")]
@@ -129,24 +145,6 @@ pub struct IonoError {
     pub iono_rg_rg_rate_cc: f64,
     #[serde(rename = "IonoRangeVertDecorr")]
     pub iono_range_vert_decorr: Option<Decorr>,
-}
-#[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct Unmodeled {
-    #[serde(rename = "Xrow")]
-    pub xrow: f64,
-    #[serde(rename = "Ycol")]
-    pub ycol: f64,
-    #[serde(rename = "XrowYcol")]
-    pub xrow_ycol: f64,
-    #[serde(rename = "UnmodeledDecorr")]
-    pub unmodeled_decorr: Option<UnmodeledDecorr>,
-}
-#[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct UnmodeledDecorr {
-    #[serde(rename = "Xrow")]
-    pub xrow: Decorr,
-    #[serde(rename = "Ycol")]
-    pub ycol: Decorr,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]

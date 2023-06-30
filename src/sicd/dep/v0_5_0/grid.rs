@@ -1,4 +1,4 @@
-use super::{Parameter, Poly2d, XYZ};
+use super::{Parameter, Poly2D, XYZ};
 use serde::Deserialize;
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Grid {
@@ -7,7 +7,7 @@ pub struct Grid {
     #[serde(rename = "Type")]
     pub type_grid: GridType,
     #[serde(rename = "TimeCOAPoly")]
-    pub time_coa_poly: Poly2d,
+    pub time_coa_poly: Poly2D,
     #[serde(rename = "Row")]
     pub row: DirectionParams,
     #[serde(rename = "Col")]
@@ -56,7 +56,7 @@ pub struct DirectionParams {
     #[serde(rename = "DeltaK2")]
     pub delta_k2: f64,
     #[serde(rename = "DeltaKCOAPoly")]
-    pub delta_kcoa_poly: Option<Poly2d>,
+    pub delta_kcoa_poly: Option<Poly2D>,
     #[serde(rename = "WgtType")]
     pub wgt_type: Option<WgtType>,
     #[serde(rename = "WgtFunct")]
