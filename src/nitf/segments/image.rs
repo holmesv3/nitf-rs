@@ -6,10 +6,7 @@ use std::fmt::Display;
 use std::io::SeekFrom::Start;
 use std::{fs::File, io::Seek, ops::Deref};
 
-use crate::nitf::segments::headers::{
-    image_hdr::{ImageHeader},
-    NitfSegmentHeader,
-};
+use crate::nitf::segments::headers::{image_hdr::ImageHeader, NitfSegmentHeader};
 
 #[derive(Debug)]
 pub struct Image {

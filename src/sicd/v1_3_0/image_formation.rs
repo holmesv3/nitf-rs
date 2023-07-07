@@ -1,4 +1,4 @@
-use super::{Parameter, Poly1d, Poly2d, CMPLX, XYZ, DualPolarization};
+use super::{DualPolarization, Parameter, Poly1d, Poly2d, CMPLX, XYZ};
 use serde::Deserialize;
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageFormation {
@@ -32,7 +32,7 @@ pub struct ImageFormation {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct TxRcvPolarizationProc {
     #[serde(rename = "$text")]
-    pub value: DualPolarization
+    pub value: DualPolarization,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RcvChanProc {

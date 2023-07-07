@@ -1,4 +1,4 @@
-use super::{IdxLLH, Parameter, XYZ, SinglePolarization, DualPolarization};
+use super::{DualPolarization, IdxLLH, Parameter, SinglePolarization, XYZ};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -123,7 +123,7 @@ pub struct ChanParameters {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct TxRcvPolarization {
     #[serde(rename = "$text")]
-    pub value: DualPolarization
+    pub value: DualPolarization,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Area {

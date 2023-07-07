@@ -36,7 +36,6 @@ pub struct RowColErr {
     pub row_col: f64,
 }
 
-
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Components {
     #[serde(rename = "PosVelErr")]

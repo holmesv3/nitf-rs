@@ -386,8 +386,6 @@ pub enum DualPolarization {
     UNKNOWN,
 }
 
-
-
 impl Poly1d {
     /// Parse the data in the polynomial to an array object
     pub fn to_array(&self) -> Array1<f64> {

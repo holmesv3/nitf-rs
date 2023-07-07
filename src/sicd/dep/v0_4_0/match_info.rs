@@ -6,7 +6,7 @@ pub struct MatchInfo {
     #[serde(rename = "@size")]
     pub size: usize,
     #[serde(rename = "Collect")]
-    pub collect: Vec<Collect>    
+    pub collect: Vec<Collect>,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Collect {
@@ -23,4 +23,3 @@ pub struct Collect {
     #[serde(rename = "Parameter")]
     pub parameter: Parameter,
 }
-
