@@ -4,11 +4,4 @@
 pub mod nitf;
 
 /// Functions and types specific to `SICD` files
-#[cfg(feature = "sicd")]
 pub mod sicd;
-
-// UNIT TESTS
-#[cfg(test)]
-mod tests {
-    // TODO - Figure out how to test this
-}

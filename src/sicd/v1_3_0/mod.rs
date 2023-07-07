@@ -204,6 +204,189 @@ pub struct Parameter {
     #[serde(rename = "$value")]
     pub value: String,
 }
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum SinglePolarization {
+    V,
+    H,
+    X,
+    Y,
+    S,
+    E,
+    RHC,
+    LHC,
+    OTHER,
+    UNKNOWN,
+}
+#[allow(non_camel_case_types)]
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum DualPolarization {
+    #[serde(rename = "V:V")]
+    V_V,
+    #[serde(rename = "V:H")]
+    V_H,
+    #[serde(rename = "V:X")]
+    V_X,
+    #[serde(rename = "V:Y")]
+    V_Y,
+    #[serde(rename = "V:S")]
+    V_S,
+    #[serde(rename = "V:E")]
+    V_E,
+    #[serde(rename = "V:RHC")]
+    V_RHC,
+    #[serde(rename = "V:LHC")]
+    V_LHC,
+    #[serde(rename = "V:OTHER")]
+    V_OTHER,
+    #[serde(rename = "H:V")]
+    H_V,
+    #[serde(rename = "H:H")]
+    H_H,
+    #[serde(rename = "H:X")]
+    H_X,
+    #[serde(rename = "H:Y")]
+    H_Y,
+    #[serde(rename = "H:S")]
+    H_S,
+    #[serde(rename = "H:E")]
+    H_E,
+    #[serde(rename = "H:RHC")]
+    H_RHC,
+    #[serde(rename = "H:LHC")]
+    H_LHC,
+    #[serde(rename = "H:OTHER")]
+    H_OTHER,
+    #[serde(rename = "X:V")]
+    X_V,
+    #[serde(rename = "X:H")]
+    X_H,
+    #[serde(rename = "X:X")]
+    X_X,
+    #[serde(rename = "X:Y")]
+    X_Y,
+    #[serde(rename = "X:S")]
+    X_S,
+    #[serde(rename = "X:E")]
+    X_E,
+    #[serde(rename = "X:RHC")]
+    X_RHC,
+    #[serde(rename = "X:LHC")]
+    X_LHC,
+    #[serde(rename = "X:OTHER")]
+    X_OTHER,
+    #[serde(rename = "Y:V")]
+    Y_V,
+    #[serde(rename = "Y:H")]
+    Y_H,
+    #[serde(rename = "Y:X")]
+    Y_X,
+    #[serde(rename = "Y:Y")]
+    Y_Y,
+    #[serde(rename = "Y:S")]
+    Y_S,
+    #[serde(rename = "Y:E")]
+    Y_E,
+    #[serde(rename = "Y:RHC")]
+    Y_RHC,
+    #[serde(rename = "Y:LHC")]
+    Y_LHC,
+    #[serde(rename = "Y:OTHER")]
+    Y_OTHER,
+    #[serde(rename = "S:V")]
+    S_V,
+    #[serde(rename = "S:H")]
+    S_H,
+    #[serde(rename = "S:X")]
+    S_X,
+    #[serde(rename = "S:Y")]
+    S_Y,
+    #[serde(rename = "S:S")]
+    S_S,
+    #[serde(rename = "S:E")]
+    S_E,
+    #[serde(rename = "S:RHC")]
+    S_RHC,
+    #[serde(rename = "S:LHC")]
+    S_LHC,
+    #[serde(rename = "S:OTHER")]
+    S_OTHER,
+    #[serde(rename = "E:V")]
+    E_V,
+    #[serde(rename = "E:H")]
+    E_H,
+    #[serde(rename = "E:X")]
+    E_X,
+    #[serde(rename = "E:Y")]
+    E_Y,
+    #[serde(rename = "E:S")]
+    E_S,
+    #[serde(rename = "E:E")]
+    E_E,
+    #[serde(rename = "E:RHC")]
+    E_RHC,
+    #[serde(rename = "E:LHC")]
+    E_LHC,
+    #[serde(rename = "E:OTHER")]
+    E_OTHER,
+    #[serde(rename = "RHC:V")]
+    RHC_V,
+    #[serde(rename = "RHC:H")]
+    RHC_H,
+    #[serde(rename = "RHC:X")]
+    RHC_X,
+    #[serde(rename = "RHC:Y")]
+    RHC_Y,
+    #[serde(rename = "RHC:S")]
+    RHC_S,
+    #[serde(rename = "RHC:E")]
+    RHC_E,
+    #[serde(rename = "RHC:RHC")]
+    RHC_RHC,
+    #[serde(rename = "RHC:LHC")]
+    RHC_LHC,
+    #[serde(rename = "RHC:OTHER")]
+    RHC_OTHER,
+    #[serde(rename = "LHC:V")]
+    LHC_V,
+    #[serde(rename = "LHC:H")]
+    LHC_H,
+    #[serde(rename = "LHC:X")]
+    LHC_X,
+    #[serde(rename = "LHC:Y")]
+    LHC_Y,
+    #[serde(rename = "LHC:S")]
+    LHC_S,
+    #[serde(rename = "LHC:E")]
+    LHC_E,
+    #[serde(rename = "LHC:RHC")]
+    LHC_RHC,
+    #[serde(rename = "LHC:LHC")]
+    LHC_LHC,
+    #[serde(rename = "LHC:OTHER")]
+    LHC_OTHER,
+    #[serde(rename = "OTHER:V")]
+    OTHER_V,
+    #[serde(rename = "OTHER:H")]
+    OTHER_H,
+    #[serde(rename = "OTHER:X")]
+    OTHER_X,
+    #[serde(rename = "OTHER:Y")]
+    OTHER_Y,
+    #[serde(rename = "OTHER:S")]
+    OTHER_S,
+    #[serde(rename = "OTHER:E")]
+    OTHER_E,
+    #[serde(rename = "OTHER:RHC")]
+    OTHER_RHC,
+    #[serde(rename = "OTHER:LHC")]
+    OTHER_LHC,
+    #[serde(rename = "OTHER:OTHER")]
+    OTHER_OTHER,
+    OTHER,
+    UNKNOWN,
+}
+
+
 
 impl Poly1d {
     /// Parse the data in the polynomial to an array object

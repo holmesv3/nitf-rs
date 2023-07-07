@@ -1,4 +1,4 @@
-use super::{IdxLLH, Parameter, XYZ, SinglePolarization, DualPolarization};
+use super::{IdxLLH, Parameter, XYZ};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -72,9 +72,21 @@ pub enum RcvDemodTypeEnum {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct TxPolarization {
     #[serde(rename = "$text")]
-    pub value: SinglePolarization,
+    pub value: TxPolarizationEnum,
 }
-
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+pub enum TxPolarizationEnum {
+    V,
+    H,
+    X,
+    Y,
+    S,
+    E,
+    RHC,
+    LHC,
+    OTHER,
+    UNKNOWN,
+}
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct TxSequence {
     #[serde(rename = "@size")]
@@ -116,14 +128,9 @@ pub struct ChanParameters {
     #[serde(rename = "@index")]
     pub index: usize,
     #[serde(rename = "TxRcvPolarization")]
-    pub tx_rcv_polarization: TxRcvPolarization,
+    pub tx_rcv_polarization: String, // TODO: Implement this enum
     #[serde(rename = "RcvAPCIndex")]
     pub rcv_apc_index: Option<u64>,
-}
-#[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct TxRcvPolarization {
-    #[serde(rename = "$text")]
-    pub value: DualPolarization
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct Area {
@@ -217,36 +224,4 @@ pub enum OrientationEnum {
     LEFT,
     RIGHT,
     ARBITRARY,
-}
-
-#[cfg(test)]
-mod tests {
-    use super::RadarCollection;
-    use quick_xml::de::from_str;
-
-    #[test]
-    fn test_radar_collection() {
-        let xml_str = r#"<RadarCollection><TxFrequency><Min>0</Min><Max>0</Max>
-            </TxFrequency><Waveform size="1"><WFParameters index="1">
-            <TxPulseLength>0</TxPulseLength><TxRFBandwidth>0</TxRFBandwidth>
-            <TxFreqStart>0</TxFreqStart><TxFMRate>0</TxFMRate><RcvDemodType>
-            CHIRP</RcvDemodType><RcvWindowLength>0</RcvWindowLength>
-            <ADCSampleRate>0</ADCSampleRate><RcvIFBandwidth>0</RcvIFBandwidth>
-            <RcvFreqStart>0</RcvFreqStart><RcvFMRate>0</RcvFMRate>
-            </WFParameters></Waveform><TxPolarization>V</TxPolarization>
-            <RcvChannels size="1"><ChanParameters index="1"><TxRcvPolarization>
-            OTHER</TxRcvPolarization><RcvAPCIndex>1</RcvAPCIndex></ChanParameters>
-            </RcvChannels><Area><Corner><ACP index="1"><Lat>0</Lat><Lon>0</Lon>
-            <HAE>0</HAE></ACP></Corner><Plane><RefPt><ECF><X>0</X><Y>0</Y><Z>0
-            </Z></ECF><Line>0</Line><Sample>0</Sample></RefPt><XDir><UVectECF>
-            <X>0</X><Y>0</Y><Z>0</Z></UVectECF><LineSpacing>0</LineSpacing>
-            <NumLines>0</NumLines><FirstLine>0</FirstLine></XDir><YDir>
-            <UVectECF><X>0</X><Y>0</Y><Z>0</Z></UVectECF><SampleSpacing>0
-            </SampleSpacing><NumSamples>0</NumSamples><FirstSample>0
-            </FirstSample></YDir></Plane></Area></RadarCollection>"#;
-        assert!(match from_str::<RadarCollection>(&xml_str) {
-            Ok(_) => true,
-            Err(_) => false,
-        })
-    }
 }

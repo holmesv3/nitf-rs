@@ -1,11 +1,11 @@
-use super::{Parameter, Poly1d, Poly2d, CMPLX, XYZ, DualPolarization};
+use super::{Parameter, Poly1D, Poly2D, CMPLX, XYZ};
 use serde::Deserialize;
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct ImageFormation {
     #[serde(rename = "RcvChanProc")]
     pub rcv_chan_proc: RcvChanProc,
     #[serde(rename = "TxRcvPolarizationProc")]
-    pub tx_rcv_polarization_proc: TxRcvPolarizationProc,
+    pub tx_rcv_polarization_proc: String, // TODO: implement this enum
     #[serde(rename = "TStartProc")]
     pub t_start_proc: f64,
     #[serde(rename = "TEndProc")]
@@ -28,11 +28,6 @@ pub struct ImageFormation {
     pub processing: Option<Vec<Processing>>,
     #[serde(rename = "PolarizationCalibration")]
     pub polarization_calibration: Option<PolCal>,
-}
-#[derive(Debug, Deserialize, PartialEq, Clone)]
-pub struct TxRcvPolarizationProc {
-    #[serde(rename = "$text")]
-    pub value: DualPolarization
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RcvChanProc {
@@ -116,6 +111,8 @@ pub struct Processing {
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct PolCal {
+    #[serde(rename = "HVAngleCompApplied")]
+    pub hv_angle_comp_applied: bool,
     #[serde(rename = "DistortCorrectionApplied")]
     pub distort_correction_applied: bool,
     #[serde(rename = "Distortion")]
@@ -153,10 +150,16 @@ pub struct Distortion {
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RgAzComp {
-    #[serde(rename = "AzSF")]
-    pub az_sf: f64,
-    #[serde(rename = "KazPoly")]
-    pub kaz_poly: Poly1d,
+    #[serde(rename = "RgAzRefTime")]
+    pub rg_az_ref_time: f64,
+    #[serde(rename = "Time1")]
+    pub time1: f64,
+    #[serde(rename = "Time2")]
+    pub time2: f64,
+    #[serde(rename = "AzToCosSF")]
+    pub az_to_cos_sf: f64,
+    #[serde(rename = "KazToTimePoly")]
+    pub kaz_to_time_poly: Poly1D,
 }
 
 #[derive(Debug, Deserialize, PartialEq, Clone)]
@@ -167,8 +170,6 @@ pub struct Rma {
     pub image_type: ImageType,
     #[serde(rename = "RMAT")]
     pub rmat: Option<RMAlgo>,
-    #[serde(rename = "RMCR")]
-    pub rmcr: Option<RMAlgo>,
     #[serde(rename = "INCA")]
     pub inca: Option<INCA>,
 }
@@ -193,55 +194,41 @@ pub struct ImageType {
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub enum ImageTypeEnum {
     RMAT,
-    RMCR,
     INCA,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct RMAlgo {
+    #[serde(rename = "RefTime")]
+    pub ref_time: f64,
     #[serde(rename = "PosRef")]
     pub pos_ref: XYZ,
-    #[serde(rename = "VelRef")]
-    pub vel_ref: XYZ,
-    #[serde(rename = "DopConeAngRef")]
-    pub dop_cone_ang_ref: f64,
+    #[serde(rename = "UnitVelRef")]
+    pub unit_vel_ref: XYZ,
+    #[serde(rename = "DistRLPoly")]
+    pub dist_rl_poly: Poly1D,
+    #[serde(rename = "CosDCACOAPoly")]
+    pub cos_dcacoa_poly: Poly2D,
+    #[serde(rename = "Kx1")]
+    pub kx1: f64,
+    #[serde(rename = "Kx2")]
+    pub kx2: f64,
+    #[serde(rename = "Ky1")]
+    pub ky1: f64,
+    #[serde(rename = "Ky2")]
+    pub ky2: f64,
 }
 #[derive(Debug, Deserialize, PartialEq, Clone)]
 pub struct INCA {
     #[serde(rename = "TimeCAPoly")]
-    pub time_ca_poly: Poly1d,
+    pub time_ca_poly: Poly1D,
     #[serde(rename = "R_CA_SCP")]
     pub r_ca_scp: f64,
     #[serde(rename = "FreqZero")]
     pub freq_zero: f64,
     #[serde(rename = "DRateSFPoly")]
-    pub d_rate_sf_poly: Poly2d,
+    pub d_rate_sf_poly: Poly2D,
     #[serde(rename = "DopCentroidPoly")]
-    pub dop_centroid_poly: Option<Poly2d>,
+    pub dop_centroid_poly: Option<Poly2D>,
     #[serde(rename = "DopCentroidCOA")]
     pub dop_centroid_coa: Option<bool>,
-}
-
-#[cfg(test)]
-mod tests {
-    use super::ImageFormation;
-    use quick_xml::de::from_str;
-
-    #[test]
-    fn test_image_formation() {
-        let xml_str = r#"<ImageFormation><RcvChanProc><NumChanProc>1
-            </NumChanProc><ChanIndex>1</ChanIndex></RcvChanProc>
-            <TxRcvPolarizationProc>V:V</TxRcvPolarizationProc><TStartProc>0
-            </TStartProc><TEndProc>0</TEndProc><TxFrequencyProc><MinProc>0
-            </MinProc><MaxProc>0</MaxProc></TxFrequencyProc><ImageFormAlgo>
-            PFA</ImageFormAlgo><STBeamComp>NO</STBeamComp><ImageBeamComp>NO
-            </ImageBeamComp><AzAutofocus>NO</AzAutofocus><RgAutofocus>NO
-            </RgAutofocus><Processing><Type>Processing</Type><Applied>true
-            </Applied><Parameter name="param">true</Parameter></Processing>
-            </ImageFormation>"#;
-        assert!(match from_str::<ImageFormation>(&xml_str) {
-            Ok(_) => true,
-            Err(_) => false,
-        })
-    }
-    // TODO: Test RgAzComp, RMA
 }

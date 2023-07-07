@@ -10,7 +10,7 @@ Current project goals are
 - Finish implementing version 2.1 reading (maybe writing)
   - Verify header/subheader field entries (see [`NitfField`](https://docs.rs/nitf-rs/0.1.4/nitf_rs/nitf_2_1/types/struct.NitfField.html))
   - Implement logic for various header/subheader inputs
-      - For example, return data from an image segment as an array with the appropriate format (right now only `Complex32` supported)
+      - For example, return data from an image segment as an array with the appropriate format (right now only two-channel complex float supported supported)
 - Expand with features for various applications of the standard (SICD as a first step)
 
 
@@ -53,8 +53,3 @@ There is no logic built around the inputs yet (in progress)
 If you have questions, would like to contribute, or would like to request
 something be added, you can ask on [this Discord server](https://discord.gg/Kg7NwN4XgS), or create an issue.
 
-## Next in line
-- Improve documentation, examples
-- Now that some basic `enum`/`struct`'s are in place, can begin to define within interface functions
-  - First goal is going to be to read different types of data from an image segment for `P` IMODE value
-  - ... Then think about how to do other values for `IMODE`

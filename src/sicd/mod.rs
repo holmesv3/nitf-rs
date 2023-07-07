@@ -47,7 +47,7 @@ pub enum SicdVersion {
 impl FromStr for SicdVersion {
     type Err = SicdError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
+        match s.split("urn:SICD:").collect::<String>().as_str() {
             "0.3.1" => Ok(SicdVersion::V0_3_1),
             "0.4.0" => Ok(SicdVersion::V0_4_0),
             "0.4.1" => Ok(SicdVersion::V0_4_1),
@@ -66,7 +66,7 @@ impl FromStr for SicdVersion {
 #[derive(Debug)]
 pub enum SicdMeta {
     V0_3_1,
-    V0_4_0,
+    V0_4_0(dep::v0_4_0::SicdMeta),
     V0_4_1,
     V0_5_0(dep::v0_5_0::SicdMeta),
     V1(v1_3_0::SicdMeta),
@@ -99,19 +99,29 @@ impl Sicd {
     }
 }
 
+#[derive(Debug, Deserialize, PartialEq, Clone)]
+struct VersionGetter {
+    #[serde(rename = "@xmlns")]
+    pub version: String,
+}
+
 fn parse_sicd(sicd_str: &str) -> Result<(SicdVersion, SicdMeta), SicdError> {
     // This feels bad
-    let sicd_version = SicdVersion::from_str(&sicd_str[22..27]).unwrap();
+    let tmp: VersionGetter = from_str(&sicd_str).unwrap();
+    let sicd_version = SicdVersion::from_str(&tmp.version).unwrap();
     use SicdError::Unimpl;
     match sicd_version {
         SicdVersion::V0_3_1 => Err(Unimpl("V0_3_1".to_string())),
-        SicdVersion::V0_4_0 => Err(Unimpl("V0_4_0".to_string())), // TODO
+        SicdVersion::V0_4_0 => Ok((
+            SicdVersion::V0_4_0,
+            SicdMeta::V0_4_0(from_str(sicd_str).unwrap()),
+        )),
         SicdVersion::V0_4_1 => Err(Unimpl("V0_4_1".to_string())),
         SicdVersion::V0_5_0 => Ok((
             SicdVersion::V0_5_0,
             SicdMeta::V0_5_0(from_str(sicd_str).unwrap()),
-        )), // TODO
-        // For now, we don't need to worry about anything else, since all versions past 1.0 so far are backwards compatible
+        )),
+        // Don't need to worry about anything else, all versions past 1.0 are backwards compatible
         other => Ok((other, SicdMeta::V1(from_str(sicd_str).unwrap()))),
     }
 }
