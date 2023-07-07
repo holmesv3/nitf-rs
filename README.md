@@ -17,7 +17,7 @@ Current project goals are
 ## Example
 
 ```rust
-use nitf_rs::read_nitf;
+use nitf_rs::nitf::read_nitf;
 use std::path::Path;
 // Define a string which is the path to some nitf file
 let nitf_file: String = get_nitf_file();
@@ -27,14 +27,15 @@ let nitf_path = Path::new(&nitf_file);
 let nitf = read_nitf(nitf_path);
 println!("{}", &nitf);
 
-// Read image data, check that the dimensions are what we expect
+// Read image data from a segment, check that the dimensions are what we expect
 let im_seg = &nitf.image_segments[0];
 let data = im_seg.data_to_array();
-println!("Meta NROWS: {}, data.nrows(): {}", im_seg.meta.NROWS.val, data.nrows());
-println!("Meta NCOLS: {}, data.ncols(): {}", im_seg.meta.NCOLS.val, data.ncols());
+println!("Meta NROWS: {}, data.nrows(): {}", im_seg.meta.nrows.val, data.nrows());
+println!("Meta NCOLS: {}, data.ncols(): {}", im_seg.meta.nrows.val, data.ncols());
 
 // If you have a SICD file, parse and print the metadata
-let sicd_meta = &nitf.parse_sicd_meta().unwrap();
+use nitf_rs::sicd::read_sicd;
+let sicd_meta = read_sicd(nitf_path);
 println!("{:#?}", sicd_meta);
 ```
 
