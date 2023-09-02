@@ -10,7 +10,7 @@ Current project goals are
 - Expand with features for various applications of the standard (SICD as a first step)
 
 ### Note: 
-Formely, there was `Sicd` functionality built into this crate. That has been moved into a separate crate, [sicd-rs](https://crates.io/crates/sicd-rs)
+Formerly, there was `Sicd` functionality built into this crate. That has been moved into a separate crate, [sicd-rs](https://crates.io/crates/sicd-rs)
 
 ## Example
 
