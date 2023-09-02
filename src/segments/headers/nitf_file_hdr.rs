@@ -2,8 +2,8 @@
 use std::fmt::Display;
 use std::io::{Read, Seek};
 
-use crate::nitf::segments::headers::NitfSegmentHeader;
-use crate::nitf::types::{NitfField, Security};
+use crate::segments::headers::NitfSegmentHeader;
+use crate::types::{NitfField, Security};
 
 /// Metadata for Nitf File Header
 #[derive(Default, Clone, Hash, Debug)]

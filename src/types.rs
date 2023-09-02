@@ -3,7 +3,7 @@ use std::fmt::{Debug, Display};
 use std::io::{Read, Seek};
 use std::str::FromStr;
 
-use crate::nitf::error::NitfError;
+use crate::error::NitfError;
 
 /// Lowest level object for file parsing
 #[derive(Default, Clone, Hash, Debug)]

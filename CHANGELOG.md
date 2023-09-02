@@ -1,5 +1,8 @@
 # Changes by version
 
+## 0.2.0
+- Removed all SICD support to a separate crate, [sicd-rs](https://crates.io/crates/sicd-rs)
+
 ## 0.1.8
 - Moved `read_<nitf format>` functions inside of respective modules
   - e.g, `use nitf_rs::{nitf::read_nitf, sicd::read_sicd};`

@@ -6,7 +6,7 @@ use std::fmt::Display;
 use std::io::SeekFrom::Start;
 use std::{fs::File, io::Seek, ops::Deref};
 
-use crate::nitf::segments::headers::{image_hdr::ImageHeader, NitfSegmentHeader};
+use crate::segments::headers::{image_hdr::ImageHeader, NitfSegmentHeader};
 
 #[derive(Debug)]
 pub struct Image {
@@ -68,7 +68,7 @@ impl Image {
     /// # Example
     ///
     ///     use std::path::Path;
-    ///     use nitf_rs::nitf::read_nitf;
+    ///     use nitf_rs::read_nitf;
     ///
     ///     let nitf_path = Path::new("../example.nitf");
     ///     let nitf = read_nitf(nitf_path);

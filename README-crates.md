@@ -9,6 +9,8 @@ Current project goals are
       - For example, return data from an image segment as an array with the appropriate format (right now only two-channel complex float supported supported)
 - Expand with features for various applications of the standard (SICD as a first step)
 
+### Note: 
+Formely, there was `Sicd` functionality built into this crate. That has been moved into a separate crate, [sicd-rs](https://crates.io/crates/sicd-rs)
 
 ## Example
 
