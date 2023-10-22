@@ -7,12 +7,8 @@ description = "Crate to interface with NITF files."
 homepage = "https://github.com/holmesv3/nitf-rs"
 readme = "README-crates.md"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 thiserror = "^1.0"
 memmap2 = "0.5.10"
-num-complex = "0.4.3"
-ndarray = {version = "^0.15"}
-
-
+memmapix = "0.7.6"
 

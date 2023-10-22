@@ -2,15 +2,15 @@
 //!
 //! Need to implement data mask - which also means need to implement some kind of nicer parsing (enums, among other things)
 use std::fmt::Display;
-use std::io::{Read, Seek};
+use std::fs::File;
 use std::str::FromStr;
 
 use crate::error::NitfError;
-use crate::segments::headers::NitfSegmentHeader;
-use crate::types::{NitfField, Security};
+use crate::headers::NitfSegmentHeader;
+use crate::types::{NitfField, Security, ExtendedSubheader};
 
 /// Metadata for Image Segment subheader
-#[derive(Default, Clone, Hash, Debug)]
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct ImageHeader {
     /// File Part Type
     pub im: NitfField<String>,
@@ -93,11 +93,11 @@ pub struct ImageHeader {
     /// Image Extended Subheader Overflow
     pub ixsofl: NitfField<u16>,
     /// Image Extended Subheader Data
-    pub ixshd: NitfField<String>, // TODO
+    pub ixshd: ExtendedSubheader
 }
 
 /// Band metadata
-#[derive(Default, Clone, Hash, Debug)]
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct Band {
     /// Band Representation
     pub irepband: NitfField<String>, // TODO: Check how to do this
@@ -116,7 +116,7 @@ pub struct Band {
 }
 
 /// Pixel Value type options
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum PixelValueType {
     #[default]
     /// ComplexFloat, 32 or 64 bits, real then imaginary
@@ -132,7 +132,7 @@ pub enum PixelValueType {
 }
 
 /// Image representation values
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum ImageRepresentation {
     #[default]
     /// Monochrome
@@ -156,7 +156,7 @@ pub enum ImageRepresentation {
 }
 
 /// Pixel justification
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum PixelJustification {
     #[default]
     /// Right justified
@@ -166,7 +166,7 @@ pub enum PixelJustification {
 }
 
 /// Coordinate representation
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum CoordinateRepresentation {
     #[default]
     /// Default value, one space
@@ -186,7 +186,7 @@ pub enum CoordinateRepresentation {
 }
 
 /// Image compression values
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum Compression {
     #[default]
     /// Not compressed
@@ -226,7 +226,7 @@ pub enum Compression {
 }
 
 /// Image data storage mode
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum Mode {
     #[default]
     /// Band interleaved by block
@@ -241,7 +241,7 @@ pub enum Mode {
 
 // FUNCTIONS
 /// Helper function for parsing bands
-fn read_bands(reader: &mut (impl Read + Seek), n_band: u32) -> Vec<Band> {
+fn read_bands(reader: &mut File, n_band: u32) -> Vec<Band> {
     let mut bands: Vec<Band> = vec![Band::default(); n_band as usize];
     for band in &mut bands {
         band.irepband.read(reader, 2u8);
@@ -263,7 +263,7 @@ fn read_bands(reader: &mut (impl Read + Seek), n_band: u32) -> Vec<Band> {
 
 // TRAIT IMPLEMENTATIONS
 impl NitfSegmentHeader for ImageHeader {
-    fn read(&mut self, reader: &mut (impl Read + Seek)) {
+    fn read(&mut self, reader: &mut File) {
         self.im.read(reader, 2u8);
         self.iid1.read(reader, 10u8);
         self.idatim.read(reader, 14u8);
@@ -322,7 +322,8 @@ impl NitfSegmentHeader for ImageHeader {
         let ixsh_data_length = self.ixshdl.val;
         if ixsh_data_length != 0 {
             self.ixsofl.read(reader, 3u8);
-            self.ixshd.read(reader, ixsh_data_length - 3);
+            self.ixshd.read(reader, (ixsh_data_length - 3) as usize);
+            
         }
     }
 }
@@ -372,9 +373,12 @@ impl Display for ImageHeader {
         out_str += format!("UDOFL: {}, ", self.udofl).as_ref();
         out_str += format!("UDID: {}, ", self.udid).as_ref();
         out_str += format!("IXSHDL: {}, ", self.ixshdl).as_ref();
-        out_str += format!("IXSOFL: {}, ", self.ixsofl).as_ref();
-        out_str += format!("IXSHD: {},", self.ixshd).as_ref();
-        write!(f, "[Image Subheader: {}]", out_str)
+        if self.ixshdl.val != 0
+        {
+            out_str += format!("IXSOFL: {}, ", self.ixsofl).as_ref();
+            out_str += format!("IXSHD: {}", self.ixshd).as_ref();
+        }
+        write!(f, "[Image Subheader: {out_str}]")
     }
 }
 impl Display for Band {
@@ -387,9 +391,9 @@ impl Display for Band {
         out_str += format!("NLUTS: {}, ", self.nluts).as_ref();
         out_str += format!("NELUT: {}, ", self.nelut).as_ref();
         for look_up in &self.lutd {
-            out_str += format!("LUTD: {}, ", look_up).as_ref();
+            out_str += format!("LUTD: {look_up}, ").as_ref();
         }
-        write!(f, "{}", out_str)
+        write!(f, "{out_str}")
     }
 }
 impl FromStr for PixelValueType {

@@ -1,60 +1,101 @@
-//! Crate for reading and manipulating `NITF` files
+//! Minimal Crate for reading and manipulating `NITF` files
 
 //! Interface for NITF version 2.1
+//! 
+//! Constructing a [Nitf] object parses the header and subheader information. 
+//! Each segment in contains a `meta` field which stores the respective
+//! fields defined in the file standard. The primary function for constructing a 
+//! [Nitf] is [read_nitf()]
+//! ```
+//! // Read a nitf file and dump metadata to stdout
+//! use std::path::Path;
+//! let nitf_path = Path::new("../example.nitf");
+//! let nitf = nitf_rs::read_nitf(&nitf_path);
+//! println!("{nitf}");
+//! ```
+//! 
+//! The main feature of the [FileHeader] is its `meta` field (see (NitfHeader)
+//! [headers::NitfHeader]). 
+//! All other segments use the generic [NitfSegment] to provide header fields and 
+//! a memory-map of the segment data.
+//! ```
+//! // Get the bytes from the first image segment
+//! use std::path::Path;
+//! let nitf_path = Path::new("../example.nitf");
+//! let nitf = nitf_rs::read_nitf(&nitf_path);
+//! let im_seg = &nitf.image_segments[0];
+//! let u8_slice = &im_seg.data[..];
+//! ```
+//! Most metadata elements are stored in a [NitfField] structure. This structure 
+//! stores the `bytes` which encode the value, a `string` representation, and a
+//! `val` which holds on to native value of the field (i.e., the bytes parsed into a
+//! u8, u16, String, enum, etc.) 
+//! ```
+//! // Read in a nitf and extract the...
+//! use std::path::Path;
+//! let nitf_path = Path::new("../example.nitf");
+//! let nitf = nitf_rs::read_nitf(&nitf_path);
+//! // .. File title
+//! let file_title = nitf.nitf_header.meta.ftitle.val;
+//! // .. Number of image segments
+//! let n_img_segments = nitf.nitf_header.meta.numi.val;
+//! // .. and number of rows in the first image segment data
+//! let n_rows = nitf.image_segments[0].meta.nrows.val;
+//! ```
+//! 
+//! If there is user-defined tagged-record-extension (TRE) data within a segment, 
+//! it is stored in an [ExtendedSubheader] for the user to parse accordingly.
+use std::fs::File;
+use std::path::Path;
+use std::fmt::Display;
 
 pub(crate) mod error;
 pub mod segments;
+pub mod headers;
 pub mod types;
 
-use std::fmt::Display;
-use std::fs::File;
-use std::path::Path;
-
-use segments::{DataExtension, FileHeader, Graphic, Image, ReservedExtension, Text};
+// Convenience type-defs
+use segments::NitfSegment;
+type ImageSegment = NitfSegment<headers::ImageHeader>;
+type GraphicSegment = NitfSegment<headers::GraphicHeader>;
+type TextSegment = NitfSegment<headers::TextHeader>;
+type DataExtensionSegment = NitfSegment<headers::DataExtensionHeader>;
+type ReservedExtensionSegment = NitfSegment<headers::ReservedExtensionHeader>;
+    
+#[allow(unused_imports)]
+use types::{ExtendedSubheader, NitfField};
+use segments::FileHeader;
 
 /// Top level NITF interface
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Eq, PartialEq)]
 pub struct Nitf {
     /// Nitf file header.
-    ///     
-    /// See [NitfHeader](segments::headers::nitf_file_hdr) for `meta` fields
     pub nitf_header: FileHeader,
-
+    
     /// Vector of image segments.
-    ///     
-    /// See [ImageHeader](segments::headers::image_hdr) for `meta` fields
-    pub image_segments: Vec<Image>,
-
+    pub image_segments: Vec<ImageSegment>,
+    
     /// Vector of graphics segments.
-    ///     
-    /// See [GraphicHeader](segments::headers::graphic_hdr) for `meta` fields
-    pub graphic_segments: Vec<Graphic>,
+    pub graphic_segments: Vec<GraphicSegment>,
 
     /// Vector of text segments.
-    ///     
-    /// See [TextHeader](segments::headers::text_hdr) for `meta` fields
-    pub text_segments: Vec<Text>,
+    pub text_segments: Vec<TextSegment>,
 
     /// Vector of data extension segments.
-    ///     
-    /// See [DataExtensionHeader](segments::headers::data_extension_hdr) for `meta` fields
-    pub data_extension_segments: Vec<DataExtension>,
+    pub data_extension_segments: Vec<DataExtensionSegment>,
 
     /// Vector of reserved extension segments.
-    ///     
-    /// See [ReservedExtensionHeader](segments::headers::reserved_extension_hdr) for `meta` fields
-    pub reserved_extension_segments: Vec<ReservedExtension>,
+    pub reserved_extension_segments: Vec<ReservedExtensionSegment>,
 }
 
 /// Construct a [Nitf] object from a file `path`.
 ///
 /// # Example
-///
-///     use std::path::Path;
-///     use nitf_rs::read_nitf;
-///
-///     let nitf_path = Path::new("../example.nitf");
-///     let nitf = read_nitf(nitf_path);
+/// ```
+/// use std::path::Path;
+/// let nitf_path = Path::new("../example.nitf");
+/// let nitf = nitf_rs::read_nitf(nitf_path);
+/// ```
 pub fn read_nitf(path: &Path) -> Nitf {
     let mut file = File::open(path).unwrap();
     Nitf::from_file(&mut file)
@@ -70,7 +111,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.imheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size = seg_info.item_size.val;
-            let seg = Image::initialize(file, header_size, data_size);
+            let seg = ImageSegment::initialize(file, header_size, data_size);
             nitf.image_segments.push(seg);
         }
 
@@ -79,7 +120,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.graphheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size: u64 = seg_info.item_size.val;
-            let seg = Graphic::initialize(file, header_size, data_size);
+            let seg = GraphicSegment::initialize(file, header_size, data_size);
             nitf.graphic_segments.push(seg);
         }
 
@@ -88,7 +129,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.textheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size: u64 = seg_info.item_size.val;
-            let seg = Text::initialize(file, header_size, data_size);
+            let seg = TextSegment::initialize(file, header_size, data_size);
             nitf.text_segments.push(seg);
         }
 
@@ -97,7 +138,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.dextheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size: u64 = seg_info.item_size.val;
-            let seg = DataExtension::initialize(file, header_size, data_size);
+            let seg = DataExtensionSegment::initialize(file, header_size, data_size);
             nitf.data_extension_segments.push(seg);
         }
 
@@ -106,7 +147,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.resheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size = seg_info.item_size.val;
-            let seg = ReservedExtension::initialize(file, header_size, data_size);
+            let seg = ReservedExtensionSegment::initialize(file, header_size, data_size);
             nitf.reserved_extension_segments.push(seg);
         }
         nitf

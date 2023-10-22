@@ -1,14 +1,14 @@
 //! Data Extension segment subheader definition
 use std::fmt::Display;
-use std::io::{Read, Seek};
+use std::fs::File;
 use std::str::FromStr;
 
 use crate::error::NitfError;
-use crate::segments::headers::NitfSegmentHeader;
-use crate::types::{NitfField, Security};
+use crate::headers::NitfSegmentHeader;
+use crate::types::{NitfField, Security, ExtendedSubheader};
 
 /// Metadata for Data Extension Segment
-#[derive(Default, Clone, Hash, Debug)]
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct DataExtensionHeader {
     /// File Part Type
     pub de: NitfField<String>,
@@ -26,11 +26,11 @@ pub struct DataExtensionHeader {
     /// DES User-defined Subheader Length
     pub desshl: NitfField<u16>,
     /// User-defined Subheader Fields
-    pub desshf: NitfField<String>, // TODO: Figure out what to do here
+    pub desshf: ExtendedSubheader, 
 }
 
 /// Selection of which header/subheader this extension corresponds to
-#[derive(Debug, Default, Clone, Hash)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum OverflowedHeaderType {
     #[default]
     /// Image subheader extended subheader data overflow
@@ -46,7 +46,7 @@ pub enum OverflowedHeaderType {
 }
 
 impl NitfSegmentHeader for DataExtensionHeader {
-    fn read(&mut self, reader: &mut (impl Read + Seek)) {
+    fn read(&mut self, reader: &mut File) {
         self.de.read(reader, 2u8);
         self.desid.read(reader, 25u8);
         self.desver.read(reader, 2u8);
@@ -56,7 +56,9 @@ impl NitfSegmentHeader for DataExtensionHeader {
             self.desitem.read(reader, 3u8);
         }
         self.desshl.read(reader, 4u8);
-        self.desshf.read(reader, self.desshl.val);
+        if self.desshl.val != 0 {
+            self.desshf.read(reader, self.desshl.val as usize);
+        }
     }
 }
 impl Display for DataExtensionHeader {
@@ -69,8 +71,8 @@ impl Display for DataExtensionHeader {
         out_str += format!("DESOFLW: {}, ", self.desoflw).as_ref();
         out_str += format!("DESITEM: {}, ", self.desitem).as_ref();
         out_str += format!("DESSHL: {}, ", self.desshl).as_ref();
-        out_str += format!("DESSHF: {}", self.desshl).as_ref();
-        write!(f, "[Data Extension Subheader: {}]", out_str)
+        out_str += format!("DESSHF: {}", self.desshf).as_ref();
+        write!(f, "[Data Extension Subheader: {out_str}]")
     }
 }
 impl FromStr for OverflowedHeaderType {

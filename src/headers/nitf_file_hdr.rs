@@ -1,12 +1,12 @@
 //! File header definition
 use std::fmt::Display;
-use std::io::{Read, Seek};
+use std::fs::File;
 
-use crate::segments::headers::NitfSegmentHeader;
-use crate::types::{NitfField, Security};
+use crate::headers::NitfSegmentHeader;
+use crate::types::{NitfField, Security, ExtendedSubheader};
 
 /// Metadata for Nitf File Header
-#[derive(Default, Clone, Hash, Debug)]
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct NitfHeader {
     /// File Profile Name
     pub fhdr: NitfField<String>,
@@ -67,13 +67,13 @@ pub struct NitfHeader {
     /// User Defined Header Overflow
     pub udhofl: NitfField<u16>,
     /// User Defined Header Data
-    pub udhd: NitfField<String>, // TODO: Figure out what to do with this
+    pub udhd: ExtendedSubheader, // TODO: Figure out what to do with this
     /// Extended Header Data Length
     pub xhdl: NitfField<u32>,
     /// Extended Header Data Overflow
     pub xhdlofl: NitfField<u16>,
     /// Extended Header Data
-    pub xhd: NitfField<String>, // TODO: Figure out what to do with this
+    pub xhd: ExtendedSubheader,
 }
 impl Display for NitfHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -125,12 +125,12 @@ impl Display for NitfHeader {
         out_str += format!("XHDL: {}, ", self.xhdl).as_ref();
         out_str += format!("XHDLOFL: {}, ", self.xhdlofl).as_ref();
         out_str += format!("XHD: {}", self.xhd).as_ref();
-        write!(f, "[NitfHeader: {}]", out_str)
+        write!(f, "[NitfHeader: {out_str}]")
     }
 }
 
 impl NitfSegmentHeader for NitfHeader {
-    fn read(&mut self, reader: &mut (impl Read + Seek)) {
+    fn read(&mut self, reader: &mut File) {
         self.fhdr.read(reader, 4u8);
         self.fver.read(reader, 5u8);
         self.clevel.read(reader, 2u8);
@@ -191,13 +191,13 @@ impl NitfSegmentHeader for NitfHeader {
         self.udhdl.read(reader, 5u8);
         if self.udhdl.val != 0 {
             self.udhofl.read(reader, 3u8);
-            self.udhd.read(reader, self.udhdl.val - 3);
+            self.udhd.read(reader, (self.udhdl.val - 3) as usize);
         }
 
         self.xhdl.read(reader, 5u8);
         if self.xhdl.val != 0 {
             self.xhdlofl.read(reader, 3u8);
-            self.xhd.read(reader, &self.xhdl.val - 3);
+            self.xhd.read(reader, (self.xhdl.val - 3) as usize);
         }
     }
 }
@@ -205,7 +205,7 @@ impl NitfSegmentHeader for NitfHeader {
 /// Subheader element type
 ///
 /// Used within the NITF header to denote the subheader segments contained in the file
-#[derive(Default, Clone, Hash, Debug)]
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct SubHeader {
     /// Bytes of header description
     pub subheader_size: NitfField<u32>,
@@ -213,7 +213,7 @@ pub struct SubHeader {
     pub item_size: NitfField<u64>,
 }
 impl SubHeader {
-    pub fn read(&mut self, reader: &mut (impl Read + Seek), sh_size: u64, item_size: u64) {
+    pub fn read(&mut self, reader: &mut File, sh_size: u64, item_size: u64) {
         self.subheader_size.read(reader, sh_size);
         self.item_size.read(reader, item_size);
     }

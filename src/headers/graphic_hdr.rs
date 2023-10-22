@@ -1,14 +1,14 @@
 //! Graphic segment subheader definition
 use std::fmt::Display;
-use std::io::{Read, Seek};
+use std::fs::File;
 use std::str::FromStr;
 
 use crate::error::NitfError;
-use crate::segments::headers::NitfSegmentHeader;
-use crate::types::{NitfField, Security};
+use crate::headers::NitfSegmentHeader;
+use crate::types::{NitfField, Security, ExtendedSubheader};
 
 /// Header fields for Graphic Segment
-#[derive(Default, Clone, Hash, Debug)]
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct GraphicHeader {
     /// File Part Type
     pub sy: NitfField<String>,
@@ -43,7 +43,7 @@ pub struct GraphicHeader {
     /// Graphic Extended Subheader Overflow
     pub sxsofl: NitfField<u16>,
     /// Graphic Extended Subheader Data
-    pub sxshd: NitfField<String>,
+    pub sxshd: ExtendedSubheader,
 }
 
 impl Display for GraphicHeader {
@@ -66,11 +66,11 @@ impl Display for GraphicHeader {
         out_str += format!("SXSHDL: {}, ", self.sxshdl).as_ref();
         out_str += format!("SXSOFL: {}, ", self.sxsofl).as_ref();
         out_str += format!("[SXSHD: {}]", self.sxshd).as_ref();
-        write!(f, "[Graphic Subheader: {}]", out_str)
+        write!(f, "[Graphic Subheader: {out_str}]")
     }
 }
 impl NitfSegmentHeader for GraphicHeader {
-    fn read(&mut self, reader: &mut (impl Read + Seek)) {
+    fn read(&mut self, reader: &mut File) {
         self.sy.read(reader, 2u8);
         self.sid.read(reader, 10u8);
         self.sname.read(reader, 20u8);
@@ -89,13 +89,13 @@ impl NitfSegmentHeader for GraphicHeader {
         let gphx_data_length = self.sxshdl.val;
         if gphx_data_length != 0 {
             self.sxsofl.read(reader, 3u8);
-            self.sxshd.read(reader, gphx_data_length - 3);
+            self.sxshd.read(reader, (gphx_data_length - 3) as usize);
         }
     }
 }
 
 /// Graphic type. Right now standard only supports C
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum Format {
     #[default]
     /// Computer graphics metafile
@@ -113,7 +113,7 @@ impl FromStr for Format {
 }
 
 /// Graphic bound position relative to origin of coordinate system
-#[derive(Debug, Default, Clone, Hash)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub struct BoundLocation {
     pub row: i32,
     pub col: i32,
@@ -136,7 +136,7 @@ impl FromStr for BoundLocation {
 }
 
 /// Color type of graphics
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum Color {
     #[default]
     /// Color pieces

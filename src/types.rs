@@ -1,27 +1,28 @@
-//! Definition of common types use throughout
+//! Common types use throughout
 use std::fmt::{Debug, Display};
-use std::io::{Read, Seek};
 use std::str::FromStr;
+use std::io::{Read, Seek};
+use std::fs::File;
 
 use crate::error::NitfError;
 
 /// Lowest level object for file parsing
-#[derive(Default, Clone, Hash, Debug)]
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct NitfField<V: FromStr + Debug> {
     /// Byte representation
     pub bytes: Vec<u8>,
-    /// Byte offset in file
-    pub offset: u64,
     /// String representation of field
     pub string: String,
     /// Parsed representation of value
     pub val: V,
     /// Number of bytes used to store value in file
-    pub length: u64,
+    length: u64,
+    /// Byte offset in file
+    offset: u64,
 }
 
 /// Standard security metadata
-#[derive(Default, Clone, Hash, Debug)]
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct Security {
     /// File Security Classification
     pub clas: NitfField<Classification>,
@@ -58,7 +59,7 @@ pub struct Security {
 }
 
 /// Classification codes
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum Classification {
     #[default]
     /// Unclassified
@@ -74,7 +75,7 @@ pub enum Classification {
 }
 
 /// Declassification codes
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum DeclassificationType {
     #[default]
     /// Default value, two spaces
@@ -94,7 +95,7 @@ pub enum DeclassificationType {
 }
 
 ///  Declassification exemption
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum DeclassificationExemption {
     #[default]
     /// Default value, four spaces
@@ -104,7 +105,7 @@ pub enum DeclassificationExemption {
 }
 
 /// Downgrade classification
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum Downgrade {
     #[default]
     /// Default value, two spaces
@@ -118,7 +119,7 @@ pub enum Downgrade {
 }
 
 /// Classification authority
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum ClassificationAuthorityType {
     #[default]
     /// Default, one space
@@ -132,7 +133,7 @@ pub enum ClassificationAuthorityType {
 }
 
 /// Reason for classification
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum ClassificationReason {
     #[default]
     /// Default value, one space
@@ -148,11 +149,9 @@ where
     <V as FromStr>::Err: Debug,
 {
     /// Read the specified number of bytes and parse the value of a given field
-    pub fn read<T: Sized + Into<u64>>(&mut self, reader: &mut (impl Read + Seek), n_bytes: T) {
+    pub fn read<T: Sized + Into<u64>>(&mut self, reader: &mut File, n_bytes: T) {
         self.length = n_bytes.into();
-        for _ in 0..self.length {
-            self.bytes.push(0u8)
-        }
+        self.bytes = vec![0; self.length as usize];
         self.offset = reader.stream_position().unwrap();
         reader.read_exact(&mut self.bytes).unwrap();
         let result = String::from_utf8(self.bytes.to_vec());
@@ -174,7 +173,7 @@ impl<V: FromStr + Debug> Display for NitfField<V> {
     }
 }
 impl Security {
-    pub fn read(&mut self, reader: &mut (impl Read + Seek)) {
+    pub fn read(&mut self, reader: &mut File) {
         self.clas.read(reader, 1u8);
         self.clsy.read(reader, 2u8);
         self.code.read(reader, 11u8);
@@ -308,5 +307,29 @@ impl FromStr for ClassificationReason {
             "H" => Ok(Self::VALID),
             _ => Err(NitfError::FieldError),
         }
+    }
+}
+
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
+pub struct ExtendedSubheader {
+    /// User defined tagged record entries (TREs)
+    pub tre: Vec<u8>,
+    /// Length of subheader
+    pub size: usize,
+
+}
+impl ExtendedSubheader {
+    pub fn read(&mut self, reader: &mut File, n_bytes: usize) {
+        self.size = n_bytes;
+        self.tre = vec![0; n_bytes];
+        reader.read_exact(self.tre.as_mut_slice()).unwrap();
+
+    }
+}
+impl Display for ExtendedSubheader {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // Can't copy vector directly, convert to slice, then clone into new vector
+        let out_str = String::from_utf8(self.tre.to_vec()).unwrap();
+        write!(f, "[{out_str}]")
     }
 }

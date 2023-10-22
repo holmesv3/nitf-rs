@@ -1,14 +1,15 @@
 //! Text segment definition
 use std::fmt::Display;
-use std::io::{Read, Seek};
+use std::fs::File;
+
 use std::str::FromStr;
 
 use crate::error::NitfError;
-use crate::segments::headers::NitfSegmentHeader;
-use crate::types::{NitfField, Security};
+use crate::headers::NitfSegmentHeader;
+use crate::types::{NitfField, Security, ExtendedSubheader};
 
 /// Text Segment Metadata
-#[derive(Default, Clone, Hash, Debug)]
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct TextHeader {
     /// File Part Type
     pub te: NitfField<String>,
@@ -31,11 +32,11 @@ pub struct TextHeader {
     /// Text Extended Subheader Overflow
     pub txsofl: NitfField<u16>,
     /// Text Extended Subheader Data
-    pub txshd: NitfField<String>,
+    pub txshd: ExtendedSubheader,
 }
 
 /// Formatting specification
-#[derive(Debug, Default, Hash, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum TextFormat {
     #[default]
     /// USMTF formatting
@@ -49,7 +50,7 @@ pub enum TextFormat {
 }
 
 impl NitfSegmentHeader for TextHeader {
-    fn read(&mut self, reader: &mut (impl Read + Seek)) {
+    fn read(&mut self, reader: &mut File) {
         self.te.read(reader, 2u8);
         self.textid.read(reader, 7u8);
         self.txtalvl.read(reader, 3u8);
@@ -62,7 +63,7 @@ impl NitfSegmentHeader for TextHeader {
         let extended_length: u32 = self.txshdl.string.parse().unwrap();
         if extended_length != 0 {
             self.txsofl.read(reader, 3u8);
-            self.txshd.read(reader, extended_length - 3)
+            self.txshd.read(reader, (extended_length - 3) as usize)
         }
     }
 }
@@ -80,7 +81,7 @@ impl Display for TextHeader {
         out_str += format!("TXSHDL: {}", self.txshdl).as_ref();
         out_str += format!("TXSOFL: {}", self.txsofl).as_ref();
         out_str += format!("TXSHD: {}", self.txshd).as_ref();
-        write!(f, "[Text Subheader: {}]", out_str)
+        write!(f, "[Text Subheader: {out_str}]")
     }
 }
 impl FromStr for TextFormat {
