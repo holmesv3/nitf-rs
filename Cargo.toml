@@ -1,9 +1,9 @@
 [package]
 name = "nitf-rs"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-description = "Crate to interface with NITF files."
+description = "Minimal NITF interface."
 homepage = "https://github.com/holmesv3/nitf-rs"
 readme = "README-crates.md"
 
