@@ -3,7 +3,7 @@
 A minimal rust NITF file interface
 
 ### Note: 
-Formerly, there was `Sicd` functionality built into this crate. That has been moved into a separate crate [sicd-rs](https://github.com/holmesv3/sicd-rs)
+Formerly, there was `Sicd` functionality built into this crate. That has been moved into a separate crate [sicd-rs](https://crates.io/crates/sicd-rs)
 ## Example
 
 ```rust

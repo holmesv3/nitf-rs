@@ -102,6 +102,7 @@ pub enum DeclassificationExemption {
     DEFAULT,
     /// Valid value, see NitfField.string for value
     VALID,
+    UNRECOGNIZED,
 }
 
 /// Downgrade classification
@@ -247,24 +248,26 @@ impl FromStr for DeclassificationExemption {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "" => Ok(Self::DEFAULT),
-            "X1" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(1)
-            "X2" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(2)
-            "X3" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(3)
-            "X4" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(4)
-            "X5" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(5)
-            "X6" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(6)
-            "X7" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(7)
-            "X8" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(8)
-            "25X1" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(1)
-            "25X2" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(2)
-            "25X3" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(3)
-            "25X4" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(4)
-            "25X5" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(5)
-            "25X6" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(6)
-            "25X7" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(7)
-            "25X8" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(8)
-            "25X9" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(9)
-            _ => Err(NitfError::FieldError),
+            "X1"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(1)
+            "X2"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(2)
+            "X3"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(3)
+            "X4"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(4)
+            "X5"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(5)
+            "X6"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(6)
+            "X7"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(7)
+            "X8"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(8)
+            "25X1" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(1)
+            "25X2" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(2)
+            "25X3" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(3)
+            "25X4" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(4)
+            "25X5" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(5)
+            "25X6" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(6)
+            "25X7" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(7)
+            "25X8" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(8)
+            "25X9" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(9)
+            "DN10" => Ok(Self::VALID),
+            "DNI"  => Ok(Self::VALID),
+            _      => Ok(Self::UNRECOGNIZED)
         }
     }
 }
