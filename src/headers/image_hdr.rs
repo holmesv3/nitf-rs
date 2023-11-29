@@ -244,16 +244,16 @@ pub enum Mode {
 fn read_bands(reader: &mut File, n_band: u32) -> Vec<Band> {
     let mut bands: Vec<Band> = vec![Band::default(); n_band as usize];
     for band in &mut bands {
-        band.irepband.read(reader, 2u8);
-        band.isubcat.read(reader, 6u8);
-        band.ifc.read(reader, 1u8);
-        band.imflt.read(reader, 3u8);
-        band.nluts.read(reader, 1u8);
+        band.irepband.read(reader, 2u8, "IREPBAND");
+        band.isubcat.read(reader, 6u8, "ISUBCAT");
+        band.ifc.read(reader, 1u8, "IFC");
+        band.imflt.read(reader, 3u8, "IMFLT");
+        band.nluts.read(reader, 1u8, "NLUTS");
         if band.nluts.val != 0 {
-            band.nelut.read(reader, 5u8);
+            band.nelut.read(reader, 5u8, "NELUT");
             for _ in 0..band.nelut.val {
                 let mut lut: NitfField<u8> = NitfField::default();
-                lut.read(reader, 1u8);
+                lut.read(reader, 1u8, "LUDT");
                 band.lutd.push(lut);
             }
         }
@@ -264,64 +264,64 @@ fn read_bands(reader: &mut File, n_band: u32) -> Vec<Band> {
 // TRAIT IMPLEMENTATIONS
 impl NitfSegmentHeader for ImageHeader {
     fn read(&mut self, reader: &mut File) {
-        self.im.read(reader, 2u8);
-        self.iid1.read(reader, 10u8);
-        self.idatim.read(reader, 14u8);
-        self.tgtid.read(reader, 17u8);
-        self.iid2.read(reader, 80u8);
+        self.im.read(reader, 2u8, "IM");
+        self.iid1.read(reader, 10u8, "IID1");
+        self.idatim.read(reader, 14u8, "IDATIM");
+        self.tgtid.read(reader, 17u8, "TGTID");
+        self.iid2.read(reader, 80u8, "IID2");
         self.security.read(reader);
-        self.encryp.read(reader, 1u8);
-        self.isorce.read(reader, 42u8);
-        self.nrows.read(reader, 8u8);
-        self.ncols.read(reader, 8u8);
-        self.pvtype.read(reader, 3u8);
-        self.irep.read(reader, 8u8);
-        self.icat.read(reader, 8u8);
-        self.abpp.read(reader, 2u8);
-        self.pjust.read(reader, 1u8);
-        self.icords.read(reader, 1u8);
+        self.encryp.read(reader, 1u8, "ENCRYP");
+        self.isorce.read(reader, 42u8, "ISORCE");
+        self.nrows.read(reader, 8u8, "NROWS");
+        self.ncols.read(reader, 8u8, "NCOLS");
+        self.pvtype.read(reader, 3u8, "PVTYPE");
+        self.irep.read(reader, 8u8, "IREP");
+        self.icat.read(reader, 8u8, "ICAT");
+        self.abpp.read(reader, 2u8, "ABPP");
+        self.pjust.read(reader, 1u8, "PJUST");
+        self.icords.read(reader, 1u8, "ICORDS");
         for _ in 0..4 {
             let mut geoloc: NitfField<String> = NitfField::default();
-            geoloc.read(reader, 15u8);
+            geoloc.read(reader, 15u8, "READ");
             self.igeolo.push(geoloc);
         }
-        self.nicom.read(reader, 1u8);
+        self.nicom.read(reader, 1u8, "NICOM");
         for _ in 0..self.nicom.val {
             let mut comment: NitfField<String> = NitfField::default();
-            comment.read(reader, 80u8);
+            comment.read(reader, 80u8, "READ");
             self.icoms.push(comment);
         }
 
-        self.ic.read(reader, 2u8);
-        self.nbands.read(reader, 1u8);
+        self.ic.read(reader, 2u8, "IC");
+        self.nbands.read(reader, 1u8, "NBANDS");
         // If NBANDS = 0, use XBANDS
         if self.nbands.val != 0 {
             self.bands = read_bands(reader, self.nbands.val as u32)
         } else {
-            self.xbands.read(reader, 5u8);
+            self.xbands.read(reader, 5u8, "XBANDS");
             self.bands = read_bands(reader, self.xbands.val)
         }
-        self.isync.read(reader, 1u8);
-        self.imode.read(reader, 1u8);
-        self.nbpr.read(reader, 4u8);
-        self.nbpc.read(reader, 4u8);
-        self.nppbh.read(reader, 4u8);
-        self.nppbv.read(reader, 4u8);
-        self.nbpp.read(reader, 2u8);
-        self.idlvl.read(reader, 3u8);
-        self.ialvl.read(reader, 3u8);
-        self.iloc.read(reader, 10u8);
-        self.imag.read(reader, 4u8);
-        self.udidl.read(reader, 5u8);
+        self.isync.read(reader, 1u8, "ISYNC");
+        self.imode.read(reader, 1u8, "IMODE");
+        self.nbpr.read(reader, 4u8, "NBPR");
+        self.nbpc.read(reader, 4u8, "NBPC");
+        self.nppbh.read(reader, 4u8, "NPPBH");
+        self.nppbv.read(reader, 4u8, "NPPBV");
+        self.nbpp.read(reader, 2u8, "NBPP");
+        self.idlvl.read(reader, 3u8, "IDLVL");
+        self.ialvl.read(reader, 3u8, "IALVL");
+        self.iloc.read(reader, 10u8, "ILOC");
+        self.imag.read(reader, 4u8, "IMAG");
+        self.udidl.read(reader, 5u8, "UDIDL");
         let udi_data_length = self.udidl.val;
         if udi_data_length != 0 {
-            self.udofl.read(reader, 3u8);
-            self.udid.read(reader, udi_data_length - 3);
+            self.udofl.read(reader, 3u8, "UDOFL");
+            self.udid.read(reader, udi_data_length - 3, "UDID");
         }
-        self.ixshdl.read(reader, 5u8);
+        self.ixshdl.read(reader, 5u8, "IXSHDL");
         let ixsh_data_length = self.ixshdl.val;
         if ixsh_data_length != 0 {
-            self.ixsofl.read(reader, 3u8);
+            self.ixsofl.read(reader, 3u8, "IXSOFL");
             self.ixshd.read(reader, (ixsh_data_length - 3) as usize);
             
         }

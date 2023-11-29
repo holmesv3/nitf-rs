@@ -35,11 +35,11 @@ impl Display for ReservedExtensionHeader {
 }
 impl NitfSegmentHeader for ReservedExtensionHeader {
     fn read(&mut self, reader: &mut File) {
-        self.re.read(reader, 2u8);
-        self.resid.read(reader, 25u8);
-        self.resver.read(reader, 2u8);
+        self.re.read(reader, 2u8, "RE");
+        self.resid.read(reader, 25u8, "RESID");
+        self.resver.read(reader, 2u8, "RESVER");
         self.security.read(reader);
-        self.resshl.read(reader, 4u8);
+        self.resshl.read(reader, 4u8, "RESSHL");
         if self.resshl.val != 0 {
             self.resshf.read(reader, self.resshl.val as usize);
         }

@@ -71,24 +71,24 @@ impl Display for GraphicHeader {
 }
 impl NitfSegmentHeader for GraphicHeader {
     fn read(&mut self, reader: &mut File) {
-        self.sy.read(reader, 2u8);
-        self.sid.read(reader, 10u8);
-        self.sname.read(reader, 20u8);
+        self.sy.read(reader, 2u8, "SY");
+        self.sid.read(reader, 10u8, "SID");
+        self.sname.read(reader, 20u8, "SNAME");
         self.security.read(reader);
-        self.encryp.read(reader, 1u8);
-        self.sfmt.read(reader, 1u8);
-        self.sstruct.read(reader, 13u8);
-        self.sdlvl.read(reader, 3u8);
-        self.salvl.read(reader, 3u8);
-        self.sloc.read(reader, 10u8);
-        self.sbnd1.read(reader, 10u8);
-        self.scolor.read(reader, 1u8);
-        self.sbnd2.read(reader, 10u8);
-        self.sres2.read(reader, 2u8);
-        self.sxshdl.read(reader, 5u8);
+        self.encryp.read(reader, 1u8, "ENCRYP");
+        self.sfmt.read(reader, 1u8, "SFMT");
+        self.sstruct.read(reader, 13u8, "SSTRUCT");
+        self.sdlvl.read(reader, 3u8, "SDLVL");
+        self.salvl.read(reader, 3u8, "SALVL");
+        self.sloc.read(reader, 10u8, "SLOC");
+        self.sbnd1.read(reader, 10u8, "SBND1");
+        self.scolor.read(reader, 1u8, "SCOLOR");
+        self.sbnd2.read(reader, 10u8, "SBND2");
+        self.sres2.read(reader, 2u8, "SRES2");
+        self.sxshdl.read(reader, 5u8, "SXSHDL");
         let gphx_data_length = self.sxshdl.val;
         if gphx_data_length != 0 {
-            self.sxsofl.read(reader, 3u8);
+            self.sxsofl.read(reader, 3u8, "SXSOFL");
             self.sxshd.read(reader, (gphx_data_length - 3) as usize);
         }
     }

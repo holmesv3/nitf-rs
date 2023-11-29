@@ -3,6 +3,7 @@ use std::fmt::{Debug, Display};
 use std::str::FromStr;
 use std::io::{Read, Seek};
 use std::fs::File;
+use log::{warn, trace};
 
 use crate::error::NitfError;
 
@@ -146,24 +147,34 @@ pub enum ClassificationReason {
 /// Use Default implementation
 impl<V> NitfField<V>
 where
-    V: FromStr + Debug,
+    V: FromStr + Debug + Default,
     <V as FromStr>::Err: Debug,
 {
     /// Read the specified number of bytes and parse the value of a given field
-    pub fn read<T: Sized + Into<u64>>(&mut self, reader: &mut File, n_bytes: T) {
+    pub fn read<T: Sized + Into<u64>>(&mut self, reader: &mut File, n_bytes: T, field_name: &str) {
         self.length = n_bytes.into();
         self.bytes = vec![0; self.length as usize];
+        // Crash if something goes wrong with the cursor
         self.offset = reader.stream_position().unwrap();
+        // Crash if there is an error reading the bytes
         reader.read_exact(&mut self.bytes).unwrap();
-        let result = String::from_utf8(self.bytes.to_vec());
-        match result {
+        // Report an error if a given field cannot be parsed to a string
+        match String::from_utf8(self.bytes.to_vec()) {
             Ok(str) => {
                 self.string = str.trim().to_string();
-                self.val = self.string.parse().unwrap();
+                // Report an error and assign a default value if a field can't be parsed to it's enum/native representation
+                self.val = match self.string.parse() {
+                    Ok(v) => {trace!("Set {field_name}: {v:?}"); v},
+                    Err(_) => {
+                            warn!("Failed to parse {field_name} from string: {}", self.string);
+                            warn!("Setting {field_name} to default: {:?}", V::default());
+                            V::default()
+                    }
+                }
             }
-            Err(err) => {
+            Err(_) => {
                 self.string = String::from("Error parsing string");
-                println!("{}", err)
+                warn!("Failed to parse {field_name} from bytes: {:?}", self.bytes)
             }
         }
     }
@@ -175,22 +186,22 @@ impl<V: FromStr + Debug> Display for NitfField<V> {
 }
 impl Security {
     pub fn read(&mut self, reader: &mut File) {
-        self.clas.read(reader, 1u8);
-        self.clsy.read(reader, 2u8);
-        self.code.read(reader, 11u8);
-        self.ctlh.read(reader, 2u8);
-        self.rel.read(reader, 20u8);
-        self.dctp.read(reader, 2u8);
-        self.dcdt.read(reader, 8u8);
-        self.dcxm.read(reader, 4u8);
-        self.dg.read(reader, 1u8);
-        self.dgdt.read(reader, 8u8);
-        self.cltx.read(reader, 43u8);
-        self.catp.read(reader, 1u8);
-        self.caut.read(reader, 40u8);
-        self.crsn.read(reader, 1u8);
-        self.srdt.read(reader, 8u8);
-        self.ctln.read(reader, 15u8);
+        self.clas.read(reader, 1u8, "CLAS");
+        self.clsy.read(reader, 2u8, "CLSY");
+        self.code.read(reader, 11u8, "CODE");
+        self.ctlh.read(reader, 2u8, "CTLH");
+        self.rel.read(reader, 20u8, "REL");
+        self.dctp.read(reader, 2u8, "DCTP");
+        self.dcdt.read(reader, 8u8, "DCDT");
+        self.dcxm.read(reader, 4u8, "DCXM");
+        self.dg.read(reader, 1u8, "DG");
+        self.dgdt.read(reader, 8u8, "DGDT");
+        self.cltx.read(reader, 43u8, "CLTX");
+        self.catp.read(reader, 1u8, "CATP");
+        self.caut.read(reader, 40u8, "CAUT");
+        self.crsn.read(reader, 1u8, "CRSN");
+        self.srdt.read(reader, 8u8, "SRDT");
+        self.ctln.read(reader, 15u8, "CTLN");
     }
 }
 impl Display for Security {

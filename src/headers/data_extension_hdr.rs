@@ -47,15 +47,15 @@ pub enum OverflowedHeaderType {
 
 impl NitfSegmentHeader for DataExtensionHeader {
     fn read(&mut self, reader: &mut File) {
-        self.de.read(reader, 2u8);
-        self.desid.read(reader, 25u8);
-        self.desver.read(reader, 2u8);
+        self.de.read(reader, 2u8, "DE");
+        self.desid.read(reader, 25u8, "DESID");
+        self.desver.read(reader, 2u8, "DESVER");
         self.security.read(reader);
         if self.desid.string.trim() == "TRE_OVERFLOW" {
-            self.desoflw.read(reader, 6u8);
-            self.desitem.read(reader, 3u8);
+            self.desoflw.read(reader, 6u8, "DESOFLW");
+            self.desitem.read(reader, 3u8, "DESITEM");
         }
-        self.desshl.read(reader, 4u8);
+        self.desshl.read(reader, 4u8, "DESSHL");
         if self.desshl.val != 0 {
             self.desshf.read(reader, self.desshl.val as usize);
         }

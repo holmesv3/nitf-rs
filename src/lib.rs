@@ -48,6 +48,7 @@
 use std::fs::File;
 use std::path::Path;
 use std::fmt::Display;
+use log::debug;
 
 pub(crate) mod error;
 pub mod segments;
@@ -97,6 +98,7 @@ pub struct Nitf {
 /// let nitf = nitf_rs::read_nitf(nitf_path);
 /// ```
 pub fn read_nitf(path: &Path) -> Nitf {
+    // Crash if failure to open file
     let mut file = File::open(path).unwrap();
     Nitf::from_file(&mut file)
 }
@@ -104,6 +106,7 @@ pub fn read_nitf(path: &Path) -> Nitf {
 impl Nitf {
     pub fn from_file(file: &mut File) -> Self {
         let mut nitf = Self::default();
+        debug!("Reading NITF file header");
         nitf.nitf_header.read(file);
 
         let mut n_seg = nitf.nitf_header.meta.numi.val as usize;

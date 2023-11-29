@@ -131,72 +131,75 @@ impl Display for NitfHeader {
 
 impl NitfSegmentHeader for NitfHeader {
     fn read(&mut self, reader: &mut File) {
-        self.fhdr.read(reader, 4u8);
-        self.fver.read(reader, 5u8);
-        self.clevel.read(reader, 2u8);
-        self.stype.read(reader, 4u8);
-        self.ostaid.read(reader, 10u8);
-        self.fdt.read(reader, 14u8);
-        self.ftitle.read(reader, 80u8);
+        self.fhdr.read(reader, 4u8, "FHDR");
+        if self.fhdr.string != "NITF" {
+            panic!("ERROR: {}", format!("File does not appear to be a NITF. File header is \"{}\", expected \"NITF\"", self.fhdr.string));
+        }
+        self.fver.read(reader, 5u8, "FVER");
+        self.clevel.read(reader, 2u8, "CLEVEL");
+        self.stype.read(reader, 4u8, "STYPE");
+        self.ostaid.read(reader, 10u8, "OSTAID");
+        self.fdt.read(reader, 14u8, "FDT");
+        self.ftitle.read(reader, 80u8, "FTITLE");
         self.security.read(reader);
-        self.fscop.read(reader, 5u8);
-        self.fscpys.read(reader, 5u8);
-        self.encryp.read(reader, 1u8);
+        self.fscop.read(reader, 5u8, "FSCOP");
+        self.fscpys.read(reader, 5u8, "FSCPYS");
+        self.encryp.read(reader, 1u8, "ENCRYP");
         for _ in 0..3 {
             let mut color: NitfField<String> = NitfField::default();
-            color.read(reader, 1u8);
+            color.read(reader, 1u8, "READ");
             self.fbkgc.push(color);
         }
 
-        self.oname.read(reader, 24u8);
-        self.ophone.read(reader, 18u8);
-        self.fl.read(reader, 12u8);
-        self.hl.read(reader, 6u8);
-        self.numi.read(reader, 3u8);
+        self.oname.read(reader, 24u8, "ONAME");
+        self.ophone.read(reader, 18u8, "OPHONE");
+        self.fl.read(reader, 12u8, "FL");
+        self.hl.read(reader, 6u8, "HL");
+        self.numi.read(reader, 3u8, "NUMI");
         for _ in 0..self.numi.val {
             let mut subheader = SubHeader::default();
             subheader.read(reader, 6, 10);
             self.imheaders.push(subheader);
         }
 
-        self.nums.read(reader, 3u8);
+        self.nums.read(reader, 3u8, "NUMS");
         for _ in 0..self.nums.val {
             let mut subheader = SubHeader::default();
             subheader.read(reader, 4, 6);
             self.graphheaders.push(subheader);
         }
 
-        self.numx.read(reader, 3u8);
-        self.numt.read(reader, 3u8);
+        self.numx.read(reader, 3u8, "NUMX");
+        self.numt.read(reader, 3u8, "NUMT");
         for _ in 0..self.numt.val {
             let mut subheader = SubHeader::default();
             subheader.read(reader, 4, 5);
             self.textheaders.push(subheader);
         }
 
-        self.numdes.read(reader, 3u8);
+        self.numdes.read(reader, 3u8, "NUMDES");
         for _ in 0..self.numdes.val {
             let mut subheader = SubHeader::default();
             subheader.read(reader, 4, 9);
             self.dextheaders.push(subheader);
         }
 
-        self.numres.read(reader, 3u8);
+        self.numres.read(reader, 3u8, "NUMRES");
         for _ in 0..self.numres.val {
             let mut subheader = SubHeader::default();
             subheader.read(reader, 4, 7);
             self.resheaders.push(subheader);
         }
 
-        self.udhdl.read(reader, 5u8);
+        self.udhdl.read(reader, 5u8, "UDHDL");
         if self.udhdl.val != 0 {
-            self.udhofl.read(reader, 3u8);
+            self.udhofl.read(reader, 3u8, "UDHOFL");
             self.udhd.read(reader, (self.udhdl.val - 3) as usize);
         }
 
-        self.xhdl.read(reader, 5u8);
+        self.xhdl.read(reader, 5u8, "XHDL");
         if self.xhdl.val != 0 {
-            self.xhdlofl.read(reader, 3u8);
+            self.xhdlofl.read(reader, 3u8, "XHDLOFL");
             self.xhd.read(reader, (self.xhdl.val - 3) as usize);
         }
     }
@@ -214,8 +217,8 @@ pub struct SubHeader {
 }
 impl SubHeader {
     pub fn read(&mut self, reader: &mut File, sh_size: u64, item_size: u64) {
-        self.subheader_size.read(reader, sh_size);
-        self.item_size.read(reader, item_size);
+        self.subheader_size.read(reader, sh_size, "SUBHEADER_SIZE");
+        self.item_size.read(reader, item_size, "ITEM_SIZE");
     }
 }
 impl Display for SubHeader {
