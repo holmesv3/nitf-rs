@@ -5,7 +5,7 @@ use std::str::FromStr;
 
 use crate::error::NitfError;
 use crate::headers::NitfSegmentHeader;
-use crate::types::{NitfField, Security, ExtendedSubheader};
+use crate::types::{ExtendedSubheader, NitfField, Security};
 
 /// Header fields for Graphic Segment
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
@@ -89,7 +89,8 @@ impl NitfSegmentHeader for GraphicHeader {
         let gphx_data_length = self.sxshdl.val;
         if gphx_data_length != 0 {
             self.sxsofl.read(reader, 3u8, "SXSOFL");
-            self.sxshd.read(reader, (gphx_data_length - 3) as usize);
+            self.sxshd
+                .read(reader, (gphx_data_length - 3) as usize, "SXSHD");
         }
     }
 }
@@ -126,8 +127,8 @@ impl FromStr for BoundLocation {
         if n_char_tot % 2 == 0 {
             let mut bounds = Self::default();
             let n_char = n_char_tot / 2;
-            bounds.row = s[..n_char].parse().unwrap();
-            bounds.col = s[n_char..].parse().unwrap();
+            bounds.row = s[..n_char].parse().expect("Error parsing row");
+            bounds.col = s[n_char..].parse().expect("Error parsing col");
             Ok(bounds)
         } else {
             Err(NitfError::FieldError)

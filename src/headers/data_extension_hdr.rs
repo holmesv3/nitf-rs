@@ -5,7 +5,7 @@ use std::str::FromStr;
 
 use crate::error::NitfError;
 use crate::headers::NitfSegmentHeader;
-use crate::types::{NitfField, Security, ExtendedSubheader};
+use crate::types::{ExtendedSubheader, NitfField, Security};
 
 /// Metadata for Data Extension Segment
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
@@ -26,7 +26,7 @@ pub struct DataExtensionHeader {
     /// DES User-defined Subheader Length
     pub desshl: NitfField<u16>,
     /// User-defined Subheader Fields
-    pub desshf: ExtendedSubheader, 
+    pub desshf: ExtendedSubheader,
 }
 
 /// Selection of which header/subheader this extension corresponds to
@@ -57,7 +57,7 @@ impl NitfSegmentHeader for DataExtensionHeader {
         }
         self.desshl.read(reader, 4u8, "DESSHL");
         if self.desshl.val != 0 {
-            self.desshf.read(reader, self.desshl.val as usize);
+            self.desshf.read(reader, self.desshl.val as usize, "DESSHF");
         }
     }
 }

@@ -1,9 +1,9 @@
 //! Common types use throughout
+use log::{trace, warn};
 use std::fmt::{Debug, Display};
-use std::str::FromStr;
-use std::io::{Read, Seek};
 use std::fs::File;
-use log::{warn, trace};
+use std::io::{Read, Seek};
+use std::str::FromStr;
 
 use crate::error::NitfError;
 
@@ -154,29 +154,33 @@ where
     pub fn read<T: Sized + Into<u64>>(&mut self, reader: &mut File, n_bytes: T, field_name: &str) {
         self.length = n_bytes.into();
         self.bytes = vec![0; self.length as usize];
+        let fatal_err = format!("Fatal Error reading {field_name}");
+
         // Crash if something goes wrong with the cursor
-        self.offset = reader.stream_position().unwrap();
+        self.offset = reader.stream_position().expect(&fatal_err);
+
         // Crash if there is an error reading the bytes
-        reader.read_exact(&mut self.bytes).unwrap();
-        // Report an error if a given field cannot be parsed to a string
+        reader.read_exact(&mut self.bytes).expect(&fatal_err);
+
+        // Try to read the bytes to a string
         match String::from_utf8(self.bytes.to_vec()) {
+            // If it's ok, trim and try to parse to enum/native representation
             Ok(str) => {
                 self.string = str.trim().to_string();
-                // Report an error and assign a default value if a field can't be parsed to it's enum/native representation
-                self.val = match self.string.parse() {
-                    Ok(v) => {trace!("Set {field_name}: {v:?}"); v},
-                    Err(_) => {
-                            warn!("Failed to parse {field_name} from string: {}", self.string);
-                            warn!("Setting {field_name} to default: {:?}", V::default());
-                            V::default()
-                    }
-                }
+
+                // Warn and assign a default value if error parsing
+                self.val = self.string.parse().unwrap_or_else(|_| {
+                    warn!("Non-fatal error parsing {}", field_name);
+                    V::default()
+                });
             }
+
             Err(_) => {
                 self.string = String::from("Error parsing string");
-                warn!("Failed to parse {field_name} from bytes: {:?}", self.bytes)
+                warn!("Failed to parse {field_name} from bytes: {:?}", self.bytes);
             }
         }
+        trace!("{:?}", self.val);
     }
 }
 impl<V: FromStr + Debug> Display for NitfField<V> {
@@ -259,26 +263,26 @@ impl FromStr for DeclassificationExemption {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "" => Ok(Self::DEFAULT),
-            "X1"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(1)
-            "X2"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(2)
-            "X3"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(3)
-            "X4"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(4)
-            "X5"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(5)
-            "X6"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(6)
-            "X7"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(7)
-            "X8"   => Ok(Self::VALID),  // DOD 5200.01-V1, 4-201b(8)
-            "25X1" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(1)
-            "25X2" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(2)
-            "25X3" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(3)
-            "25X4" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(4)
-            "25X5" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(5)
-            "25X6" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(6)
-            "25X7" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(7)
-            "25X8" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(8)
-            "25X9" => Ok(Self::VALID),  // DOD 5200.01-V1, 4-301b(9)
+            "X1" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(1)
+            "X2" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(2)
+            "X3" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(3)
+            "X4" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(4)
+            "X5" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(5)
+            "X6" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(6)
+            "X7" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(7)
+            "X8" => Ok(Self::VALID),   // DOD 5200.01-V1, 4-201b(8)
+            "25X1" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(1)
+            "25X2" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(2)
+            "25X3" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(3)
+            "25X4" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(4)
+            "25X5" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(5)
+            "25X6" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(6)
+            "25X7" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(7)
+            "25X8" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(8)
+            "25X9" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(9)
             "DN10" => Ok(Self::VALID),
-            "DNI"  => Ok(Self::VALID),
-            _      => Ok(Self::UNRECOGNIZED)
+            "DNI" => Ok(Self::VALID),
+            _ => Ok(Self::UNRECOGNIZED),
         }
     }
 }
@@ -330,14 +334,15 @@ pub struct ExtendedSubheader {
     pub tre: Vec<u8>,
     /// Length of subheader
     pub size: usize,
-
 }
 impl ExtendedSubheader {
-    pub fn read(&mut self, reader: &mut File, n_bytes: usize) {
+    pub fn read(&mut self, reader: &mut File, n_bytes: usize, name: &str) {
         self.size = n_bytes;
         self.tre = vec![0; n_bytes];
-        reader.read_exact(self.tre.as_mut_slice()).unwrap();
-
+        let fatal_err = format!("Fatal Error reading {name}");
+        reader
+            .read_exact(self.tre.as_mut_slice())
+            .expect(&fatal_err);
     }
 }
 impl Display for ExtendedSubheader {

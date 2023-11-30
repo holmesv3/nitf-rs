@@ -3,7 +3,7 @@ use std::fmt::Display;
 use std::fs::File;
 
 use crate::headers::NitfSegmentHeader;
-use crate::types::{NitfField, Security, ExtendedSubheader};
+use crate::types::{ExtendedSubheader, NitfField, Security};
 
 /// Metadata for Reserved Extension Segment
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
@@ -41,7 +41,7 @@ impl NitfSegmentHeader for ReservedExtensionHeader {
         self.security.read(reader);
         self.resshl.read(reader, 4u8, "RESSHL");
         if self.resshl.val != 0 {
-            self.resshf.read(reader, self.resshl.val as usize);
+            self.resshf.read(reader, self.resshl.val as usize, "RESSHF");
         }
     }
 }

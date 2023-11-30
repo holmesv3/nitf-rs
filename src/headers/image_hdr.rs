@@ -7,7 +7,7 @@ use std::str::FromStr;
 
 use crate::error::NitfError;
 use crate::headers::NitfSegmentHeader;
-use crate::types::{NitfField, Security, ExtendedSubheader};
+use crate::types::{ExtendedSubheader, NitfField, Security};
 
 /// Metadata for Image Segment subheader
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
@@ -93,7 +93,7 @@ pub struct ImageHeader {
     /// Image Extended Subheader Overflow
     pub ixsofl: NitfField<u16>,
     /// Image Extended Subheader Data
-    pub ixshd: ExtendedSubheader
+    pub ixshd: ExtendedSubheader,
 }
 
 /// Band metadata
@@ -322,8 +322,8 @@ impl NitfSegmentHeader for ImageHeader {
         let ixsh_data_length = self.ixshdl.val;
         if ixsh_data_length != 0 {
             self.ixsofl.read(reader, 3u8, "IXSOFL");
-            self.ixshd.read(reader, (ixsh_data_length - 3) as usize);
-            
+            self.ixshd
+                .read(reader, (ixsh_data_length - 3) as usize, "IXSHD");
         }
     }
 }
@@ -373,8 +373,7 @@ impl Display for ImageHeader {
         out_str += format!("UDOFL: {}, ", self.udofl).as_ref();
         out_str += format!("UDID: {}, ", self.udid).as_ref();
         out_str += format!("IXSHDL: {}, ", self.ixshdl).as_ref();
-        if self.ixshdl.val != 0
-        {
+        if self.ixshdl.val != 0 {
             out_str += format!("IXSOFL: {}, ", self.ixsofl).as_ref();
             out_str += format!("IXSHD: {}", self.ixshd).as_ref();
         }

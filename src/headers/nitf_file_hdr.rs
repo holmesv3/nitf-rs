@@ -3,7 +3,7 @@ use std::fmt::Display;
 use std::fs::File;
 
 use crate::headers::NitfSegmentHeader;
-use crate::types::{NitfField, Security, ExtendedSubheader};
+use crate::types::{ExtendedSubheader, NitfField, Security};
 
 /// Metadata for Nitf File Header
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
@@ -132,8 +132,9 @@ impl Display for NitfHeader {
 impl NitfSegmentHeader for NitfHeader {
     fn read(&mut self, reader: &mut File) {
         self.fhdr.read(reader, 4u8, "FHDR");
+        // Crash if file header is not NITF
         if self.fhdr.string != "NITF" {
-            panic!("ERROR: {}", format!("File does not appear to be a NITF. File header is \"{}\", expected \"NITF\"", self.fhdr.string));
+            panic!("ERROR: File does not appear to be a NITF. File header is \"{}\", expected \"NITF\"", self.fhdr.string);
         }
         self.fver.read(reader, 5u8, "FVER");
         self.clevel.read(reader, 2u8, "CLEVEL");
@@ -194,13 +195,14 @@ impl NitfSegmentHeader for NitfHeader {
         self.udhdl.read(reader, 5u8, "UDHDL");
         if self.udhdl.val != 0 {
             self.udhofl.read(reader, 3u8, "UDHOFL");
-            self.udhd.read(reader, (self.udhdl.val - 3) as usize);
+            self.udhd
+                .read(reader, (self.udhdl.val - 3) as usize, "UDHD");
         }
 
         self.xhdl.read(reader, 5u8, "XHDL");
         if self.xhdl.val != 0 {
             self.xhdlofl.read(reader, 3u8, "XHDLOFL");
-            self.xhd.read(reader, (self.xhdl.val - 3) as usize);
+            self.xhd.read(reader, (self.xhdl.val - 3) as usize, "XHD");
         }
     }
 }

@@ -1,9 +1,9 @@
 //! File header and generic segment definition
 use memmap2::{Mmap, MmapOptions};
-use std::ops::Deref;
-use std::fs::File;
 use std::fmt::Display;
+use std::fs::File;
 use std::io::{Seek, SeekFrom::Start};
+use std::ops::Deref;
 
 use crate::headers::{NitfHeader, NitfSegmentHeader};
 
@@ -17,6 +17,7 @@ pub struct FileHeader {
 impl FileHeader {
     pub fn read(&mut self, reader: &mut File) {
         self.meta.read(reader);
+        // Crash if cursor error
         self.header_size = reader.stream_position().unwrap();
     }
 }
@@ -43,6 +44,7 @@ pub struct NitfSegment<T: NitfSegmentHeader> {
 }
 impl<T: NitfSegmentHeader> NitfSegment<T> {
     pub fn initialize(reader: &mut File, header_size: u32, data_size: u64) -> Self {
+        // Crash if cursor error
         let header_offset = reader.stream_position().unwrap();
         let header_size = header_size;
         let data_size = data_size;
@@ -54,9 +56,10 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
                 .offset(data_offset)
                 .len(data_size as usize)
                 .map(reader.deref())
-                .unwrap()
+                .unwrap() // Crash if error with memmap
         };
         // Seek to end of data for next segment to be read
+        // Crash if cursor error
         reader.seek(Start(data_offset + data_size)).unwrap();
         Self {
             meta,

@@ -1,10 +1,10 @@
 //! Minimal Crate for reading and manipulating `NITF` files
 
 //! Interface for NITF version 2.1
-//! 
-//! Constructing a [Nitf] object parses the header and subheader information. 
+//!
+//! Constructing a [Nitf] object parses the header and subheader information.
 //! Each segment in contains a `meta` field which stores the respective
-//! fields defined in the file standard. The primary function for constructing a 
+//! fields defined in the file standard. The primary function for constructing a
 //! [Nitf] is [read_nitf()]
 //! ```
 //! // Read a nitf file and dump metadata to stdout
@@ -13,10 +13,10 @@
 //! let nitf = nitf_rs::read_nitf(&nitf_path);
 //! println!("{nitf}");
 //! ```
-//! 
+//!
 //! The main feature of the [FileHeader] is its `meta` field (see (NitfHeader)
-//! [headers::NitfHeader]). 
-//! All other segments use the generic [NitfSegment] to provide header fields and 
+//! [headers::NitfHeader]).
+//! All other segments use the generic [NitfSegment] to provide header fields and
 //! a memory-map of the segment data.
 //! ```
 //! // Get the bytes from the first image segment
@@ -26,10 +26,10 @@
 //! let im_seg = &nitf.image_segments[0];
 //! let u8_slice = &im_seg.data[..];
 //! ```
-//! Most metadata elements are stored in a [NitfField] structure. This structure 
+//! Most metadata elements are stored in a [NitfField] structure. This structure
 //! stores the `bytes` which encode the value, a `string` representation, and a
 //! `val` which holds on to native value of the field (i.e., the bytes parsed into a
-//! u8, u16, String, enum, etc.) 
+//! u8, u16, String, enum, etc.)
 //! ```
 //! // Read in a nitf and extract the...
 //! use std::path::Path;
@@ -42,17 +42,24 @@
 //! // .. and number of rows in the first image segment data
 //! let n_rows = nitf.image_segments[0].meta.nrows.val;
 //! ```
-//! 
-//! If there is user-defined tagged-record-extension (TRE) data within a segment, 
+//!
+//! If there is user-defined tagged-record-extension (TRE) data within a segment,
 //! it is stored in an [ExtendedSubheader] for the user to parse accordingly.
+use log::debug;
+use std::fmt::Display;
 use std::fs::File;
 use std::path::Path;
-use std::fmt::Display;
-use log::debug;
 
-pub(crate) mod error;
-pub mod segments;
+pub(crate) mod error {
+    use thiserror::Error;
+    #[derive(Error, Debug, Eq, PartialEq)]
+    pub enum NitfError {
+        #[error("error parsing a nitf field")]
+        FieldError,
+    }
+}
 pub mod headers;
+pub mod segments;
 pub mod types;
 
 // Convenience type-defs
@@ -62,20 +69,20 @@ type GraphicSegment = NitfSegment<headers::GraphicHeader>;
 type TextSegment = NitfSegment<headers::TextHeader>;
 type DataExtensionSegment = NitfSegment<headers::DataExtensionHeader>;
 type ReservedExtensionSegment = NitfSegment<headers::ReservedExtensionHeader>;
-    
+
+use segments::FileHeader;
 #[allow(unused_imports)]
 use types::{ExtendedSubheader, NitfField};
-use segments::FileHeader;
 
 /// Top level NITF interface
 #[derive(Default, Debug, Eq, PartialEq)]
 pub struct Nitf {
     /// Nitf file header.
     pub nitf_header: FileHeader,
-    
+
     /// Vector of image segments.
     pub image_segments: Vec<ImageSegment>,
-    
+
     /// Vector of graphics segments.
     pub graphic_segments: Vec<GraphicSegment>,
 

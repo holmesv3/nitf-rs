@@ -6,7 +6,7 @@ use std::str::FromStr;
 
 use crate::error::NitfError;
 use crate::headers::NitfSegmentHeader;
-use crate::types::{NitfField, Security, ExtendedSubheader};
+use crate::types::{ExtendedSubheader, NitfField, Security};
 
 /// Text Segment Metadata
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
@@ -60,10 +60,11 @@ impl NitfSegmentHeader for TextHeader {
         self.encryp.read(reader, 1u8, "ENCRYP");
         self.txtfmt.read(reader, 3u8, "TXTFMT");
         self.txshdl.read(reader, 5u8, "TXSHDL");
-        let extended_length: u32 = self.txshdl.string.parse().unwrap();
+        let extended_length = self.txshdl.val;
         if extended_length != 0 {
             self.txsofl.read(reader, 3u8, "TXSOFL");
-            self.txshd.read(reader, (extended_length - 3) as usize)
+            self.txshd
+                .read(reader, (extended_length - 3) as usize, "TXSHD");
         }
     }
 }
