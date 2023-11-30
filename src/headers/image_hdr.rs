@@ -7,8 +7,7 @@ use std::str::FromStr;
 
 use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
-use crate::NitfError;
-
+use crate::{NitfError, NitfResult};
 /// Metadata for Image Segment subheader
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct ImageHeader {
@@ -241,7 +240,7 @@ pub enum Mode {
 
 // FUNCTIONS
 /// Helper function for parsing bands
-fn read_bands(reader: &mut File, n_band: u32) -> Result<Vec<Band>, NitfError> {
+fn read_bands(reader: &mut File, n_band: u32) -> NitfResult<Vec<Band>> {
     let mut bands: Vec<Band> = vec![Band::default(); n_band as usize];
     for band in &mut bands {
         band.irepband.read(reader, 2u8, "IREPBAND")?;
@@ -263,7 +262,7 @@ fn read_bands(reader: &mut File, n_band: u32) -> Result<Vec<Band>, NitfError> {
 
 // TRAIT IMPLEMENTATIONS
 impl NitfSegmentHeader for ImageHeader {
-    fn read(&mut self, reader: &mut File) -> Result<(), NitfError> {
+    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
         self.im.read(reader, 2u8, "IM")?;
         self.iid1.read(reader, 10u8, "IID1")?;
         self.idatim.read(reader, 14u8, "IDATIM")?;

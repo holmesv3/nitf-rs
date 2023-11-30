@@ -5,7 +5,7 @@ use std::fs::File;
 use std::io::{Read, Seek};
 use std::str::FromStr;
 
-use crate::NitfError;
+use crate::{NitfError, NitfResult};
 
 /// Lowest level object for file parsing
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
@@ -156,7 +156,7 @@ where
         reader: &mut File,
         n_bytes: T,
         field_name: &str,
-    ) -> Result<(), NitfError> {
+    ) -> NitfResult<()> {
         self.length = n_bytes.into();
         self.bytes = vec![0; self.length as usize];
 
@@ -198,7 +198,7 @@ impl<V: FromStr + Debug> Display for NitfField<V> {
     }
 }
 impl Security {
-    pub fn read(&mut self, reader: &mut File) -> Result<(), NitfError> {
+    pub fn read(&mut self, reader: &mut File) -> NitfResult<()> {
         self.clas.read(reader, 1u8, "CLAS")?;
         self.clsy.read(reader, 2u8, "CLSY")?;
         self.code.read(reader, 11u8, "CODE")?;
@@ -349,7 +349,7 @@ pub struct ExtendedSubheader {
     pub size: usize,
 }
 impl ExtendedSubheader {
-    pub fn read(&mut self, reader: &mut File, n_bytes: usize, name: &str) -> Result<(), NitfError> {
+    pub fn read(&mut self, reader: &mut File, n_bytes: usize, name: &str) -> NitfResult<()> {
         self.size = n_bytes;
         self.tre = vec![0; n_bytes];
         reader

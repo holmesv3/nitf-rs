@@ -4,8 +4,7 @@ use std::fs::File;
 
 use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
-use crate::NitfError;
-
+use crate::NitfResult;
 /// Metadata for Reserved Extension Segment
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct ReservedExtensionHeader {
@@ -35,7 +34,7 @@ impl Display for ReservedExtensionHeader {
     }
 }
 impl NitfSegmentHeader for ReservedExtensionHeader {
-    fn read(&mut self, reader: &mut File) -> Result<(), NitfError> {
+    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
         self.re.read(reader, 2u8, "RE")?;
         self.resid.read(reader, 25u8, "RESID")?;
         self.resver.read(reader, 2u8, "RESVER")?;

@@ -6,8 +6,7 @@ use std::str::FromStr;
 
 use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
-use crate::NitfError;
-
+use crate::{NitfError, NitfResult};
 /// Text Segment Metadata
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct TextHeader {
@@ -50,7 +49,7 @@ pub enum TextFormat {
 }
 
 impl NitfSegmentHeader for TextHeader {
-    fn read(&mut self, reader: &mut File) -> Result<(), NitfError> {
+    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
         self.te.read(reader, 2u8, "TE")?;
         self.textid.read(reader, 7u8, "TEXTID")?;
         self.txtalvl.read(reader, 3u8, "TXTALVL")?;

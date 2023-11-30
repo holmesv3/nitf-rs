@@ -6,7 +6,7 @@ use std::io::{Seek, SeekFrom::Start};
 use std::ops::Deref;
 
 use crate::headers::{NitfHeader, NitfSegmentHeader};
-use crate::NitfError;
+use crate::{NitfError, NitfResult};
 
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
 pub struct FileHeader {
@@ -16,7 +16,7 @@ pub struct FileHeader {
     pub header_size: u64,
 }
 impl FileHeader {
-    pub fn read(&mut self, reader: &mut File) -> Result<(), NitfError> {
+    pub fn read(&mut self, reader: &mut File) -> NitfResult<()> {
         self.meta.read(reader)?;
         // Crash if cursor error
         self.header_size = reader.stream_position().or(Err(NitfError::IOError))?;
@@ -45,11 +45,7 @@ pub struct NitfSegment<T: NitfSegmentHeader> {
     pub data_size: u64,
 }
 impl<T: NitfSegmentHeader> NitfSegment<T> {
-    pub fn initialize(
-        reader: &mut File,
-        header_size: u32,
-        data_size: u64,
-    ) -> Result<Self, NitfError> {
+    pub fn initialize(reader: &mut File, header_size: u32, data_size: u64) -> NitfResult<Self> {
         // Crash if cursor error
         let header_offset = reader.stream_position().or(Err(NitfError::IOError))?;
         let header_size = header_size;

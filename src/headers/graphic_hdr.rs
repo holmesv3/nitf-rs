@@ -5,8 +5,7 @@ use std::str::FromStr;
 
 use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
-use crate::NitfError;
-
+use crate::{NitfError, NitfResult};
 /// Header fields for Graphic Segment
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct GraphicHeader {
@@ -70,7 +69,7 @@ impl Display for GraphicHeader {
     }
 }
 impl NitfSegmentHeader for GraphicHeader {
-    fn read(&mut self, reader: &mut File) -> Result<(), NitfError> {
+    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
         self.sy.read(reader, 2u8, "SY")?;
         self.sid.read(reader, 10u8, "SID")?;
         self.sname.read(reader, 20u8, "SNAME")?;

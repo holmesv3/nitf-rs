@@ -51,6 +51,8 @@ use std::fs::File;
 use std::path::Path;
 use thiserror::Error;
 
+pub type NitfResult<T> = Result<T, NitfError>;
+
 #[derive(Error, Debug, Eq, PartialEq)]
 pub enum NitfError {
     #[error("File does not appear to be a NITF. Expected file header \"NITF\", found \"{0}\"")]
@@ -111,14 +113,14 @@ pub struct Nitf {
 /// let nitf_path = Path::new("../example.nitf");
 /// let nitf = nitf_rs::read_nitf(nitf_path);
 /// ```
-pub fn read_nitf(path: &Path) -> Result<Nitf, NitfError> {
+pub fn read_nitf(path: &Path) -> NitfResult<Nitf> {
     // Crash if failure to open file
     let mut file = File::open(path).or(Err(NitfError::IOError))?;
     Nitf::from_file(&mut file)
 }
 
 impl Nitf {
-    pub fn from_file(file: &mut File) -> Result<Self, NitfError> {
+    pub fn from_file(file: &mut File) -> NitfResult<Self> {
         let mut nitf = Self::default();
         debug!("Reading NITF file header");
         nitf.nitf_header.read(file)?;

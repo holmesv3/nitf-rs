@@ -4,8 +4,7 @@ use std::fs::File;
 
 use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
-use crate::NitfError;
-
+use crate::{NitfError, NitfResult};
 /// Metadata for Nitf File Header
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct NitfHeader {
@@ -131,7 +130,7 @@ impl Display for NitfHeader {
 }
 
 impl NitfSegmentHeader for NitfHeader {
-    fn read(&mut self, reader: &mut File) -> Result<(), NitfError> {
+    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
         self.fhdr.read(reader, 4u8, "FHDR")?;
         // Crash if file header is not NITF
         if self.fhdr.string != "NITF" {
@@ -220,12 +219,7 @@ pub struct SubHeader {
     pub item_size: NitfField<u64>,
 }
 impl SubHeader {
-    pub fn read(
-        &mut self,
-        reader: &mut File,
-        sh_size: u64,
-        item_size: u64,
-    ) -> Result<(), NitfError> {
+    pub fn read(&mut self, reader: &mut File, sh_size: u64, item_size: u64) -> NitfResult<()> {
         self.subheader_size
             .read(reader, sh_size, "SUBHEADER_SIZE")?;
         self.item_size.read(reader, item_size, "ITEM_SIZE")?;

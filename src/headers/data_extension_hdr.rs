@@ -5,7 +5,7 @@ use std::str::FromStr;
 
 use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
-use crate::NitfError;
+use crate::{NitfError, NitfResult};
 
 /// Metadata for Data Extension Segment
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
@@ -46,7 +46,7 @@ pub enum OverflowedHeaderType {
 }
 
 impl NitfSegmentHeader for DataExtensionHeader {
-    fn read(&mut self, reader: &mut File) -> Result<(), NitfError> {
+    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
         self.de.read(reader, 2u8, "DE")?;
         self.desid.read(reader, 25u8, "DESID")?;
         self.desver.read(reader, 2u8, "DESVER")?;
