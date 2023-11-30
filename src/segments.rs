@@ -6,6 +6,7 @@ use std::io::{Seek, SeekFrom::Start};
 use std::ops::Deref;
 
 use crate::headers::{NitfHeader, NitfSegmentHeader};
+use crate::NitfError;
 
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
 pub struct FileHeader {
@@ -15,10 +16,11 @@ pub struct FileHeader {
     pub header_size: u64,
 }
 impl FileHeader {
-    pub fn read(&mut self, reader: &mut File) {
-        self.meta.read(reader);
+    pub fn read(&mut self, reader: &mut File) -> Result<(), NitfError> {
+        self.meta.read(reader)?;
         // Crash if cursor error
-        self.header_size = reader.stream_position().unwrap();
+        self.header_size = reader.stream_position().or(Err(NitfError::IOError))?;
+        Ok(())
     }
 }
 impl Display for FileHeader {
@@ -43,32 +45,38 @@ pub struct NitfSegment<T: NitfSegmentHeader> {
     pub data_size: u64,
 }
 impl<T: NitfSegmentHeader> NitfSegment<T> {
-    pub fn initialize(reader: &mut File, header_size: u32, data_size: u64) -> Self {
+    pub fn initialize(
+        reader: &mut File,
+        header_size: u32,
+        data_size: u64,
+    ) -> Result<Self, NitfError> {
         // Crash if cursor error
-        let header_offset = reader.stream_position().unwrap();
+        let header_offset = reader.stream_position().or(Err(NitfError::IOError))?;
         let header_size = header_size;
         let data_size = data_size;
         let data_offset = header_offset + header_size as u64;
-        let meta = T::from_reader(reader);
+        let meta = T::from_reader(reader)?;
         let mut memmap_opts = MmapOptions::new();
         let data = unsafe {
             memmap_opts
                 .offset(data_offset)
                 .len(data_size as usize)
                 .map(reader.deref())
-                .unwrap() // Crash if error with memmap
+                .or(Err(NitfError::IOError))?
         };
         // Seek to end of data for next segment to be read
         // Crash if cursor error
-        reader.seek(Start(data_offset + data_size)).unwrap();
-        Self {
+        reader
+            .seek(Start(data_offset + data_size))
+            .or(Err(NitfError::IOError))?;
+        Ok(Self {
             meta,
             data,
             header_offset,
             header_size,
             data_size,
             data_offset,
-        }
+        })
     }
 }
 impl<T: NitfSegmentHeader + Display> Display for NitfSegment<T> {

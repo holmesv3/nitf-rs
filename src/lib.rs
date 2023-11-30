@@ -49,15 +49,22 @@ use log::debug;
 use std::fmt::Display;
 use std::fs::File;
 use std::path::Path;
+use thiserror::Error;
 
-pub(crate) mod error {
-    use thiserror::Error;
-    #[derive(Error, Debug, Eq, PartialEq)]
-    pub enum NitfError {
-        #[error("error parsing a nitf field")]
-        FieldError,
-    }
+#[derive(Error, Debug, Eq, PartialEq)]
+pub enum NitfError {
+    #[error("File does not appear to be a NITF. Expected file header \"NITF\", found \"{0}\"")]
+    FileType(String),
+    #[error("error parsing {0} enum")]
+    EnumError(&'static str),
+    #[error("Fatal error reading {0}")]
+    Fatal(String),
+    #[error("{0}")]
+    Fmt(std::fmt::Error),
+    #[error("Error with file IO")]
+    IOError,
 }
+
 pub mod headers;
 pub mod segments;
 pub mod types;
@@ -104,24 +111,24 @@ pub struct Nitf {
 /// let nitf_path = Path::new("../example.nitf");
 /// let nitf = nitf_rs::read_nitf(nitf_path);
 /// ```
-pub fn read_nitf(path: &Path) -> Nitf {
+pub fn read_nitf(path: &Path) -> Result<Nitf, NitfError> {
     // Crash if failure to open file
-    let mut file = File::open(path).unwrap();
+    let mut file = File::open(path).or(Err(NitfError::IOError))?;
     Nitf::from_file(&mut file)
 }
 
 impl Nitf {
-    pub fn from_file(file: &mut File) -> Self {
+    pub fn from_file(file: &mut File) -> Result<Self, NitfError> {
         let mut nitf = Self::default();
         debug!("Reading NITF file header");
-        nitf.nitf_header.read(file);
+        nitf.nitf_header.read(file)?;
 
         let mut n_seg = nitf.nitf_header.meta.numi.val as usize;
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.meta.imheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size = seg_info.item_size.val;
-            let seg = ImageSegment::initialize(file, header_size, data_size);
+            let seg = ImageSegment::initialize(file, header_size, data_size)?;
             nitf.image_segments.push(seg);
         }
 
@@ -130,7 +137,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.graphheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size: u64 = seg_info.item_size.val;
-            let seg = GraphicSegment::initialize(file, header_size, data_size);
+            let seg = GraphicSegment::initialize(file, header_size, data_size)?;
             nitf.graphic_segments.push(seg);
         }
 
@@ -139,7 +146,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.textheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size: u64 = seg_info.item_size.val;
-            let seg = TextSegment::initialize(file, header_size, data_size);
+            let seg = TextSegment::initialize(file, header_size, data_size)?;
             nitf.text_segments.push(seg);
         }
 
@@ -148,7 +155,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.dextheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size: u64 = seg_info.item_size.val;
-            let seg = DataExtensionSegment::initialize(file, header_size, data_size);
+            let seg = DataExtensionSegment::initialize(file, header_size, data_size)?;
             nitf.data_extension_segments.push(seg);
         }
 
@@ -157,10 +164,10 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.resheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size = seg_info.item_size.val;
-            let seg = ReservedExtensionSegment::initialize(file, header_size, data_size);
+            let seg = ReservedExtensionSegment::initialize(file, header_size, data_size)?;
             nitf.reserved_extension_segments.push(seg);
         }
-        nitf
+        Ok(nitf)
     }
 }
 

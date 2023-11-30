@@ -5,9 +5,9 @@ use std::fmt::Display;
 use std::fs::File;
 use std::str::FromStr;
 
-use crate::error::NitfError;
 use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
+use crate::NitfError;
 
 /// Metadata for Image Segment subheader
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
@@ -241,90 +241,91 @@ pub enum Mode {
 
 // FUNCTIONS
 /// Helper function for parsing bands
-fn read_bands(reader: &mut File, n_band: u32) -> Vec<Band> {
+fn read_bands(reader: &mut File, n_band: u32) -> Result<Vec<Band>, NitfError> {
     let mut bands: Vec<Band> = vec![Band::default(); n_band as usize];
     for band in &mut bands {
-        band.irepband.read(reader, 2u8, "IREPBAND");
-        band.isubcat.read(reader, 6u8, "ISUBCAT");
-        band.ifc.read(reader, 1u8, "IFC");
-        band.imflt.read(reader, 3u8, "IMFLT");
-        band.nluts.read(reader, 1u8, "NLUTS");
+        band.irepband.read(reader, 2u8, "IREPBAND")?;
+        band.isubcat.read(reader, 6u8, "ISUBCAT")?;
+        band.ifc.read(reader, 1u8, "IFC")?;
+        band.imflt.read(reader, 3u8, "IMFLT")?;
+        band.nluts.read(reader, 1u8, "NLUTS")?;
         if band.nluts.val != 0 {
-            band.nelut.read(reader, 5u8, "NELUT");
+            band.nelut.read(reader, 5u8, "NELUT")?;
             for _ in 0..band.nelut.val {
                 let mut lut: NitfField<u8> = NitfField::default();
-                lut.read(reader, 1u8, "LUDT");
+                lut.read(reader, 1u8, "LUDT")?;
                 band.lutd.push(lut);
             }
         }
     }
-    bands
+    Ok(bands)
 }
 
 // TRAIT IMPLEMENTATIONS
 impl NitfSegmentHeader for ImageHeader {
-    fn read(&mut self, reader: &mut File) {
-        self.im.read(reader, 2u8, "IM");
-        self.iid1.read(reader, 10u8, "IID1");
-        self.idatim.read(reader, 14u8, "IDATIM");
-        self.tgtid.read(reader, 17u8, "TGTID");
-        self.iid2.read(reader, 80u8, "IID2");
-        self.security.read(reader);
-        self.encryp.read(reader, 1u8, "ENCRYP");
-        self.isorce.read(reader, 42u8, "ISORCE");
-        self.nrows.read(reader, 8u8, "NROWS");
-        self.ncols.read(reader, 8u8, "NCOLS");
-        self.pvtype.read(reader, 3u8, "PVTYPE");
-        self.irep.read(reader, 8u8, "IREP");
-        self.icat.read(reader, 8u8, "ICAT");
-        self.abpp.read(reader, 2u8, "ABPP");
-        self.pjust.read(reader, 1u8, "PJUST");
-        self.icords.read(reader, 1u8, "ICORDS");
+    fn read(&mut self, reader: &mut File) -> Result<(), NitfError> {
+        self.im.read(reader, 2u8, "IM")?;
+        self.iid1.read(reader, 10u8, "IID1")?;
+        self.idatim.read(reader, 14u8, "IDATIM")?;
+        self.tgtid.read(reader, 17u8, "TGTID")?;
+        self.iid2.read(reader, 80u8, "IID2")?;
+        self.security.read(reader)?;
+        self.encryp.read(reader, 1u8, "ENCRYP")?;
+        self.isorce.read(reader, 42u8, "ISORCE")?;
+        self.nrows.read(reader, 8u8, "NROWS")?;
+        self.ncols.read(reader, 8u8, "NCOLS")?;
+        self.pvtype.read(reader, 3u8, "PVTYPE")?;
+        self.irep.read(reader, 8u8, "IREP")?;
+        self.icat.read(reader, 8u8, "ICAT")?;
+        self.abpp.read(reader, 2u8, "ABPP")?;
+        self.pjust.read(reader, 1u8, "PJUST")?;
+        self.icords.read(reader, 1u8, "ICORDS")?;
         for _ in 0..4 {
             let mut geoloc: NitfField<String> = NitfField::default();
-            geoloc.read(reader, 15u8, "READ");
+            geoloc.read(reader, 15u8, "READ")?;
             self.igeolo.push(geoloc);
         }
-        self.nicom.read(reader, 1u8, "NICOM");
+        self.nicom.read(reader, 1u8, "NICOM")?;
         for _ in 0..self.nicom.val {
             let mut comment: NitfField<String> = NitfField::default();
-            comment.read(reader, 80u8, "READ");
+            comment.read(reader, 80u8, "READ")?;
             self.icoms.push(comment);
         }
 
-        self.ic.read(reader, 2u8, "IC");
-        self.nbands.read(reader, 1u8, "NBANDS");
+        self.ic.read(reader, 2u8, "IC")?;
+        self.nbands.read(reader, 1u8, "NBANDS")?;
         // If NBANDS = 0, use XBANDS
         if self.nbands.val != 0 {
-            self.bands = read_bands(reader, self.nbands.val as u32)
+            self.bands = read_bands(reader, self.nbands.val as u32)?;
         } else {
-            self.xbands.read(reader, 5u8, "XBANDS");
-            self.bands = read_bands(reader, self.xbands.val)
+            self.xbands.read(reader, 5u8, "XBANDS")?;
+            self.bands = read_bands(reader, self.xbands.val)?;
         }
-        self.isync.read(reader, 1u8, "ISYNC");
-        self.imode.read(reader, 1u8, "IMODE");
-        self.nbpr.read(reader, 4u8, "NBPR");
-        self.nbpc.read(reader, 4u8, "NBPC");
-        self.nppbh.read(reader, 4u8, "NPPBH");
-        self.nppbv.read(reader, 4u8, "NPPBV");
-        self.nbpp.read(reader, 2u8, "NBPP");
-        self.idlvl.read(reader, 3u8, "IDLVL");
-        self.ialvl.read(reader, 3u8, "IALVL");
-        self.iloc.read(reader, 10u8, "ILOC");
-        self.imag.read(reader, 4u8, "IMAG");
-        self.udidl.read(reader, 5u8, "UDIDL");
+        self.isync.read(reader, 1u8, "ISYNC")?;
+        self.imode.read(reader, 1u8, "IMODE")?;
+        self.nbpr.read(reader, 4u8, "NBPR")?;
+        self.nbpc.read(reader, 4u8, "NBPC")?;
+        self.nppbh.read(reader, 4u8, "NPPBH")?;
+        self.nppbv.read(reader, 4u8, "NPPBV")?;
+        self.nbpp.read(reader, 2u8, "NBPP")?;
+        self.idlvl.read(reader, 3u8, "IDLVL")?;
+        self.ialvl.read(reader, 3u8, "IALVL")?;
+        self.iloc.read(reader, 10u8, "ILOC")?;
+        self.imag.read(reader, 4u8, "IMAG")?;
+        self.udidl.read(reader, 5u8, "UDIDL")?;
         let udi_data_length = self.udidl.val;
         if udi_data_length != 0 {
-            self.udofl.read(reader, 3u8, "UDOFL");
-            self.udid.read(reader, udi_data_length - 3, "UDID");
+            self.udofl.read(reader, 3u8, "UDOFL")?;
+            self.udid.read(reader, udi_data_length - 3, "UDID")?;
         }
-        self.ixshdl.read(reader, 5u8, "IXSHDL");
+        self.ixshdl.read(reader, 5u8, "IXSHDL")?;
         let ixsh_data_length = self.ixshdl.val;
         if ixsh_data_length != 0 {
-            self.ixsofl.read(reader, 3u8, "IXSOFL");
+            self.ixsofl.read(reader, 3u8, "IXSOFL")?;
             self.ixshd
-                .read(reader, (ixsh_data_length - 3) as usize, "IXSHD");
+                .read(reader, (ixsh_data_length - 3) as usize, "IXSHD")?;
         }
+        Ok(())
     }
 }
 impl Display for ImageHeader {
@@ -404,7 +405,7 @@ impl FromStr for PixelValueType {
             "SI" => Ok(Self::SI),
             "R" => Ok(Self::R),
             "C" => Ok(Self::C),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("PixelValueType")),
         }
     }
 }
@@ -421,7 +422,7 @@ impl FromStr for ImageRepresentation {
             "POLAR" => Ok(Self::POLAR),
             "VPH" => Ok(Self::VPH),
             "YCbCr601" => Ok(Self::YCbCr601),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("ImageRepresentation")),
         }
     }
 }
@@ -431,7 +432,7 @@ impl FromStr for PixelJustification {
         match s {
             "R" => Ok(Self::R),
             "L" => Ok(Self::L),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("PixelJustification")),
         }
     }
 }
@@ -446,7 +447,7 @@ impl FromStr for CoordinateRepresentation {
             "P" => Ok(Self::P),
             "G" => Ok(Self::G),
             "D" => Ok(Self::D),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("CoordinateRepresentation")),
         }
     }
 }
@@ -471,7 +472,7 @@ impl FromStr for Compression {
             "M6" => Ok(Self::M6),
             "M7" => Ok(Self::M7),
             "M8" => Ok(Self::M8),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("Compression")),
         }
     }
 }
@@ -483,7 +484,7 @@ impl FromStr for Mode {
             "P" => Ok(Self::P),
             "R" => Ok(Self::R),
             "S" => Ok(Self::S),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("Mode")),
         }
     }
 }

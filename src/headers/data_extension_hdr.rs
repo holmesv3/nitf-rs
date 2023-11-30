@@ -3,9 +3,9 @@ use std::fmt::Display;
 use std::fs::File;
 use std::str::FromStr;
 
-use crate::error::NitfError;
 use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
+use crate::NitfError;
 
 /// Metadata for Data Extension Segment
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
@@ -46,19 +46,21 @@ pub enum OverflowedHeaderType {
 }
 
 impl NitfSegmentHeader for DataExtensionHeader {
-    fn read(&mut self, reader: &mut File) {
-        self.de.read(reader, 2u8, "DE");
-        self.desid.read(reader, 25u8, "DESID");
-        self.desver.read(reader, 2u8, "DESVER");
-        self.security.read(reader);
+    fn read(&mut self, reader: &mut File) -> Result<(), NitfError> {
+        self.de.read(reader, 2u8, "DE")?;
+        self.desid.read(reader, 25u8, "DESID")?;
+        self.desver.read(reader, 2u8, "DESVER")?;
+        self.security.read(reader)?;
         if self.desid.string.trim() == "TRE_OVERFLOW" {
-            self.desoflw.read(reader, 6u8, "DESOFLW");
-            self.desitem.read(reader, 3u8, "DESITEM");
+            self.desoflw.read(reader, 6u8, "DESOFLW")?;
+            self.desitem.read(reader, 3u8, "DESITEM")?;
         }
-        self.desshl.read(reader, 4u8, "DESSHL");
+        self.desshl.read(reader, 4u8, "DESSHL")?;
         if self.desshl.val != 0 {
-            self.desshf.read(reader, self.desshl.val as usize, "DESSHF");
+            self.desshf
+                .read(reader, self.desshl.val as usize, "DESSHF")?;
         }
+        Ok(())
     }
 }
 impl Display for DataExtensionHeader {
@@ -84,7 +86,7 @@ impl FromStr for OverflowedHeaderType {
             "TXSHD" => Ok(Self::TXSHD),
             "UDHD" => Ok(Self::UDHD),
             "UDID" => Ok(Self::UDID),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("OverflowedHeaderType")),
         }
     }
 }

@@ -5,7 +5,7 @@ use std::fs::File;
 use std::io::{Read, Seek};
 use std::str::FromStr;
 
-use crate::error::NitfError;
+use crate::NitfError;
 
 /// Lowest level object for file parsing
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
@@ -151,16 +151,24 @@ where
     <V as FromStr>::Err: Debug,
 {
     /// Read the specified number of bytes and parse the value of a given field
-    pub fn read<T: Sized + Into<u64>>(&mut self, reader: &mut File, n_bytes: T, field_name: &str) {
+    pub fn read<T: Sized + Into<u64>>(
+        &mut self,
+        reader: &mut File,
+        n_bytes: T,
+        field_name: &str,
+    ) -> Result<(), NitfError> {
         self.length = n_bytes.into();
         self.bytes = vec![0; self.length as usize];
-        let fatal_err = format!("Fatal Error reading {field_name}");
 
         // Crash if something goes wrong with the cursor
-        self.offset = reader.stream_position().expect(&fatal_err);
+        self.offset = reader
+            .stream_position()
+            .or(Err(NitfError::Fatal(field_name.to_string())))?;
 
         // Crash if there is an error reading the bytes
-        reader.read_exact(&mut self.bytes).expect(&fatal_err);
+        reader
+            .read_exact(&mut self.bytes)
+            .or(Err(NitfError::Fatal(field_name.to_string())))?;
 
         // Try to read the bytes to a string
         match String::from_utf8(self.bytes.to_vec()) {
@@ -181,6 +189,7 @@ where
             }
         }
         trace!("{:?}", self.val);
+        Ok(())
     }
 }
 impl<V: FromStr + Debug> Display for NitfField<V> {
@@ -189,23 +198,24 @@ impl<V: FromStr + Debug> Display for NitfField<V> {
     }
 }
 impl Security {
-    pub fn read(&mut self, reader: &mut File) {
-        self.clas.read(reader, 1u8, "CLAS");
-        self.clsy.read(reader, 2u8, "CLSY");
-        self.code.read(reader, 11u8, "CODE");
-        self.ctlh.read(reader, 2u8, "CTLH");
-        self.rel.read(reader, 20u8, "REL");
-        self.dctp.read(reader, 2u8, "DCTP");
-        self.dcdt.read(reader, 8u8, "DCDT");
-        self.dcxm.read(reader, 4u8, "DCXM");
-        self.dg.read(reader, 1u8, "DG");
-        self.dgdt.read(reader, 8u8, "DGDT");
-        self.cltx.read(reader, 43u8, "CLTX");
-        self.catp.read(reader, 1u8, "CATP");
-        self.caut.read(reader, 40u8, "CAUT");
-        self.crsn.read(reader, 1u8, "CRSN");
-        self.srdt.read(reader, 8u8, "SRDT");
-        self.ctln.read(reader, 15u8, "CTLN");
+    pub fn read(&mut self, reader: &mut File) -> Result<(), NitfError> {
+        self.clas.read(reader, 1u8, "CLAS")?;
+        self.clsy.read(reader, 2u8, "CLSY")?;
+        self.code.read(reader, 11u8, "CODE")?;
+        self.ctlh.read(reader, 2u8, "CTLH")?;
+        self.rel.read(reader, 20u8, "REL")?;
+        self.dctp.read(reader, 2u8, "DCTP")?;
+        self.dcdt.read(reader, 8u8, "DCDT")?;
+        self.dcxm.read(reader, 4u8, "DCXM")?;
+        self.dg.read(reader, 1u8, "DG")?;
+        self.dgdt.read(reader, 8u8, "DGDT")?;
+        self.cltx.read(reader, 43u8, "CLTX")?;
+        self.catp.read(reader, 1u8, "CATP")?;
+        self.caut.read(reader, 40u8, "CAUT")?;
+        self.crsn.read(reader, 1u8, "CRSN")?;
+        self.srdt.read(reader, 8u8, "SRDT")?;
+        self.ctln.read(reader, 15u8, "CTLN")?;
+        Ok(())
     }
 }
 impl Display for Security {
@@ -239,7 +249,7 @@ impl FromStr for Classification {
             "S" => Ok(Self::S),
             "C" => Ok(Self::C),
             "R" => Ok(Self::R),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("Classification")),
         }
     }
 }
@@ -254,7 +264,7 @@ impl FromStr for DeclassificationType {
             "GE" => Ok(Self::GE),
             "O" => Ok(Self::O),
             "X" => Ok(Self::X),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("DeclassificationType")),
         }
     }
 }
@@ -282,7 +292,10 @@ impl FromStr for DeclassificationExemption {
             "25X9" => Ok(Self::VALID), // DOD 5200.01-V1, 4-301b(9)
             "DN10" => Ok(Self::VALID),
             "DNI" => Ok(Self::VALID),
-            _ => Ok(Self::UNRECOGNIZED),
+            _ => {
+                warn!("Unrecognized DeclassificationExemption");
+                Ok(Self::UNRECOGNIZED)
+            }
         }
     }
 }
@@ -294,7 +307,7 @@ impl FromStr for Downgrade {
             "S" => Ok(Self::S),
             "C" => Ok(Self::C),
             "R" => Ok(Self::R),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("Downgrade")),
         }
     }
 }
@@ -306,7 +319,7 @@ impl FromStr for ClassificationAuthorityType {
             "O" => Ok(Self::O),
             "D" => Ok(Self::D),
             "M" => Ok(Self::M),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("ClassificationAuthorityType")),
         }
     }
 }
@@ -323,7 +336,7 @@ impl FromStr for ClassificationReason {
             "F" => Ok(Self::VALID),
             "G" => Ok(Self::VALID),
             "H" => Ok(Self::VALID),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("ClassificationReason")),
         }
     }
 }
@@ -336,19 +349,19 @@ pub struct ExtendedSubheader {
     pub size: usize,
 }
 impl ExtendedSubheader {
-    pub fn read(&mut self, reader: &mut File, n_bytes: usize, name: &str) {
+    pub fn read(&mut self, reader: &mut File, n_bytes: usize, name: &str) -> Result<(), NitfError> {
         self.size = n_bytes;
         self.tre = vec![0; n_bytes];
-        let fatal_err = format!("Fatal Error reading {name}");
         reader
             .read_exact(self.tre.as_mut_slice())
-            .expect(&fatal_err);
+            .or(Err(NitfError::Fatal(name.to_string())))?;
+        Ok(())
     }
 }
 impl Display for ExtendedSubheader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // Can't copy vector directly, convert to slice, then clone into new vector
-        let out_str = String::from_utf8(self.tre.to_vec()).unwrap();
+        let out_str = String::from_utf8(self.tre.to_vec()).or(Err(std::fmt::Error))?;
         write!(f, "[{out_str}]")
     }
 }
