@@ -65,8 +65,6 @@ pub enum NitfError {
 
     // Wrappers for built in errors
     #[error(transparent)]
-    Fmt(#[from] std::fmt::Error),
-    #[error(transparent)]
     IOError(#[from] std::io::Error),
 }
 
