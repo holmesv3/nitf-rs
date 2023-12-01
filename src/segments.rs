@@ -6,7 +6,7 @@ use std::io::{Seek, SeekFrom::Start};
 use std::ops::Deref;
 
 use crate::headers::{NitfHeader, NitfSegmentHeader};
-use crate::{NitfError, NitfResult};
+use crate::NitfResult;
 
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
 pub struct FileHeader {
@@ -19,7 +19,7 @@ impl FileHeader {
     pub fn read(&mut self, reader: &mut File) -> NitfResult<()> {
         self.meta.read(reader)?;
         // Crash if cursor error
-        self.header_size = reader.stream_position().or(Err(NitfError::IOError))?;
+        self.header_size = reader.stream_position()?;
         Ok(())
     }
 }
@@ -47,7 +47,7 @@ pub struct NitfSegment<T: NitfSegmentHeader> {
 impl<T: NitfSegmentHeader> NitfSegment<T> {
     pub fn initialize(reader: &mut File, header_size: u32, data_size: u64) -> NitfResult<Self> {
         // Crash if cursor error
-        let header_offset = reader.stream_position().or(Err(NitfError::IOError))?;
+        let header_offset = reader.stream_position()?;
         let header_size = header_size;
         let data_size = data_size;
         let data_offset = header_offset + header_size as u64;
@@ -57,14 +57,11 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
             memmap_opts
                 .offset(data_offset)
                 .len(data_size as usize)
-                .map(reader.deref())
-                .or(Err(NitfError::IOError))?
+                .map(reader.deref())?
         };
         // Seek to end of data for next segment to be read
         // Crash if cursor error
-        reader
-            .seek(Start(data_offset + data_size))
-            .or(Err(NitfError::IOError))?;
+        reader.seek(Start(data_offset + data_size))?;
         Ok(Self {
             meta,
             data,

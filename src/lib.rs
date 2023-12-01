@@ -53,18 +53,21 @@ use thiserror::Error;
 
 pub type NitfResult<T> = Result<T, NitfError>;
 
-#[derive(Error, Debug, Eq, PartialEq)]
+#[derive(Error, Debug)]
 pub enum NitfError {
+    // Crate specific errors
     #[error("File does not appear to be a NITF. Expected file header \"NITF\", found \"{0}\"")]
     FileType(String),
     #[error("error parsing {0} enum")]
     EnumError(&'static str),
     #[error("Fatal error reading {0}")]
     Fatal(String),
-    #[error("{0}")]
-    Fmt(std::fmt::Error),
-    #[error("Error with file IO")]
-    IOError,
+
+    // Wrappers for built in errors
+    #[error(transparent)]
+    Fmt(#[from] std::fmt::Error),
+    #[error(transparent)]
+    IOError(#[from] std::io::Error),
 }
 
 pub mod headers;
@@ -115,7 +118,7 @@ pub struct Nitf {
 /// ```
 pub fn read_nitf(path: &Path) -> NitfResult<Nitf> {
     // Crash if failure to open file
-    let mut file = File::open(path).or(Err(NitfError::IOError))?;
+    let mut file = File::open(path)?;
     Nitf::from_file(&mut file)
 }
 
