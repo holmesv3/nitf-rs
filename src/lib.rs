@@ -6,23 +6,23 @@
 //! Each segment in contains a `meta` field which stores the respective
 //! fields defined in the file standard. The primary function for constructing a
 //! [Nitf] is [read_nitf()]
-//! ```
+//! ```no_run
 //! // Read a nitf file and dump metadata to stdout
 //! use std::path::Path;
 //! let nitf_path = Path::new("../example.nitf");
-//! let nitf = nitf_rs::read_nitf(&nitf_path);
-//! println!("{nitf}");
+//! let nitf = nitf_rs::read_nitf(&nitf_path).unwrap();
+//! println!("{nitf:?}");
 //! ```
 //!
 //! The main feature of the [FileHeader] is its `meta` field (see (NitfHeader)
 //! [headers::NitfHeader]).
 //! All other segments use the generic [NitfSegment] to provide header fields and
 //! a memory-map of the segment data.
-//! ```
+//! ```no_run
 //! // Get the bytes from the first image segment
 //! use std::path::Path;
 //! let nitf_path = Path::new("../example.nitf");
-//! let nitf = nitf_rs::read_nitf(&nitf_path);
+//! let nitf = nitf_rs::read_nitf(&nitf_path).unwrap();
 //! let im_seg = &nitf.image_segments[0];
 //! let u8_slice = &im_seg.data[..];
 //! ```
@@ -30,11 +30,11 @@
 //! stores the `bytes` which encode the value, a `string` representation, and a
 //! `val` which holds on to native value of the field (i.e., the bytes parsed into a
 //! u8, u16, String, enum, etc.)
-//! ```
+//! ```no_run
 //! // Read in a nitf and extract the...
 //! use std::path::Path;
 //! let nitf_path = Path::new("../example.nitf");
-//! let nitf = nitf_rs::read_nitf(&nitf_path);
+//! let nitf = nitf_rs::read_nitf(&nitf_path).unwrap();
 //! // .. File title
 //! let file_title = nitf.nitf_header.meta.ftitle.val;
 //! // .. Number of image segments
@@ -109,10 +109,10 @@ pub struct Nitf {
 /// Construct a [Nitf] object from a file `path`.
 ///
 /// # Example
-/// ```
+/// ```no_run
 /// use std::path::Path;
 /// let nitf_path = Path::new("../example.nitf");
-/// let nitf = nitf_rs::read_nitf(nitf_path);
+/// let nitf = nitf_rs::read_nitf(nitf_path).unwrap();
 /// ```
 pub fn read_nitf(path: &Path) -> NitfResult<Nitf> {
     // Crash if failure to open file
