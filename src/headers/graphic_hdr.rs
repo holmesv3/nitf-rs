@@ -3,10 +3,9 @@ use std::fmt::Display;
 use std::fs::File;
 use std::str::FromStr;
 
-use crate::error::NitfError;
 use crate::headers::NitfSegmentHeader;
-use crate::types::{NitfField, Security, ExtendedSubheader};
-
+use crate::types::{ExtendedSubheader, NitfField, Security};
+use crate::{NitfError, NitfResult};
 /// Header fields for Graphic Segment
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct GraphicHeader {
@@ -70,27 +69,29 @@ impl Display for GraphicHeader {
     }
 }
 impl NitfSegmentHeader for GraphicHeader {
-    fn read(&mut self, reader: &mut File) {
-        self.sy.read(reader, 2u8);
-        self.sid.read(reader, 10u8);
-        self.sname.read(reader, 20u8);
-        self.security.read(reader);
-        self.encryp.read(reader, 1u8);
-        self.sfmt.read(reader, 1u8);
-        self.sstruct.read(reader, 13u8);
-        self.sdlvl.read(reader, 3u8);
-        self.salvl.read(reader, 3u8);
-        self.sloc.read(reader, 10u8);
-        self.sbnd1.read(reader, 10u8);
-        self.scolor.read(reader, 1u8);
-        self.sbnd2.read(reader, 10u8);
-        self.sres2.read(reader, 2u8);
-        self.sxshdl.read(reader, 5u8);
+    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
+        self.sy.read(reader, 2u8, "SY")?;
+        self.sid.read(reader, 10u8, "SID")?;
+        self.sname.read(reader, 20u8, "SNAME")?;
+        self.security.read(reader)?;
+        self.encryp.read(reader, 1u8, "ENCRYP")?;
+        self.sfmt.read(reader, 1u8, "SFMT")?;
+        self.sstruct.read(reader, 13u8, "SSTRUCT")?;
+        self.sdlvl.read(reader, 3u8, "SDLVL")?;
+        self.salvl.read(reader, 3u8, "SALVL")?;
+        self.sloc.read(reader, 10u8, "SLOC")?;
+        self.sbnd1.read(reader, 10u8, "SBND1")?;
+        self.scolor.read(reader, 1u8, "SCOLOR")?;
+        self.sbnd2.read(reader, 10u8, "SBND2")?;
+        self.sres2.read(reader, 2u8, "SRES2")?;
+        self.sxshdl.read(reader, 5u8, "SXSHDL")?;
         let gphx_data_length = self.sxshdl.val;
         if gphx_data_length != 0 {
-            self.sxsofl.read(reader, 3u8);
-            self.sxshd.read(reader, (gphx_data_length - 3) as usize);
+            self.sxsofl.read(reader, 3u8, "SXSOFL")?;
+            self.sxshd
+                .read(reader, (gphx_data_length - 3) as usize, "SXSHD")?;
         }
+        Ok(())
     }
 }
 
@@ -107,7 +108,7 @@ impl FromStr for Format {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "C" => Ok(Self::C),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("Format")),
         }
     }
 }
@@ -126,11 +127,15 @@ impl FromStr for BoundLocation {
         if n_char_tot % 2 == 0 {
             let mut bounds = Self::default();
             let n_char = n_char_tot / 2;
-            bounds.row = s[..n_char].parse().unwrap();
-            bounds.col = s[n_char..].parse().unwrap();
+            bounds.row = s[..n_char]
+                .parse()
+                .or(Err(NitfError::EnumError("BoundLocation.row")))?;
+            bounds.col = s[n_char..]
+                .parse()
+                .or(Err(NitfError::EnumError("BoundLocation.col")))?;
             Ok(bounds)
         } else {
-            Err(NitfError::FieldError)
+            Err(NitfError::EnumError("BoundLocation"))
         }
     }
 }
@@ -151,7 +156,7 @@ impl FromStr for Color {
         match s {
             "C" => Ok(Self::C),
             "M" => Ok(Self::M),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("Color")),
         }
     }
 }

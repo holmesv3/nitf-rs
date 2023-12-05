@@ -16,6 +16,8 @@ pub use nitf_file_hdr::NitfHeader;
 pub use reserved_extension_hdr::ReservedExtensionHeader;
 pub use text_hdr::TextHeader;
 
+use crate::NitfResult;
+
 /// Nitf segment header interface definition
 ///
 /// Provide implementation for `read()`, `from_reader` defined automatically.
@@ -29,13 +31,13 @@ where
     ///
     /// reader: Stream from which to read header information
     #[allow(unused)]
-    fn read(&mut self, reader: &mut File) {
+    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
         panic!("Didn't implement read() method")
     }
 
-    fn from_reader(reader: &mut File) -> Self {
+    fn from_reader(reader: &mut File) -> NitfResult<Self> {
         let mut hdr = Self::default();
-        hdr.read(reader);
-        hdr
+        hdr.read(reader)?;
+        Ok(hdr)
     }
 }

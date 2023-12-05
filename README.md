@@ -13,7 +13,7 @@ Formerly, there was `Sicd` functionality built into this crate. That has been mo
 // Read a nitf file and dump metadata to stdout
 use std::path::Path;
 let nitf_path = Path::new("../example.nitf");
-let nitf = nitf_rs::read_nitf(&nitf_path);
+let nitf = nitf_rs::read_nitf(&nitf_path).unwrap();
 println!("{nitf}");
 
 // Get the bytes from the first image segment

@@ -4,10 +4,9 @@ use std::fs::File;
 
 use std::str::FromStr;
 
-use crate::error::NitfError;
 use crate::headers::NitfSegmentHeader;
-use crate::types::{NitfField, Security, ExtendedSubheader};
-
+use crate::types::{ExtendedSubheader, NitfField, Security};
+use crate::{NitfError, NitfResult};
 /// Text Segment Metadata
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub struct TextHeader {
@@ -50,21 +49,23 @@ pub enum TextFormat {
 }
 
 impl NitfSegmentHeader for TextHeader {
-    fn read(&mut self, reader: &mut File) {
-        self.te.read(reader, 2u8);
-        self.textid.read(reader, 7u8);
-        self.txtalvl.read(reader, 3u8);
-        self.txtdt.read(reader, 14u8);
-        self.txttitl.read(reader, 80u8);
-        self.security.read(reader);
-        self.encryp.read(reader, 1u8);
-        self.txtfmt.read(reader, 3u8);
-        self.txshdl.read(reader, 5u8);
-        let extended_length: u32 = self.txshdl.string.parse().unwrap();
+    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
+        self.te.read(reader, 2u8, "TE")?;
+        self.textid.read(reader, 7u8, "TEXTID")?;
+        self.txtalvl.read(reader, 3u8, "TXTALVL")?;
+        self.txtdt.read(reader, 14u8, "TXTDT")?;
+        self.txttitl.read(reader, 80u8, "TXTTITL")?;
+        self.security.read(reader)?;
+        self.encryp.read(reader, 1u8, "ENCRYP")?;
+        self.txtfmt.read(reader, 3u8, "TXTFMT")?;
+        self.txshdl.read(reader, 5u8, "TXSHDL")?;
+        let extended_length = self.txshdl.val;
         if extended_length != 0 {
-            self.txsofl.read(reader, 3u8);
-            self.txshd.read(reader, (extended_length - 3) as usize)
+            self.txsofl.read(reader, 3u8, "TXSOFL")?;
+            self.txshd
+                .read(reader, (extended_length - 3) as usize, "TXSHD")?;
         }
+        Ok(())
     }
 }
 impl Display for TextHeader {
@@ -92,7 +93,7 @@ impl FromStr for TextFormat {
             "STA" => Ok(Self::STA),
             "UT1" => Ok(Self::UT1),
             "U8S" => Ok(Self::U8S),
-            _ => Err(NitfError::FieldError),
+            _ => Err(NitfError::EnumError("TextFormat")),
         }
     }
 }

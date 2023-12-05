@@ -1,5 +1,11 @@
 # Changes by version
 
+## 0.2.3
+- Improved error handling when parsing file
+  - No longer any `unwrap/expect` calls
+  - `read_nitf()` returns a result
+- Added minimal use of `log` crate for debugging
+
 ## 0.2.0
 - Removed all SICD support to a separate crate, [sicd-rs](https://crates.io/crates/sicd-rs)
 
