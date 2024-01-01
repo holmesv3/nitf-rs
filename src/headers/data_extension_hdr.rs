@@ -51,14 +51,14 @@ impl NitfSegmentHeader for DataExtensionHeader {
         self.desid.read(reader, 25u8, "DESID")?;
         self.desver.read(reader, 2u8, "DESVER")?;
         self.security.read(reader)?;
-        if self.desid.string.trim() == "TRE_OVERFLOW" {
+        if self.desid.string().trim() == "TRE_OVERFLOW" {
             self.desoflw.read(reader, 6u8, "DESOFLW")?;
             self.desitem.read(reader, 3u8, "DESITEM")?;
         }
         self.desshl.read(reader, 4u8, "DESSHL")?;
-        if self.desshl.val != 0 {
+        if self.desshl.val().clone() != 0 {
             self.desshf
-                .read(reader, self.desshl.val as usize, "DESSHF")?;
+                .read(reader, self.desshl.val().clone() as usize, "DESSHF")?;
         }
         Ok(())
     }
@@ -87,6 +87,17 @@ impl FromStr for OverflowedHeaderType {
             "UDHD" => Ok(Self::UDHD),
             "UDID" => Ok(Self::UDID),
             _ => Err(NitfError::EnumError("OverflowedHeaderType")),
+        }
+    }
+}
+impl Display for OverflowedHeaderType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::IXSHD => write!(f, "IXSHD"),
+            Self::SXSHD => write!(f, "SXSHD"),
+            Self::TXSHD => write!(f, "TXSHD"),
+            Self::UDHD => write!(f, "UDHD"),
+            Self::UDID => write!(f, "UDID"),
         }
     }
 }

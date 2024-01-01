@@ -248,9 +248,9 @@ fn read_bands(reader: &mut File, n_band: u32) -> NitfResult<Vec<Band>> {
         band.ifc.read(reader, 1u8, "IFC")?;
         band.imflt.read(reader, 3u8, "IMFLT")?;
         band.nluts.read(reader, 1u8, "NLUTS")?;
-        if band.nluts.val != 0 {
+        if band.nluts.val().clone() != 0 {
             band.nelut.read(reader, 5u8, "NELUT")?;
-            for _ in 0..band.nelut.val {
+            for _ in 0..band.nelut.val().clone() {
                 let mut lut: NitfField<u8> = NitfField::default();
                 lut.read(reader, 1u8, "LUDT")?;
                 band.lutd.push(lut);
@@ -285,7 +285,7 @@ impl NitfSegmentHeader for ImageHeader {
             self.igeolo.push(geoloc);
         }
         self.nicom.read(reader, 1u8, "NICOM")?;
-        for _ in 0..self.nicom.val {
+        for _ in 0..self.nicom.val().clone() {
             let mut comment: NitfField<String> = NitfField::default();
             comment.read(reader, 80u8, "READ")?;
             self.icoms.push(comment);
@@ -294,11 +294,11 @@ impl NitfSegmentHeader for ImageHeader {
         self.ic.read(reader, 2u8, "IC")?;
         self.nbands.read(reader, 1u8, "NBANDS")?;
         // If NBANDS = 0, use XBANDS
-        if self.nbands.val != 0 {
-            self.bands = read_bands(reader, self.nbands.val as u32)?;
+        if self.nbands.val().clone() != 0 {
+            self.bands = read_bands(reader, self.nbands.val().clone() as u32)?;
         } else {
             self.xbands.read(reader, 5u8, "XBANDS")?;
-            self.bands = read_bands(reader, self.xbands.val)?;
+            self.bands = read_bands(reader, self.xbands.val().clone())?;
         }
         self.isync.read(reader, 1u8, "ISYNC")?;
         self.imode.read(reader, 1u8, "IMODE")?;
@@ -312,13 +312,13 @@ impl NitfSegmentHeader for ImageHeader {
         self.iloc.read(reader, 10u8, "ILOC")?;
         self.imag.read(reader, 4u8, "IMAG")?;
         self.udidl.read(reader, 5u8, "UDIDL")?;
-        let udi_data_length = self.udidl.val;
+        let udi_data_length = self.udidl.val().clone();
         if udi_data_length != 0 {
             self.udofl.read(reader, 3u8, "UDOFL")?;
             self.udid.read(reader, udi_data_length - 3, "UDID")?;
         }
         self.ixshdl.read(reader, 5u8, "IXSHDL")?;
-        let ixsh_data_length = self.ixshdl.val;
+        let ixsh_data_length = self.ixshdl.val().clone();
         if ixsh_data_length != 0 {
             self.ixsofl.read(reader, 3u8, "IXSOFL")?;
             self.ixshd
@@ -373,7 +373,7 @@ impl Display for ImageHeader {
         out_str += format!("UDOFL: {}, ", self.udofl).as_ref();
         out_str += format!("UDID: {}, ", self.udid).as_ref();
         out_str += format!("IXSHDL: {}, ", self.ixshdl).as_ref();
-        if self.ixshdl.val != 0 {
+        if self.ixshdl.val().clone() != 0 {
             out_str += format!("IXSOFL: {}, ", self.ixsofl).as_ref();
             out_str += format!("IXSHD: {}", self.ixshd).as_ref();
         }
@@ -400,28 +400,55 @@ impl FromStr for PixelValueType {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "INT" => Ok(Self::INT),
-            "B" => Ok(Self::B),
-            "SI" => Ok(Self::SI),
-            "R" => Ok(Self::R),
-            "C" => Ok(Self::C),
+            "  B" => Ok(Self::B),
+            " SI" => Ok(Self::SI),
+            "  R" => Ok(Self::R),
+            "  C" => Ok(Self::C),
             _ => Err(NitfError::EnumError("PixelValueType")),
         }
+    }
+}
+impl Display for PixelValueType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::INT => write!(f, "INT"),
+            Self::B => write!(f, "  B"),
+            Self::SI => write!(f, " SI"),
+            Self::R => write!(f, "  R"),
+            Self::C => write!(f, "  C"),
+        }
+        
     }
 }
 impl FromStr for ImageRepresentation {
     type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "MONO" => Ok(Self::MONO),
-            "RGB" => Ok(Self::RGB),
-            "RGBLUT" => Ok(Self::RGBLUT),
-            "MULTI" => Ok(Self::MULTI),
+            "    MONO" => Ok(Self::MONO),
+            "     RGB" => Ok(Self::RGB),
+            "  RGBLUT" => Ok(Self::RGBLUT),
+            "   MULTI" => Ok(Self::MULTI),
             "NODISPLY" => Ok(Self::NODISPLY),
-            "NVECTOR" => Ok(Self::NVECTOR),
-            "POLAR" => Ok(Self::POLAR),
-            "VPH" => Ok(Self::VPH),
+            " NVECTOR" => Ok(Self::NVECTOR),
+            "   POLAR" => Ok(Self::POLAR),
+            "     VPH" => Ok(Self::VPH),
             "YCbCr601" => Ok(Self::YCbCr601),
             _ => Err(NitfError::EnumError("ImageRepresentation")),
+        }
+    }
+}
+impl Display for ImageRepresentation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::MONO => write!(f, "    MONO"),
+            Self::RGB => write!(f, "     RGB"),
+            Self::RGBLUT => write!(f, "  RGBLUT"),
+            Self::MULTI => write!(f, "   MULTI"),
+            Self::NODISPLY => write!(f, "NODISPLY"),
+            Self::NVECTOR => write!(f, " NVECTOR"),
+            Self::POLAR => write!(f, "   POLAR"),
+            Self::VPH => write!(f, "     VPH"),
+            Self::YCbCr601 => write!(f, "YCbCr601"),
         }
     }
 }
@@ -435,11 +462,19 @@ impl FromStr for PixelJustification {
         }
     }
 }
+impl Display for PixelJustification {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::R => write!(f, "R"),
+            Self::L => write!(f, "L"),
+        }
+    }
+}
 impl FromStr for CoordinateRepresentation {
     type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "" => Ok(Self::DEFAULT),
+            " " => Ok(Self::DEFAULT),
             "U" => Ok(Self::U),
             "N" => Ok(Self::N),
             "S" => Ok(Self::S),
@@ -447,6 +482,19 @@ impl FromStr for CoordinateRepresentation {
             "G" => Ok(Self::G),
             "D" => Ok(Self::D),
             _ => Err(NitfError::EnumError("CoordinateRepresentation")),
+        }
+    }
+}
+impl Display for CoordinateRepresentation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::DEFAULT => write!(f, " "),
+            Self::U => write!(f, "U"),
+            Self::N => write!(f, "N"),
+            Self::S => write!(f, "S"),
+            Self::P => write!(f, "P"),
+            Self::G => write!(f, "G"),
+            Self::D => write!(f, "D"),
         }
     }
 }
@@ -475,6 +523,29 @@ impl FromStr for Compression {
         }
     }
 }
+impl Display for Compression {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::NC => write!(f, "NC"),
+            Self::NM => write!(f, "NM"),
+            Self::C1 => write!(f, "C1"),
+            Self::C3 => write!(f, "C3"),
+            Self::C4 => write!(f, "C4"),
+            Self::C5 => write!(f, "C5"),
+            Self::C6 => write!(f, "C6"),
+            Self::C7 => write!(f, "C7"),
+            Self::C8 => write!(f, "C8"),
+            Self::I1 => write!(f, "I1"),
+            Self::M1 => write!(f, "M1"),
+            Self::M3 => write!(f, "M3"),
+            Self::M4 => write!(f, "M4"),
+            Self::M5 => write!(f, "M5"),
+            Self::M6 => write!(f, "M6"),
+            Self::M7 => write!(f, "M7"),
+            Self::M8 => write!(f, "M8"),
+        }
+    }
+}
 impl FromStr for Mode {
     type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -484,6 +555,16 @@ impl FromStr for Mode {
             "R" => Ok(Self::R),
             "S" => Ok(Self::S),
             _ => Err(NitfError::EnumError("Mode")),
+        }
+    }
+}
+impl Display for Mode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::B => write!(f, "B"),
+            Self::P => write!(f, "P"),
+            Self::R => write!(f, "R"),
+            Self::S => write!(f, "S"),
         }
     }
 }

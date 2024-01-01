@@ -40,9 +40,9 @@ impl NitfSegmentHeader for ReservedExtensionHeader {
         self.resver.read(reader, 2u8, "RESVER")?;
         self.security.read(reader)?;
         self.resshl.read(reader, 4u8, "RESSHL")?;
-        if self.resshl.val != 0 {
+        if self.resshl.val().clone() != 0 {
             self.resshf
-                .read(reader, self.resshl.val as usize, "RESSHF")?;
+                .read(reader, self.resshl.val().clone() as usize, "RESSHF")?;
         }
         Ok(())
     }

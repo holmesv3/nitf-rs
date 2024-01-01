@@ -85,7 +85,7 @@ impl NitfSegmentHeader for GraphicHeader {
         self.sbnd2.read(reader, 10u8, "SBND2")?;
         self.sres2.read(reader, 2u8, "SRES2")?;
         self.sxshdl.read(reader, 5u8, "SXSHDL")?;
-        let gphx_data_length = self.sxshdl.val;
+        let gphx_data_length = self.sxshdl.val().clone();
         if gphx_data_length != 0 {
             self.sxsofl.read(reader, 3u8, "SXSOFL")?;
             self.sxshd
@@ -109,6 +109,13 @@ impl FromStr for Format {
         match s {
             "C" => Ok(Self::C),
             _ => Err(NitfError::EnumError("Format")),
+        }
+    }
+}
+impl Display for Format {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::C => write!(f, "C"),
         }
     }
 }
@@ -139,7 +146,11 @@ impl FromStr for BoundLocation {
         }
     }
 }
-
+impl Display for BoundLocation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:>5}{:>5}", self.row, self.col)
+    }
+}
 /// Color type of graphics
 #[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum Color {
@@ -158,5 +169,14 @@ impl FromStr for Color {
             "M" => Ok(Self::M),
             _ => Err(NitfError::EnumError("Color")),
         }
+    }
+}
+impl Display for Color {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::C => write!(f, "C"),
+            Self::M => write!(f, "M"),
+        }
+        
     }
 }

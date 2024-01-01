@@ -18,25 +18,31 @@ pub struct NitfField<V: FromStr + Debug> {
     val: V,
     /// Number of bytes used to store value in file
     length: u64,
-    /// Byte offset in file
-    offset: u64,
 }
 
 /// Provide default implementation of reading a field.
 impl<V> NitfField<V>
 where
-V: FromStr + Debug + Default + Into<String>,
+V: FromStr + Debug + Default + Display,
 <V as FromStr>::Err: Debug,
 {
-    // Getters
-    pub fn get_val(&self) -> V { self.val }
-    pub fn get_string(&self) -> String { self.string }
-    pub fn get_bytes(&self) -> Vec<u8> { self.bytes }
-    
+    // Access functios
+    pub fn bytes(&self) -> &Vec<u8> {
+        &self.bytes
+    }
+    pub fn string(&self) -> &String {
+        &self.string
+    }
+    pub fn val(&self) -> &V {
+        &self.val
+    }
+    pub fn length(&self) -> &u64 {
+        &self.length
+    }
     // Setters need to updated other fields upon change
     pub fn set_val(&mut self, new_val: V) -> NitfResult<()> { 
+        self.string = new_val.to_string();
         self.val = new_val; 
-        self.string = new_val.into();
         Ok(()) 
     }
     
@@ -63,8 +69,7 @@ V: FromStr + Debug + Default + Into<String>,
         self.bytes = vec![0; self.length as usize];
 
         // Crash if something goes wrong with the cursor
-        self.offset = reader
-            .stream_position()
+        reader.stream_position()
             .or(Err(NitfError::Fatal(field_name.to_string())))?;
 
         // Crash if there is an error reading the bytes
@@ -217,18 +222,17 @@ impl FromStr for Classification {
         }
     }
 }
-impl Into<String> for Classification {
-    fn into(self) -> String {
+impl Display for Classification {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::U => "U".to_string(),
-            Self::T => "T".to_string(),
-            Self::S => "S".to_string(),
-            Self::C => "C".to_string(),
-            Self::R => "R".to_string(),
+            Self::U => write!(f, "U"),
+            Self::T => write!(f, "T"),
+            Self::S => write!(f, "S"),
+            Self::C => write!(f, "C"),
+            Self::R => write!(f, "R"),
         }
     }
 }
-
 /// Declassification codes
 #[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub enum DeclassificationType {
@@ -263,16 +267,16 @@ impl FromStr for DeclassificationType {
         }
     }
 }
-impl Into<String> for DeclassificationType {
-    fn into(self) -> String {
+impl Display for DeclassificationType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::DEFAULT => "  ".to_string(),
-            Self::DD => "DD".to_string(),
-            Self::DE => "DE".to_string(),
-            Self::GD => "GD".to_string(),
-            Self::GE => "GE".to_string(),
-            Self::O => " O".to_string(),
-            Self::X => " X".to_string(),
+            Self::DEFAULT => write!(f, "  "),
+            Self::DD => write!(f, "DD"),
+            Self::DE => write!(f, "DE"),
+            Self::GD => write!(f, "GD"),
+            Self::GE => write!(f, "GE"),
+            Self::O => write!(f, " O"),
+            Self::X => write!(f, " X"),
         }
     }
 }
@@ -332,29 +336,29 @@ impl FromStr for DeclassificationExemption {
         }
     }
 }
-impl Into<String> for DeclassificationExemption {
-    fn into(self) -> String {
+impl Display for DeclassificationExemption {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::DEFAULT => "    ".to_string(),
-            Self::DExX1 => "  X1".to_string(),   // DOD 5200.01-V1, 4-201b(1)
-            Self::DExX2 => "  X2".to_string(),   // DOD 5200.01-V1, 4-201b(2)
-            Self::DExX3 => "  X3".to_string(),   // DOD 5200.01-V1, 4-201b(3)
-            Self::DExX4 => "  X4".to_string(),   // DOD 5200.01-V1, 4-201b(4)
-            Self::DExX5 => "  X5".to_string(),   // DOD 5200.01-V1, 4-201b(5)
-            Self::DExX6 => "  X6".to_string(),   // DOD 5200.01-V1, 4-201b(6)
-            Self::DExX7 => "  X7".to_string(),   // DOD 5200.01-V1, 4-201b(7)
-            Self::DExX8 => "  X8".to_string(),   // DOD 5200.01-V1, 4-201b(8)
-            Self::DEx25X1 => "25X1".to_string(), // DOD 5200.01-V1, 4-301b(1)
-            Self::DEx25X2 => "25X2".to_string(), // DOD 5200.01-V1, 4-301b(2)
-            Self::DEx25X3 => "25X3".to_string(), // DOD 5200.01-V1, 4-301b(3)
-            Self::DEx25X4 => "25X4".to_string(), // DOD 5200.01-V1, 4-301b(4)
-            Self::DEx25X5 => "25X5".to_string(), // DOD 5200.01-V1, 4-301b(5)
-            Self::DEx25X6 => "25X6".to_string(), // DOD 5200.01-V1, 4-301b(6)
-            Self::DEx25X7 => "25X7".to_string(), // DOD 5200.01-V1, 4-301b(7)
-            Self::DEx25X8 => "25X8".to_string(), // DOD 5200.01-V1, 4-301b(8)
-            Self::DEx25X9 => "25X9".to_string(), // DOD 5200.01-V1, 4-301b(9)
-            Self::DExDN10 => "DN10".to_string(),
-            Self::DExDNI => " DNI".to_string(),
+            Self::DEFAULT => write!(f, "    "),
+            Self::DExX1 => write!(f, "  X1"),   // DOD 5200.01-V1, 4-201b(1)
+            Self::DExX2 => write!(f, "  X2"),   // DOD 5200.01-V1, 4-201b(2)
+            Self::DExX3 => write!(f, "  X3"),   // DOD 5200.01-V1, 4-201b(3)
+            Self::DExX4 => write!(f, "  X4"),   // DOD 5200.01-V1, 4-201b(4)
+            Self::DExX5 => write!(f, "  X5"),   // DOD 5200.01-V1, 4-201b(5)
+            Self::DExX6 => write!(f, "  X6"),   // DOD 5200.01-V1, 4-201b(6)
+            Self::DExX7 => write!(f, "  X7"),   // DOD 5200.01-V1, 4-201b(7)
+            Self::DExX8 => write!(f, "  X8"),   // DOD 5200.01-V1, 4-201b(8)
+            Self::DEx25X1 => write!(f, "25X1"), // DOD 5200.01-V1, 4-301b(1)
+            Self::DEx25X2 => write!(f, "25X2"), // DOD 5200.01-V1, 4-301b(2)
+            Self::DEx25X3 => write!(f, "25X3"), // DOD 5200.01-V1, 4-301b(3)
+            Self::DEx25X4 => write!(f, "25X4"), // DOD 5200.01-V1, 4-301b(4)
+            Self::DEx25X5 => write!(f, "25X5"), // DOD 5200.01-V1, 4-301b(5)
+            Self::DEx25X6 => write!(f, "25X6"), // DOD 5200.01-V1, 4-301b(6)
+            Self::DEx25X7 => write!(f, "25X7"), // DOD 5200.01-V1, 4-301b(7)
+            Self::DEx25X8 => write!(f, "25X8"), // DOD 5200.01-V1, 4-301b(8)
+            Self::DEx25X9 => write!(f, "25X9"), // DOD 5200.01-V1, 4-301b(9)
+            Self::DExDN10 => write!(f, "DN10"),
+            Self::DExDNI => write!(f, " DNI"),
         }
     }
 }
@@ -384,13 +388,13 @@ impl FromStr for Downgrade {
         }
     }
 }
-impl Into<String> for Downgrade {
-    fn into(self) -> String {
+impl Display for Downgrade {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::DEFAULT => " ".to_string(),
-            Self::S => "S".to_string(),
-            Self::C => "C".to_string(),
-            Self::R => "R".to_string(),
+            Self::DEFAULT => write!(f, " "),
+            Self::S => write!(f, "S"),
+            Self::C => write!(f, "C"),
+            Self::R => write!(f, "R"),
         }
     }
 }
@@ -420,13 +424,13 @@ impl FromStr for ClassificationAuthorityType {
         }
     }
 }
-impl Into<String> for ClassificationAuthorityType {
-    fn into(self) -> String {
+impl Display for ClassificationAuthorityType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::DEFAULT => " ".to_string(),
-            Self::O => "O".to_string(),
-            Self::D => "D".to_string(),
-            Self::M => "M".to_string(),
+            Self::DEFAULT => write!(f, " "),
+            Self::O => write!(f, "O"),
+            Self::D => write!(f, "D"),
+            Self::M => write!(f, "M"),
         }
     }
 }
@@ -464,18 +468,18 @@ impl FromStr for ClassificationReason {
         }
     }
 }
-impl Into<String> for ClassificationReason {
-    fn into(self) -> String {
+impl Display for ClassificationReason {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::DEFAULT => " ".to_string(),
-            Self::A => "A".to_string(),
-            Self::B => "B".to_string(),
-            Self::C => "C".to_string(),
-            Self::D => "D".to_string(),
-            Self::E => "E".to_string(),
-            Self::F => "F".to_string(),
-            Self::G => "G".to_string(),
-            Self::H => "H".to_string(),
+            Self::DEFAULT => write!(f, " "),
+            Self::A => write!(f, "A"),
+            Self::B => write!(f, "B"),
+            Self::C => write!(f, "C"),
+            Self::D => write!(f, "D"),
+            Self::E => write!(f, "E"),
+            Self::F => write!(f, "F"),
+            Self::G => write!(f, "G"),
+            Self::H => write!(f, "H"),
         }
     }
 }

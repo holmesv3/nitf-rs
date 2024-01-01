@@ -59,7 +59,7 @@ impl NitfSegmentHeader for TextHeader {
         self.encryp.read(reader, 1u8, "ENCRYP")?;
         self.txtfmt.read(reader, 3u8, "TXTFMT")?;
         self.txshdl.read(reader, 5u8, "TXSHDL")?;
-        let extended_length = self.txshdl.val;
+        let extended_length = self.txshdl.val().clone();
         if extended_length != 0 {
             self.txsofl.read(reader, 3u8, "TXSOFL")?;
             self.txshd
@@ -94,6 +94,16 @@ impl FromStr for TextFormat {
             "UT1" => Ok(Self::UT1),
             "U8S" => Ok(Self::U8S),
             _ => Err(NitfError::EnumError("TextFormat")),
+        }
+    }
+}
+impl Display for TextFormat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::MTF => write!(f, "MTF"),
+            Self::STA => write!(f, "STA"),
+            Self::UT1 => write!(f, "UT1"),
+            Self::U8S => write!(f, "U8S"),
         }
     }
 }

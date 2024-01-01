@@ -36,11 +36,11 @@
 //! let nitf_path = Path::new("../example.nitf");
 //! let nitf = nitf_rs::read_nitf(&nitf_path).unwrap();
 //! // .. File title
-//! let file_title = nitf.nitf_header.meta.ftitle.val;
+//! let file_title = nitf.nitf_header.meta.ftitle.val();
 //! // .. Number of image segments
-//! let n_img_segments = nitf.nitf_header.meta.numi.val;
+//! let n_img_segments = nitf.nitf_header.meta.numi.val();
 //! // .. and number of rows in the first image segment data
-//! let n_rows = nitf.image_segments[0].meta.nrows.val;
+//! let n_rows = nitf.image_segments[0].meta.nrows.val();
 //! ```
 //!
 //! If there is user-defined tagged-record-extension (TRE) data within a segment,
@@ -126,47 +126,47 @@ impl Nitf {
         debug!("Reading NITF file header");
         nitf.nitf_header.read(file)?;
 
-        let mut n_seg = nitf.nitf_header.meta.numi.val as usize;
+        let mut n_seg = nitf.nitf_header.meta.numi.val().clone() as usize;
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.meta.imheaders[i_seg];
-            let header_size = seg_info.subheader_size.val;
-            let data_size = seg_info.item_size.val;
+            let header_size = seg_info.subheader_size.val().clone();
+            let data_size = seg_info.item_size.val().clone();
             let seg = ImageSegment::initialize(file, header_size, data_size)?;
             nitf.image_segments.push(seg);
         }
 
-        n_seg = nitf.nitf_header.meta.nums.val as usize;
+        n_seg = nitf.nitf_header.meta.nums.val().clone() as usize;
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.meta.graphheaders[i_seg];
-            let header_size = seg_info.subheader_size.val;
-            let data_size: u64 = seg_info.item_size.val;
+            let header_size = seg_info.subheader_size.val().clone();
+            let data_size: u64 = seg_info.item_size.val().clone();
             let seg = GraphicSegment::initialize(file, header_size, data_size)?;
             nitf.graphic_segments.push(seg);
         }
 
-        n_seg = nitf.nitf_header.meta.numt.val as usize;
+        n_seg = nitf.nitf_header.meta.numt.val().clone() as usize;
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.meta.textheaders[i_seg];
-            let header_size = seg_info.subheader_size.val;
-            let data_size: u64 = seg_info.item_size.val;
+            let header_size = seg_info.subheader_size.val().clone();
+            let data_size: u64 = seg_info.item_size.val().clone();
             let seg = TextSegment::initialize(file, header_size, data_size)?;
             nitf.text_segments.push(seg);
         }
 
-        n_seg = nitf.nitf_header.meta.numdes.val as usize;
+        n_seg = nitf.nitf_header.meta.numdes.val().clone() as usize;
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.meta.dextheaders[i_seg];
-            let header_size = seg_info.subheader_size.val;
-            let data_size: u64 = seg_info.item_size.val;
+            let header_size = seg_info.subheader_size.val().clone();
+            let data_size: u64 = seg_info.item_size.val().clone();
             let seg = DataExtensionSegment::initialize(file, header_size, data_size)?;
             nitf.data_extension_segments.push(seg);
         }
 
-        n_seg = nitf.nitf_header.meta.numres.val as usize;
+        n_seg = nitf.nitf_header.meta.numres.val().clone() as usize;
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.meta.resheaders[i_seg];
-            let header_size = seg_info.subheader_size.val;
-            let data_size = seg_info.item_size.val;
+            let header_size = seg_info.subheader_size.val().clone();
+            let data_size = seg_info.item_size.val().clone();
             let seg = ReservedExtensionSegment::initialize(file, header_size, data_size)?;
             nitf.reserved_extension_segments.push(seg);
         }

@@ -133,8 +133,8 @@ impl NitfSegmentHeader for NitfHeader {
     fn read(&mut self, reader: &mut File) -> NitfResult<()> {
         self.fhdr.read(reader, 4u8, "FHDR")?;
         // Crash if file header is not NITF
-        if self.fhdr.string != "NITF" {
-            return Err(NitfError::FileType(self.fhdr.string.clone()));
+        if self.fhdr.string() != "NITF" {
+            return Err(NitfError::FileType(self.fhdr.string().clone()));
         }
         self.fver.read(reader, 5u8, "FVER")?;
         self.clevel.read(reader, 2u8, "CLEVEL")?;
@@ -157,14 +157,14 @@ impl NitfSegmentHeader for NitfHeader {
         self.fl.read(reader, 12u8, "FL")?;
         self.hl.read(reader, 6u8, "HL")?;
         self.numi.read(reader, 3u8, "NUMI")?;
-        for _ in 0..self.numi.val {
+        for _ in 0..self.numi.val().clone() {
             let mut subheader = SubHeader::default();
             subheader.read(reader, 6, 10)?;
             self.imheaders.push(subheader);
         }
 
         self.nums.read(reader, 3u8, "NUMS")?;
-        for _ in 0..self.nums.val {
+        for _ in 0..self.nums.val().clone() {
             let mut subheader = SubHeader::default();
             subheader.read(reader, 4, 6)?;
             self.graphheaders.push(subheader);
@@ -172,37 +172,37 @@ impl NitfSegmentHeader for NitfHeader {
 
         self.numx.read(reader, 3u8, "NUMX")?;
         self.numt.read(reader, 3u8, "NUMT")?;
-        for _ in 0..self.numt.val {
+        for _ in 0..self.numt.val().clone() {
             let mut subheader = SubHeader::default();
             subheader.read(reader, 4, 5)?;
             self.textheaders.push(subheader);
         }
 
         self.numdes.read(reader, 3u8, "NUMDES")?;
-        for _ in 0..self.numdes.val {
+        for _ in 0..self.numdes.val().clone() {
             let mut subheader = SubHeader::default();
             subheader.read(reader, 4, 9)?;
             self.dextheaders.push(subheader);
         }
 
         self.numres.read(reader, 3u8, "NUMRES")?;
-        for _ in 0..self.numres.val {
+        for _ in 0..self.numres.val().clone() {
             let mut subheader = SubHeader::default();
             subheader.read(reader, 4, 7)?;
             self.resheaders.push(subheader);
         }
 
         self.udhdl.read(reader, 5u8, "UDHDL")?;
-        if self.udhdl.val != 0 {
+        if self.udhdl.val().clone() != 0 {
             self.udhofl.read(reader, 3u8, "UDHOFL")?;
             self.udhd
-                .read(reader, (self.udhdl.val - 3) as usize, "UDHD")?;
+                .read(reader, (self.udhdl.val() - 3) as usize, "UDHD")?;
         }
 
         self.xhdl.read(reader, 5u8, "XHDL")?;
-        if self.xhdl.val != 0 {
+        if self.xhdl.val().clone() != 0 {
             self.xhdlofl.read(reader, 3u8, "XHDLOFL")?;
-            self.xhd.read(reader, (self.xhdl.val - 3) as usize, "XHD")?;
+            self.xhd.read(reader, (self.xhdl.val() - 3) as usize, "XHD")?;
         }
         Ok(())
     }
@@ -231,7 +231,7 @@ impl Display for SubHeader {
         write!(
             f,
             "[subheader_size: {}, item_size: {}]",
-            &self.subheader_size.string, &self.item_size.string
+            self.subheader_size.string(), self.item_size.string()
         )
     }
 }
