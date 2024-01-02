@@ -42,16 +42,21 @@ V: FromStr + Debug + Default + Display,
     // Setters need to updated other fields upon change
     pub fn set_val(&mut self, new_val: V) -> NitfResult<()> { 
         self.string = new_val.to_string();
+        self.bytes = self.string.clone().into_bytes();
         self.val = new_val; 
         Ok(()) 
     }
     
     pub fn set_string(&mut self, new_string: String) -> NitfResult<()> { 
+        self.val = new_string.parse().unwrap();
+        self.bytes = new_string.clone().into_bytes();
         self.string = new_string; 
         Ok(()) 
     }
     
     pub fn set_bytes(&mut self, new_bytes: Vec<u8>) -> NitfResult<()> { 
+        self.string = String::from_utf8(new_bytes.clone()).unwrap();
+        self.val = self.string.parse().unwrap();
         self.bytes = new_bytes; 
         Ok(()) 
     }
