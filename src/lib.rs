@@ -45,6 +45,7 @@
 //!
 //! If there is user-defined tagged-record-extension (TRE) data within a segment,
 //! it is stored in an [ExtendedSubheader] for the user to parse accordingly.
+use headers::NitfSegmentHeader;
 use log::debug;
 use std::fmt::Display;
 use std::fs::File;
@@ -62,7 +63,10 @@ pub enum NitfError {
     EnumError(&'static str),
     #[error("Fatal error reading {0}")]
     Fatal(String),
-
+    #[error("value of {0} does not match")]
+    Value(String),
+    #[error("Couldn't update header values")]
+    Update(),
     // Wrappers for built in errors
     #[error(transparent)]
     IOError(#[from] std::io::Error),
@@ -171,6 +175,130 @@ impl Nitf {
             nitf.reserved_extension_segments.push(seg);
         }
         Ok(nitf)
+    }
+    
+    /// Write the nitf object to a file
+    pub fn write(&mut self, path: &Path) -> NitfResult<usize> {
+        debug!("Writing NITF file header");
+        let mut bytes_written = 0;
+        // Verify that the header values match 
+        match self.check_headers() {
+            // Try to update, if it fails, error
+            Err(_) => self.update_headers().or(Err(NitfError::Update()))?,
+            _ => true,
+        }; 
+        
+        let mut writer = File::create(path)?;
+        writer.set_len(self.length() as u64)?;
+        
+        bytes_written += self.nitf_header.write(&mut writer)?;
+        for seg in self.image_segments.iter() {
+            bytes_written += seg.write(&mut writer)?;
+        }
+        for seg in self.graphic_segments.iter() {
+            bytes_written += seg.write(&mut writer)?;
+        }
+        for seg in self.text_segments.iter() {
+            bytes_written += seg.write(&mut writer)?;
+        }
+        for seg in self.data_extension_segments.iter() {
+            bytes_written += seg.write(&mut writer)?;
+        }
+        for seg in self.reserved_extension_segments.iter() {
+            bytes_written += seg.write(&mut writer)?;
+        }
+        Ok(bytes_written)
+    }
+    
+    /// Check the header values are accurate
+    fn check_headers(&self) -> NitfResult<bool> {
+        debug!("Checking header values for consistency");
+        let hdr = &self.nitf_header.meta;
+        // Check image segments
+        let n_img = hdr.numi.val().clone() as usize;
+        if self.image_segments.len() != n_img {
+            return Err(NitfError::Value("NUMI".to_string()))
+        };
+        for (seg, hdrval) in self.image_segments.iter().zip(hdr.imheaders.iter()) {
+            if seg.meta.length() != hdrval.subheader_size.length() {
+                return Err(NitfError::Value("Subheader length".to_string()))
+            };
+            if seg.data.len() != hdrval.item_size.length() {
+                return Err(NitfError::Value("Item length".to_string()))
+            };
+        }
+        
+        // Check graphic segments
+        let n_gph = hdr.nums.val().clone() as usize;
+        if self.graphic_segments.len() != n_gph {
+            return Err(NitfError::Value("NUMS".to_string()))
+        };
+        for (seg, hdrval) in self.graphic_segments.iter().zip(hdr.graphheaders.iter()) {
+            if seg.meta.length() != hdrval.subheader_size.length() {
+                return Err(NitfError::Value("Subheader length".to_string()))
+            };
+            if seg.data.len() != hdrval.item_size.length() {
+                return Err(NitfError::Value("Item length".to_string()))
+            };
+        }
+        
+        // Check text segments
+        let n_txt = hdr.numt.val().clone() as usize;
+        if self.text_segments.len() != n_txt {
+            return Err(NitfError::Value("NUMT".to_string()))
+        };
+        for (seg, hdrval) in self.text_segments.iter().zip(hdr.textheaders.iter()) {
+            if seg.meta.length() != hdrval.subheader_size.length() {
+                return Err(NitfError::Value("Subheader length".to_string()))
+            };
+            if seg.data.len() != hdrval.item_size.length() {
+                return Err(NitfError::Value("Item length".to_string()))
+            };
+        }
+        
+        // Check data extension segments
+        let n_dex = hdr.numdes.val().clone() as usize;
+        if self.data_extension_segments.len() != n_dex {
+            return Err(NitfError::Value("NUMDES".to_string()))
+        };
+        for (seg, hdrval) in self.data_extension_segments.iter().zip(hdr.dextheaders.iter()) {
+            if seg.meta.length() != hdrval.subheader_size.length() {
+                return Err(NitfError::Value("Subheader length".to_string()))
+            };
+            if seg.data.len() != hdrval.item_size.length() {
+                return Err(NitfError::Value("Item length".to_string()))
+            };
+        }
+        
+        // Check reserved extension segments
+        let n_rex = hdr.numres.val().clone() as usize;
+        if self.reserved_extension_segments.len() != n_rex {
+            return Err(NitfError::Value("NUMRES".to_string()))
+        };
+        for (seg, hdrval) in self.reserved_extension_segments.iter().zip(hdr.resheaders.iter()) {
+            if seg.meta.length() != hdrval.subheader_size.length() {
+                return Err(NitfError::Value("Subheader length".to_string()))
+            };
+            if seg.data.len() != hdrval.item_size.length() {
+                return Err(NitfError::Value("Item length".to_string()))
+            };
+        }
+        Ok(true)
+    }
+    
+    pub fn update_headers(&mut self) -> NitfResult<bool> {
+        debug!("Updating header values");
+        Ok(true)
+    }
+    pub fn length(&self) -> usize {
+        let mut length = 0;
+        length += self.nitf_header.meta.length();
+        length += self.image_segments.iter().map(|seg| seg.length()).sum::<usize>();
+        length += self.graphic_segments.iter().map(|seg| seg.length()).sum::<usize>();
+        length += self.text_segments.iter().map(|seg| seg.length()).sum::<usize>();
+        length += self.data_extension_segments.iter().map(|seg| seg.length()).sum::<usize>();
+        length += self.reserved_extension_segments.iter().map(|seg| seg.length()).sum::<usize>();
+        length
     }
 }
 

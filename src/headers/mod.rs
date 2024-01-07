@@ -34,6 +34,23 @@ where
     fn read(&mut self, reader: &mut File) -> NitfResult<()> {
         panic!("Didn't implement read() method")
     }
+    
+    /// Write the segment info to stream
+    ///
+    /// # Parameters
+    ///
+    /// writer: Stream from which to write header information
+    #[allow(unused)]
+    fn write(&self, writer: &mut File) -> NitfResult<usize> {
+        panic!("Didn't implement write() method")
+    }
+    
+    /// Get the length of the segment
+    #[allow(unused)]
+    fn length(&self) -> usize {
+        panic!("Didn't implement len() method")
+    }
+
 
     fn from_reader(reader: &mut File) -> NitfResult<Self> {
         let mut hdr = Self::default();

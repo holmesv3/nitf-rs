@@ -2,6 +2,7 @@
 use memmap2::{Mmap, MmapOptions};
 use std::fmt::Display;
 use std::fs::File;
+use std::io::Write;
 use std::io::{Seek, SeekFrom::Start};
 use std::ops::Deref;
 
@@ -21,6 +22,10 @@ impl FileHeader {
         // Crash if cursor error
         self.header_size = reader.stream_position()?;
         Ok(())
+    }
+    pub fn write(&mut self, writer: &mut File) -> NitfResult<usize> {
+        self.meta.write(writer)
+        
     }
 }
 impl Display for FileHeader {
@@ -70,6 +75,23 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
             data_size,
             data_offset,
         })
+    }
+    pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
+        let mut bytes_written = 0;
+        bytes_written += self.meta.write(writer)?;
+        let pos = writer.stream_position()?;
+        let mut writer_map_opts = MmapOptions::new();
+        let mut data = unsafe {
+            writer_map_opts
+                .offset(pos)
+                .len(self.data_size as usize)
+                .map_mut(writer.deref());
+        };
+        bytes_written += writer.write(&self.data)?;
+        Ok(bytes_written)
+    }
+    pub fn length(&self) -> usize {
+        self.meta.length() + self.data.len()
     }
 }
 impl<T: NitfSegmentHeader + Display> Display for NitfSegment<T> {

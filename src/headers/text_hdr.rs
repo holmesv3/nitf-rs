@@ -67,6 +67,43 @@ impl NitfSegmentHeader for TextHeader {
         }
         Ok(())
     }
+    fn write(&self, writer: &mut File) -> NitfResult<usize> {
+        let mut bytes_written = 0;
+        bytes_written += self.te.write(writer, "TE")?;
+        bytes_written += self.textid.write(writer, "TEXTID")?;
+        bytes_written += self.txtalvl.write(writer, "TXTALVL")?;
+        bytes_written += self.txtdt.write(writer, "TXTDT")?;
+        bytes_written += self.txttitl.write(writer, "TXTTITL")?;
+        bytes_written += self.security.write(writer)?;
+        bytes_written += self.encryp.write(writer, "ENCRYP")?;
+        bytes_written += self.txtfmt.write(writer, "TXTFMT")?;
+        bytes_written += self.txshdl.write(writer, "TXSHDL")?;
+        let extended_length = self.txshdl.val().clone();
+        if extended_length != 0 {
+            bytes_written += self.txsofl.write(writer, "TXSOFL")?;
+            bytes_written += self.txshd.write(writer, "TXSHD")?;
+        }
+        Ok(bytes_written)
+    }
+    fn length(&self) -> usize {
+        let mut length = 0;
+        length += self.te.length();
+        length += self.textid.length();
+        length += self.txtalvl.length();
+        length += self.txtdt.length();
+        length += self.txttitl.length();
+        length += self.security.length();
+        length += self.encryp.length();
+        length += self.txtfmt.length();
+        length += self.txshdl.length();
+        let extended_length = self.txshdl.val().clone();
+        if extended_length != 0 {
+            length += self.txsofl.length();
+            length += self.txshd.length();
+        }
+        length
+        
+    }
 }
 impl Display for TextHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

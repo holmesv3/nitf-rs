@@ -36,8 +36,8 @@ V: FromStr + Debug + Default + Display,
     pub fn val(&self) -> &V {
         &self.val
     }
-    pub fn length(&self) -> &u64 {
-        &self.length
+    pub fn length(&self) -> usize {
+        self.length as usize
     }
     // Setters need to updated other fields upon change
     pub fn set_val(&mut self, new_val: V) -> NitfResult<()> { 
@@ -74,7 +74,8 @@ V: FromStr + Debug + Default + Display,
         self.bytes = vec![0; self.length as usize];
 
         // Crash if something goes wrong with the cursor
-        reader.stream_position()
+        reader
+            .stream_position()
             .or(Err(NitfError::Fatal(field_name.to_string())))?;
 
         // Crash if there is an error reading the bytes
@@ -100,16 +101,17 @@ V: FromStr + Debug + Default + Display,
                 warn!("Failed to parse {field_name} from bytes: {:?}", self.bytes);
             }
         }
-        trace!("{:?}", self.val);
+        trace!("Read {field_name}: {:?}", self.val);
         Ok(())
     }
     
     pub fn write(
-        &mut self,
+        &self,
         writer: &mut File,
         field_name: &str
-    ) -> NitfResult<()> {
-        Ok(())
+    ) -> NitfResult<usize> {
+        trace!("Writing {field_name}: {:?}", self.val);
+        writer.write(&self.bytes).map_err(|e| NitfError::IOError(e))
     }
 }
 
@@ -174,6 +176,30 @@ impl Security {
         self.srdt.read(reader, 8u8, "SRDT")?;
         self.ctln.read(reader, 15u8, "CTLN")?;
         Ok(())
+    }
+    pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
+        let mut bytes_written = 0;
+        bytes_written += self.clas.write(writer, "CLAS")?;
+        bytes_written += self.clsy.write(writer, "CLSY")?;
+        bytes_written += self.code.write(writer, "CODE")?;
+        bytes_written += self.ctlh.write(writer, "CTLH")?;
+        bytes_written += self.rel.write(writer, "REL")?;
+        bytes_written += self.dctp.write(writer, "DCTP")?;
+        bytes_written += self.dcdt.write(writer, "DCDT")?;
+        bytes_written += self.dcxm.write(writer, "DCXM")?;
+        bytes_written += self.dg.write(writer, "DG")?;
+        bytes_written += self.dgdt.write(writer, "DGDT")?;
+        bytes_written += self.cltx.write(writer, "CLTX")?;
+        bytes_written += self.catp.write(writer, "CATP")?;
+        bytes_written += self.caut.write(writer, "CAUT")?;
+        bytes_written += self.crsn.write(writer, "CRSN")?;
+        bytes_written += self.srdt.write(writer, "SRDT")?;
+        bytes_written += self.ctln.write(writer, "CTLN")?;
+        Ok(bytes_written)
+    }
+    /// Sum of a all security fields
+    pub fn length(&self) -> usize {
+        167
     }
 }
 impl Display for Security {
@@ -493,18 +519,38 @@ impl Display for ClassificationReason {
 #[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub struct ExtendedSubheader {
     /// User defined tagged record entries (TREs)
-    pub tre: Vec<u8>,
+    tre: Vec<u8>,
     /// Length of subheader
-    pub size: usize,
+    size: usize,
 }
-impl ExtendedSubheader {
+impl ExtendedSubheader {    
+    /// Get `tre` 
+    pub fn tre(&self) -> &Vec<u8> {
+        &self.tre
+    }
+    /// Get `size` 
+    pub fn size(&self) -> &usize {
+        &self.size
+    } 
+    /// Updates the TRE byte vector and size field. 
+    pub fn set_tre(&mut self, new_tre: Vec<u8>) {
+        self.size = new_tre.len();
+        self.tre = new_tre;
+    }
     pub fn read(&mut self, reader: &mut File, n_bytes: usize, name: &str) -> NitfResult<()> {
         self.size = n_bytes;
         self.tre = vec![0; n_bytes];
+        trace!("Reading: {name}");
         reader
             .read_exact(self.tre.as_mut_slice())
-            .or(Err(NitfError::Fatal(name.to_string())))?;
-        Ok(())
+            .map_err(|e| NitfError::IOError(e))
+    }
+    pub fn write(&self, writer: &mut File, name: &str) -> NitfResult<usize> {
+        trace!("Writing: {name}");
+        writer.write(self.tre.as_slice()).map_err(|e| NitfError::IOError(e))
+    }
+    pub fn length(&self) -> usize {
+        self.size
     }
 }
 impl Display for ExtendedSubheader {

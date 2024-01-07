@@ -46,4 +46,29 @@ impl NitfSegmentHeader for ReservedExtensionHeader {
         }
         Ok(())
     }
+    fn write(&self, writer: &mut File) -> NitfResult<usize> {
+        let mut bytes_written = 0;
+        bytes_written += self.re.write(writer, "RE")?;
+        bytes_written += self.resid.write(writer, "RESID")?;
+        bytes_written += self.resver.write(writer, "RESVER")?;
+        bytes_written += self.security.write(writer)?;
+        bytes_written += self.resshl.write(writer, "RESSHL")?;
+        if self.resshl.val().clone() != 0 {
+            bytes_written += self.resshf.write(writer, "RESSHF")?;
+        }
+        Ok(bytes_written)
+    }
+    fn length(&self) -> usize {
+        let mut length = 0;
+        length += self.re.length();
+        length += self.resid.length();
+        length += self.resver.length();
+        length += self.security.length();
+        length += self.resshl.length();
+        if self.resshl.val().clone() != 0 {
+            length += self.resshf.length();
+        }
+        length
+        
+    }
 }

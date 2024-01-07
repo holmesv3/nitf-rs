@@ -93,6 +93,54 @@ impl NitfSegmentHeader for GraphicHeader {
         }
         Ok(())
     }
+    fn write(&self, writer: &mut File) -> NitfResult<usize> {
+        let mut bytes_written = 0;
+        bytes_written += self.sy.write(writer,"SY")?;
+        bytes_written += self.sid.write(writer,"SID")?;
+        bytes_written += self.sname.write(writer,"SNAME")?;
+        bytes_written += self.security.write(writer)?;
+        bytes_written += self.encryp.write(writer,"ENCRYP")?;
+        bytes_written += self.sfmt.write(writer,"SFMT")?;
+        bytes_written += self.sstruct.write(writer,"SSTRUCT")?;
+        bytes_written += self.sdlvl.write(writer,"SDLVL")?;
+        bytes_written += self.salvl.write(writer,"SALVL")?;
+        bytes_written += self.sloc.write(writer,"SLOC")?;
+        bytes_written += self.sbnd1.write(writer,"SBND1")?;
+        bytes_written += self.scolor.write(writer,"SCOLOR")?;
+        bytes_written += self.sbnd2.write(writer,"SBND2")?;
+        bytes_written += self.sres2.write(writer,"SRES2")?;
+        bytes_written += self.sxshdl.write(writer,"SXSHDL")?;
+        let gphx_data_length = self.sxshdl.val().clone();
+        if gphx_data_length != 0 {
+            bytes_written += self.sxsofl.write(writer, "SXSOFL")?;
+            bytes_written += self.sxshd.write(writer, "SXSHD")?;
+        }
+        Ok(bytes_written)
+    }
+    fn length(&self) -> usize {
+        let mut length = 0;
+        length += self.sy.length();
+        length += self.sid.length();
+        length += self.sname.length();
+        length += self.security.length();
+        length += self.encryp.length();
+        length += self.sfmt.length();
+        length += self.sstruct.length();
+        length += self.sdlvl.length();
+        length += self.salvl.length();
+        length += self.sloc.length();
+        length += self.sbnd1.length();
+        length += self.scolor.length();
+        length += self.sbnd2.length();
+        length += self.sres2.length();
+        length += self.sxshdl.length();
+        let gphx_data_length = self.sxshdl.val().clone();
+        if gphx_data_length != 0 {
+            length += self.sxsofl.length();
+            length += self.sxshd.length();
+        }
+        length
+    }
 }
 
 /// Graphic type. Right now standard only supports C

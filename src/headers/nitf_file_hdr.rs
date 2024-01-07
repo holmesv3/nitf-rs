@@ -148,7 +148,7 @@ impl NitfSegmentHeader for NitfHeader {
         self.encryp.read(reader, 1u8, "ENCRYP")?;
         for _ in 0..3 {
             let mut color: NitfField<String> = NitfField::default();
-            color.read(reader, 1u8, "READ")?;
+            color.read(reader, 1u8, "FBKGC")?;
             self.fbkgc.push(color);
         }
 
@@ -206,6 +206,110 @@ impl NitfSegmentHeader for NitfHeader {
         }
         Ok(())
     }
+    fn write(&self, writer: &mut File) -> NitfResult<usize> {
+        let mut bytes_written = 0;
+        // Crash if file header is not NITF
+        if self.fhdr.string() != "NITF" {
+            return Err(NitfError::FileType(self.fhdr.string().clone()));
+        }
+        bytes_written += self.fhdr.write(writer, "FHDR")?;
+        bytes_written += self.fver.write(writer, "FVER")?;
+        bytes_written += self.clevel.write(writer, "CLEVEL")?;
+        bytes_written += self.stype.write(writer, "STYPE")?;
+        bytes_written += self.ostaid.write(writer, "OSTAID")?;
+        bytes_written += self.fdt.write(writer, "FDT")?;
+        bytes_written += self.ftitle.write(writer, "FTITLE")?;
+        bytes_written += self.security.write(writer)?;
+        bytes_written += self.fscop.write(writer, "FSCOP")?;
+        bytes_written += self.fscpys.write(writer, "FSCPYS")?;
+        bytes_written += self.encryp.write(writer, "ENCRYP")?;
+        for color in &self.fbkgc {
+            bytes_written += color.write(writer, "FBKGC")?;
+        }
+        bytes_written += self.oname.write(writer, "ONAME")?;
+        bytes_written += self.ophone.write(writer, "OPHONE")?;
+        bytes_written += self.fl.write(writer, "FL")?;
+        bytes_written += self.hl.write(writer, "HL")?;
+        bytes_written += self.numi.write(writer, "NUMI")?;
+        for subheader in &self.imheaders {
+            bytes_written += subheader.write(writer)?;
+        }
+
+        bytes_written += self.nums.write(writer, "NUMS")?;
+        for subheader in &self.graphheaders {
+            bytes_written += subheader.write(writer)?;
+        }
+
+        bytes_written += self.numx.write(writer, "NUMX")?;
+        bytes_written += self.numt.write(writer, "NUMT")?;
+        for subheader in &self.textheaders {
+            bytes_written += subheader.write(writer)?;
+        }
+
+        bytes_written += self.numdes.write(writer, "NUMDES")?;
+        for subheader in &self.dextheaders {
+            bytes_written += subheader.write(writer)?;
+        }
+
+        bytes_written += self.numres.write(writer, "NUMRES")?;
+        for subheader in &self.resheaders {
+            bytes_written += subheader.write(writer)?;
+        }
+
+        bytes_written += self.udhdl.write(writer, "UDHDL")?;
+        if self.udhdl.val().clone() != 0 {
+            bytes_written += self.udhofl.write(writer, "UDHOFL")?;
+            bytes_written += self.udhd.write(writer, "UDHD")?;
+        }
+
+        bytes_written += self.xhdl.write(writer, "XHDL")?;
+        if self.xhdl.val().clone() != 0 {
+            bytes_written += self.xhdlofl.write(writer, "XHDLOFL")?;
+            bytes_written += self.xhd.write(writer, "XHD")?;
+        }
+        Ok(bytes_written)
+    }
+    fn length(&self) -> usize {
+        let mut length = 0;
+        length += self.fhdr.length();
+        length += self.fver.length();
+        length += self.clevel.length();
+        length += self.stype.length();
+        length += self.ostaid.length();
+        length += self.fdt.length();
+        length += self.ftitle.length();
+        length += self.security.length();
+        length += self.fscop.length();
+        length += self.fscpys.length();
+        length += self.encryp.length();
+        length += self.fbkgc.iter().map(|c| c.length()).sum::<usize>();
+        length += self.oname.length();
+        length += self.ophone.length();
+        length += self.fl.length();
+        length += self.hl.length();
+        length += self.numi.length();
+        length += self.imheaders.iter().map(|s| s.length()).sum::<usize>();
+        length += self.nums.length();
+        length += self.graphheaders.iter().map(|s| s.length()).sum::<usize>();
+        length += self.numx.length();
+        length += self.numt.length();
+        length += self.textheaders.iter().map(|s| s.length()).sum::<usize>();
+        length += self.numdes.length();
+        length += self.dextheaders.iter().map(|s| s.length()).sum::<usize>();
+        length += self.numres.length();
+        length += self.resheaders.iter().map(|s| s.length()).sum::<usize>();
+        length += self.udhdl.length();
+        if self.udhdl.val().clone() != 0 {
+            length += self.udhofl.length();
+            length += self.udhd.length();
+        }
+        length += self.xhdl.length();
+        if self.xhdl.val().clone() != 0 {
+            length += self.xhdlofl.length();
+            length += self.xhd.length();
+        }
+        length
+    }
 }
 
 /// Subheader element type
@@ -224,6 +328,15 @@ impl SubHeader {
             .read(reader, sh_size, "SUBHEADER_SIZE")?;
         self.item_size.read(reader, item_size, "ITEM_SIZE")?;
         Ok(())
+    }
+    pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
+        let mut bytes_written = 0;
+        bytes_written += self.subheader_size.write(writer, "SUBHEADER_SIZE")?;
+        bytes_written += self.item_size.write(writer, "ITEM_SIZE")?;
+        Ok(bytes_written)
+    }
+    pub fn length(&self) -> usize {
+        self.subheader_size.length() + self.item_size.length()
     }
 }
 impl Display for SubHeader {

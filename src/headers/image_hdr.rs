@@ -113,6 +113,19 @@ pub struct Band {
     /// Image Band Look-Up-Tables
     pub lutd: Vec<NitfField<u8>>,
 }
+impl Band {
+    pub fn length(&self) -> usize {
+        let mut length = 0;
+        length += self.irepband.length();
+        length += self.isubcat.length();
+        length += self.ifc.length();
+        length += self.imflt.length();
+        length += self.nluts.length();
+        length += self.nelut.length();
+        length += self.lutd.len();  // each element is 1 byte,  
+        length
+    }
+}
 
 /// Pixel Value type options
 #[derive(Debug, Default, Clone, Eq, PartialEq)]
@@ -259,6 +272,24 @@ fn read_bands(reader: &mut File, n_band: u32) -> NitfResult<Vec<Band>> {
     }
     Ok(bands)
 }
+/// Helper function for writing bands
+fn write_bands(writer: &mut File, bands: &Vec<Band>) -> NitfResult<usize> {
+    let mut bytes_written = 0;
+    for band in bands {
+        bytes_written += band.irepband.write(writer, "IREPBAND")?;
+        bytes_written += band.isubcat.write(writer, "ISUBCAT")?;
+        bytes_written += band.ifc.write(writer, "IFC")?;
+        bytes_written += band.imflt.write(writer, "IMFLT")?;
+        bytes_written += band.nluts.write(writer, "NLUTS")?;
+        if band.nluts.val().clone() != 0 {
+            bytes_written += band.nelut.write(writer, "NELUT")?;
+            for lut in &band.lutd {
+                bytes_written += lut.write(writer, "LUDT")?;
+            }
+        }
+    }
+    Ok(bytes_written)
+}
 
 // TRAIT IMPLEMENTATIONS
 impl NitfSegmentHeader for ImageHeader {
@@ -325,6 +356,126 @@ impl NitfSegmentHeader for ImageHeader {
                 .read(reader, (ixsh_data_length - 3) as usize, "IXSHD")?;
         }
         Ok(())
+    }
+    fn write(&self, writer: &mut File) -> NitfResult<usize> {
+        let mut bytes_written = 0;
+        bytes_written += self.im.write(writer, "IM")?;
+        bytes_written += self.iid1.write(writer, "IID1")?;
+        bytes_written += self.idatim.write(writer, "IDATIM")?;
+        bytes_written += self.tgtid.write(writer, "TGTID")?;
+        bytes_written += self.iid2.write(writer, "IID2")?;
+        bytes_written += self.security.write(writer)?;
+        bytes_written += self.encryp.write(writer, "ENCRYP")?;
+        bytes_written += self.isorce.write(writer, "ISORCE")?;
+        bytes_written += self.nrows.write(writer, "NROWS")?;
+        bytes_written += self.ncols.write(writer, "NCOLS")?;
+        bytes_written += self.pvtype.write(writer, "PVTYPE")?;
+        bytes_written += self.irep.write(writer, "IREP")?;
+        bytes_written += self.icat.write(writer, "ICAT")?;
+        bytes_written += self.abpp.write(writer, "ABPP")?;
+        bytes_written += self.pjust.write(writer, "PJUST")?;
+        bytes_written += self.icords.write(writer, "ICORDS")?;
+        for geo in &self.igeolo {
+            bytes_written += geo.write(writer, "READ")?;
+        }
+        self.nicom.write(writer, "NICOM")?;
+        for comment in &self.icoms {
+            bytes_written += comment.write(writer, "READ")?;
+        }
+
+        bytes_written += self.ic.write(writer, "IC")?;
+        bytes_written += self.nbands.write(writer, "NBANDS")?;
+        // If NBANDS = 0, use XBANDS
+        if self.nbands.val().clone() != 0 {
+            bytes_written += write_bands(writer, &self.bands)?;
+        } else {
+            bytes_written += self.xbands.write(writer, "XBANDS")?;
+            bytes_written += write_bands(writer, &self.bands)?;
+        }
+        bytes_written += self.isync.write(writer, "ISYNC")?;
+        bytes_written += self.imode.write(writer, "IMODE")?;
+        bytes_written += self.nbpr.write(writer, "NBPR")?;
+        bytes_written += self.nbpc.write(writer, "NBPC")?;
+        bytes_written += self.nppbh.write(writer, "NPPBH")?;
+        bytes_written += self.nppbv.write(writer, "NPPBV")?;
+        bytes_written += self.nbpp.write(writer, "NBPP")?;
+        bytes_written += self.idlvl.write(writer, "IDLVL")?;
+        bytes_written += self.ialvl.write(writer, "IALVL")?;
+        bytes_written += self.iloc.write(writer, "ILOC")?;
+        bytes_written += self.imag.write(writer, "IMAG")?;
+        bytes_written += self.udidl.write(writer, "UDIDL")?;
+        let udi_data_length = self.udidl.val().clone();
+        if udi_data_length != 0 {
+            bytes_written += self.udofl.write(writer, "UDOFL")?;
+            bytes_written += self.udid.write(writer, "UDID")?;
+        }
+        bytes_written += self.ixshdl.write(writer, "IXSHDL")?;
+        let ixsh_data_length = self.ixshdl.val().clone();
+        if ixsh_data_length != 0 {
+            bytes_written += self.ixsofl.write(writer, "IXSOFL")?;
+            bytes_written += self.ixshd.write(writer, "IXSHD")?;
+        }
+        Ok(bytes_written)
+    }
+    fn length(&self) -> usize {
+        let mut length = 0;
+        length += self.im.length();
+        length += self.iid1.length();
+        length += self.idatim.length();
+        length += self.tgtid.length();
+        length += self.iid2.length();
+        length += self.security.length();
+        length += self.encryp.length();
+        length += self.isorce.length();
+        length += self.nrows.length();
+        length += self.ncols.length();
+        length += self.pvtype.length();
+        length += self.irep.length();
+        length += self.icat.length();
+        length += self.abpp.length();
+        length += self.pjust.length();
+        length += self.icords.length();
+        for geo in &self.igeolo {
+            length += geo.length();
+        }
+        self.nicom.length();
+        for comment in &self.icoms {
+            length += comment.length();
+        }
+
+        length += self.ic.length();
+        length += self.nbands.length();
+        // If NBANDS = 0, use XBANDS
+        if self.nbands.val().clone() != 0 {
+            length += &self.bands.iter().map(|b| b.length()).sum();
+        } else {
+            length += self.xbands.length();
+            length += &self.bands.iter().map(|b| b.length()).sum();
+        }
+        length += self.isync.length();
+        length += self.imode.length();
+        length += self.nbpr.length();
+        length += self.nbpc.length();
+        length += self.nppbh.length();
+        length += self.nppbv.length();
+        length += self.nbpp.length();
+        length += self.idlvl.length();
+        length += self.ialvl.length();
+        length += self.iloc.length();
+        length += self.imag.length();
+        length += self.udidl.length();
+        let udi_data_length = self.udidl.val().clone();
+        if udi_data_length != 0 {
+            length += self.udofl.length();
+            length += self.udid.length();
+        }
+        length += self.ixshdl.length();
+        let ixsh_data_length = self.ixshdl.val().clone();
+        if ixsh_data_length != 0 {
+            length += self.ixsofl.length();
+            length += self.ixshd.length();
+        }
+        length
     }
 }
 impl Display for ImageHeader {
