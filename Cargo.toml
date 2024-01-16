@@ -11,3 +11,6 @@ readme = "README-crates.md"
 thiserror = "^1.0"
 memmap2 = "0.5.10"
 log = "0.4"
+
+[dev-dependencies]
+simple_logger = "*"

@@ -23,7 +23,7 @@ impl FileHeader {
         self.header_size = reader.stream_position()?;
         Ok(())
     }
-    pub fn write(&mut self, writer: &mut File) -> NitfResult<usize> {
+    pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
         self.meta.write(writer)
         
     }
@@ -79,14 +79,12 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
     pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
         let mut bytes_written = 0;
         bytes_written += self.meta.write(writer)?;
-        let pos = writer.stream_position()?;
-        let mut writer_map_opts = MmapOptions::new();
-        let mut data = unsafe {
-            writer_map_opts
-                .offset(pos)
-                .len(self.data_size as usize)
-                .map_mut(writer.deref());
-        };
+        // let pos = writer.stream_position()?;
+        // let mut writer_map_opts = MmapOptions::new()
+        //     .offset(pos)
+        //     .len(self.data_size as usize);
+        // let mut data = unsafe {writer_map_opts.map_mut(writer.deref())?};
+        
         bytes_written += writer.write(&self.data)?;
         Ok(bytes_written)
     }

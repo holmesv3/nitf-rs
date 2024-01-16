@@ -9,10 +9,10 @@ use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
 use crate::{NitfError, NitfResult};
 /// Metadata for Image Segment subheader
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ImageHeader {
     /// File Part Type
-    pub im: NitfField<String>,
+    pub im: NitfField<IM>,
     /// Image Identifier 1
     pub iid1: NitfField<String>,
     /// Image Date and Time
@@ -52,7 +52,7 @@ pub struct ImageHeader {
     /// Image Compression
     pub ic: NitfField<Compression>,
     /// Compression Rate Code
-    pub comrat: NitfField<String>, // TODO: Figure out how to parse this
+    pub comrat: NitfField<String>,
     /// Number of Bands
     pub nbands: NitfField<u8>,
     /// Number of Multispectral Bands
@@ -78,7 +78,7 @@ pub struct ImageHeader {
     /// Image Attachment Level
     pub ialvl: NitfField<u16>,
     /// Image Location
-    pub iloc: NitfField<String>, // TODO fix this or something
+    pub iloc: NitfField<String>,
     /// Image Magnification
     pub imag: NitfField<String>,
     /// User Defined Image Data Length
@@ -86,7 +86,7 @@ pub struct ImageHeader {
     /// User Defined Overflow
     pub udofl: NitfField<u16>,
     /// User Defined Image Data
-    pub udid: NitfField<String>, // TODO
+    pub udid: ExtendedSubheader, // TODO
     /// Image Extended Subheader Data Length
     pub ixshdl: NitfField<u32>,
     /// Image Extended Subheader Overflow
@@ -94,9 +94,76 @@ pub struct ImageHeader {
     /// Image Extended Subheader Data
     pub ixshd: ExtendedSubheader,
 }
+impl Default for ImageHeader {
+    fn default() -> Self {
+        Self {
+            im: NitfField::init(2u8, "IM"),
+            iid1: NitfField::init(10u8, "IID1"),
+            idatim: NitfField::init(14u8, "IDATIM"),
+            tgtid: NitfField::init(17u8, "TGTID"),
+            iid2: NitfField::init(80u8, "IID2"),
+            security: Security::default(),
+            encryp: NitfField::init(1u8, "ENCRYP"),
+            isorce: NitfField::init(42u8, "ISORCE"),
+            nrows: NitfField::init(8u8, "NROWS"),
+            ncols: NitfField::init(8u8, "NCOLS"),
+            pvtype: NitfField::init(3u8, "PVTYPE"),
+            irep: NitfField::init(8u8, "IREP"),
+            icat: NitfField::init(8u8, "ICAT"),
+            abpp: NitfField::init(2u8, "ABPP"),
+            pjust: NitfField::init(1u8, "PJUST"),
+            icords: NitfField::init(1u8, "ICORDS"),
+            igeolo: vec![],
+            nicom: NitfField::init(1u8, "NICOM"),
+            icoms: vec![],
+            ic: NitfField::init(2u8, "IC"),
+            comrat: NitfField::init(4u8, "COMRAT"),
+            nbands: NitfField::init(1u8, "NBANDS"),
+            xbands: NitfField::init(5u8, "XBANDS"),
+            bands: vec![],    
+            isync: NitfField::init(1u8, "ISYNC"),
+            imode: NitfField::init(1u8, "IMODE"),
+            nbpr: NitfField::init(4u8, "NBPR"),
+            nbpc: NitfField::init(4u8, "NBPC"),
+            nppbh: NitfField::init(4u8, "NPPBH"),
+            nppbv: NitfField::init(4u8, "NPPBV"),
+            nbpp: NitfField::init(2u8, "NBPP"),
+            idlvl: NitfField::init(3u8, "IDLVL"),
+            ialvl: NitfField::init(3u8, "IALVL"),
+            iloc: NitfField::init(10u8, "ILOC"),
+            imag: NitfField::init(4u8, "IMAG"),
+            udidl: NitfField::init(5u8, "UDIDL"),
+            udofl: NitfField::init(3u8, "UDOFL"),
+            udid: ExtendedSubheader::init("UDID"),
+            ixshdl: NitfField::init(5u8, "IXSHDL"),
+            ixsofl: NitfField::init(3u8, "IXSOFL"),
+            ixshd: ExtendedSubheader::init("IXSHD"),
+        }
+    }
+}
+
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
+pub enum IM {
+    #[default]
+    IM    
+}
+impl FromStr for IM {
+    type Err = NitfError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "IM" => Ok(Self::default()),
+            _ => Err(NitfError::ParseError("IM".to_string()))
+        }
+    }
+}
+impl Display for IM {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "IM")
+    }
+}
 
 /// Band metadata
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Band {
     /// Band Representation
     pub irepband: NitfField<String>, // TODO: Check how to do this
@@ -113,15 +180,28 @@ pub struct Band {
     /// Image Band Look-Up-Tables
     pub lutd: Vec<NitfField<u8>>,
 }
+impl Default for Band {
+    fn default() -> Self {
+        Self {
+            irepband: NitfField::init(2u8, "IREPBAND"),
+            isubcat: NitfField::init(6u8, "ISUBCAT"),
+            ifc: NitfField::init(1u8, "IFC"),
+            imflt: NitfField::init(3u8, "IMFLT"),
+            nluts: NitfField::init(1u8, "NLUTS"),
+            nelut: NitfField::init(5u8, "NELUT"),
+            lutd: vec![],
+        }
+    }
+}
 impl Band {
     pub fn length(&self) -> usize {
         let mut length = 0;
-        length += self.irepband.length();
-        length += self.isubcat.length();
-        length += self.ifc.length();
-        length += self.imflt.length();
-        length += self.nluts.length();
-        length += self.nelut.length();
+        length += self.irepband.length;
+        length += self.isubcat.length;
+        length += self.ifc.length;
+        length += self.imflt.length;
+        length += self.nluts.length;
+        length += self.nelut.length;
         length += self.lutd.len();  // each element is 1 byte,  
         length
     }
@@ -256,18 +336,15 @@ pub enum Mode {
 fn read_bands(reader: &mut File, n_band: u32) -> NitfResult<Vec<Band>> {
     let mut bands: Vec<Band> = vec![Band::default(); n_band as usize];
     for band in &mut bands {
-        band.irepband.read(reader, 2u8, "IREPBAND")?;
-        band.isubcat.read(reader, 6u8, "ISUBCAT")?;
-        band.ifc.read(reader, 1u8, "IFC")?;
-        band.imflt.read(reader, 3u8, "IMFLT")?;
-        band.nluts.read(reader, 1u8, "NLUTS")?;
-        if band.nluts.val().clone() != 0 {
-            band.nelut.read(reader, 5u8, "NELUT")?;
-            for _ in 0..band.nelut.val().clone() {
-                let mut lut: NitfField<u8> = NitfField::default();
-                lut.read(reader, 1u8, "LUDT")?;
-                band.lutd.push(lut);
-            }
+        band.irepband.read(reader)?;
+        band.isubcat.read(reader)?;
+        band.ifc.read(reader)?;
+        band.imflt.read(reader)?;
+        band.nluts.read(reader)?;
+        if band.nluts.val != 0 {
+            band.nelut.read(reader)?;
+            band.lutd = vec![NitfField::init(1u8, "LUDT"); band.nelut.val.into()];
+            band.lutd.iter_mut().try_for_each(|lut| lut.read(reader))?;
         }
     }
     Ok(bands)
@@ -276,15 +353,15 @@ fn read_bands(reader: &mut File, n_band: u32) -> NitfResult<Vec<Band>> {
 fn write_bands(writer: &mut File, bands: &Vec<Band>) -> NitfResult<usize> {
     let mut bytes_written = 0;
     for band in bands {
-        bytes_written += band.irepband.write(writer, "IREPBAND")?;
-        bytes_written += band.isubcat.write(writer, "ISUBCAT")?;
-        bytes_written += band.ifc.write(writer, "IFC")?;
-        bytes_written += band.imflt.write(writer, "IMFLT")?;
-        bytes_written += band.nluts.write(writer, "NLUTS")?;
-        if band.nluts.val().clone() != 0 {
-            bytes_written += band.nelut.write(writer, "NELUT")?;
+        bytes_written += band.irepband.write(writer)?;
+        bytes_written += band.isubcat.write(writer)?;
+        bytes_written += band.ifc.write(writer)?;
+        bytes_written += band.imflt.write(writer)?;
+        bytes_written += band.nluts.write(writer)?;
+        if band.nluts.val != 0 {
+            bytes_written += band.nelut.write(writer)?;
             for lut in &band.lutd {
-                bytes_written += lut.write(writer, "LUDT")?;
+                bytes_written += lut.write(writer)?;
             }
         }
     }
@@ -294,186 +371,187 @@ fn write_bands(writer: &mut File, bands: &Vec<Band>) -> NitfResult<usize> {
 // TRAIT IMPLEMENTATIONS
 impl NitfSegmentHeader for ImageHeader {
     fn read(&mut self, reader: &mut File) -> NitfResult<()> {
-        self.im.read(reader, 2u8, "IM")?;
-        self.iid1.read(reader, 10u8, "IID1")?;
-        self.idatim.read(reader, 14u8, "IDATIM")?;
-        self.tgtid.read(reader, 17u8, "TGTID")?;
-        self.iid2.read(reader, 80u8, "IID2")?;
+        self.im.read(reader)?;
+        self.iid1.read(reader)?;
+        self.idatim.read(reader)?;
+        self.tgtid.read(reader)?;
+        self.iid2.read(reader)?;
         self.security.read(reader)?;
-        self.encryp.read(reader, 1u8, "ENCRYP")?;
-        self.isorce.read(reader, 42u8, "ISORCE")?;
-        self.nrows.read(reader, 8u8, "NROWS")?;
-        self.ncols.read(reader, 8u8, "NCOLS")?;
-        self.pvtype.read(reader, 3u8, "PVTYPE")?;
-        self.irep.read(reader, 8u8, "IREP")?;
-        self.icat.read(reader, 8u8, "ICAT")?;
-        self.abpp.read(reader, 2u8, "ABPP")?;
-        self.pjust.read(reader, 1u8, "PJUST")?;
-        self.icords.read(reader, 1u8, "ICORDS")?;
+        self.encryp.read(reader)?;
+        self.isorce.read(reader)?;
+        self.nrows.read(reader)?;
+        self.ncols.read(reader)?;
+        self.pvtype.read(reader)?;
+        self.irep.read(reader)?;
+        self.icat.read(reader)?;
+        self.abpp.read(reader)?;
+        self.pjust.read(reader)?;
+        self.icords.read(reader)?;
         for _ in 0..4 {
-            let mut geoloc: NitfField<String> = NitfField::default();
-            geoloc.read(reader, 15u8, "READ")?;
+            let mut geoloc = NitfField::init(15u8, "IGEOLOC");
+            geoloc.read(reader)?;
             self.igeolo.push(geoloc);
         }
-        self.nicom.read(reader, 1u8, "NICOM")?;
-        for _ in 0..self.nicom.val().clone() {
-            let mut comment: NitfField<String> = NitfField::default();
-            comment.read(reader, 80u8, "READ")?;
+        self.nicom.read(reader)?;
+        for _ in 0..self.nicom.val {
+            let mut comment = NitfField::init(80u8, "ICOM");
+            comment.read(reader)?;
             self.icoms.push(comment);
         }
 
-        self.ic.read(reader, 2u8, "IC")?;
-        self.nbands.read(reader, 1u8, "NBANDS")?;
+        self.ic.read(reader)?;
+        self.nbands.read(reader)?;
+        self.nbands.read(reader)?;
         // If NBANDS = 0, use XBANDS
-        if self.nbands.val().clone() != 0 {
-            self.bands = read_bands(reader, self.nbands.val().clone() as u32)?;
+        if self.nbands.val != 0 {
+            self.bands = read_bands(reader, self.nbands.val as u32)?;
         } else {
-            self.xbands.read(reader, 5u8, "XBANDS")?;
-            self.bands = read_bands(reader, self.xbands.val().clone())?;
+            self.xbands.read(reader)?;
+            self.bands = read_bands(reader, self.xbands.val)?;
         }
-        self.isync.read(reader, 1u8, "ISYNC")?;
-        self.imode.read(reader, 1u8, "IMODE")?;
-        self.nbpr.read(reader, 4u8, "NBPR")?;
-        self.nbpc.read(reader, 4u8, "NBPC")?;
-        self.nppbh.read(reader, 4u8, "NPPBH")?;
-        self.nppbv.read(reader, 4u8, "NPPBV")?;
-        self.nbpp.read(reader, 2u8, "NBPP")?;
-        self.idlvl.read(reader, 3u8, "IDLVL")?;
-        self.ialvl.read(reader, 3u8, "IALVL")?;
-        self.iloc.read(reader, 10u8, "ILOC")?;
-        self.imag.read(reader, 4u8, "IMAG")?;
-        self.udidl.read(reader, 5u8, "UDIDL")?;
-        let udi_data_length = self.udidl.val().clone();
+        self.isync.read(reader)?;
+        self.imode.read(reader)?;
+        self.nbpr.read(reader)?;
+        self.nbpc.read(reader)?;
+        self.nppbh.read(reader)?;
+        self.nppbv.read(reader)?;
+        self.nbpp.read(reader)?;
+        self.idlvl.read(reader)?;
+        self.ialvl.read(reader)?;
+        self.iloc.read(reader)?;
+        self.imag.read(reader)?;
+        self.udidl.read(reader)?;
+        let udi_data_length = self.udidl.val;
         if udi_data_length != 0 {
-            self.udofl.read(reader, 3u8, "UDOFL")?;
-            self.udid.read(reader, udi_data_length - 3, "UDID")?;
+            self.udofl.read(reader)?;
+            self.udid.read(reader, (udi_data_length - 3) as usize)?;
         }
-        self.ixshdl.read(reader, 5u8, "IXSHDL")?;
-        let ixsh_data_length = self.ixshdl.val().clone();
+        self.ixshdl.read(reader)?;
+        let ixsh_data_length = self.ixshdl.val;
         if ixsh_data_length != 0 {
-            self.ixsofl.read(reader, 3u8, "IXSOFL")?;
+            self.ixsofl.read(reader)?;
             self.ixshd
-                .read(reader, (ixsh_data_length - 3) as usize, "IXSHD")?;
+                .read(reader, (ixsh_data_length - 3) as usize)?;
         }
         Ok(())
     }
     fn write(&self, writer: &mut File) -> NitfResult<usize> {
         let mut bytes_written = 0;
-        bytes_written += self.im.write(writer, "IM")?;
-        bytes_written += self.iid1.write(writer, "IID1")?;
-        bytes_written += self.idatim.write(writer, "IDATIM")?;
-        bytes_written += self.tgtid.write(writer, "TGTID")?;
-        bytes_written += self.iid2.write(writer, "IID2")?;
+        bytes_written += self.im.write(writer)?;
+        bytes_written += self.iid1.write(writer)?;
+        bytes_written += self.idatim.write(writer)?;
+        bytes_written += self.tgtid.write(writer)?;
+        bytes_written += self.iid2.write(writer)?;
         bytes_written += self.security.write(writer)?;
-        bytes_written += self.encryp.write(writer, "ENCRYP")?;
-        bytes_written += self.isorce.write(writer, "ISORCE")?;
-        bytes_written += self.nrows.write(writer, "NROWS")?;
-        bytes_written += self.ncols.write(writer, "NCOLS")?;
-        bytes_written += self.pvtype.write(writer, "PVTYPE")?;
-        bytes_written += self.irep.write(writer, "IREP")?;
-        bytes_written += self.icat.write(writer, "ICAT")?;
-        bytes_written += self.abpp.write(writer, "ABPP")?;
-        bytes_written += self.pjust.write(writer, "PJUST")?;
-        bytes_written += self.icords.write(writer, "ICORDS")?;
+        bytes_written += self.encryp.write(writer)?;
+        bytes_written += self.isorce.write(writer)?;
+        bytes_written += self.nrows.write(writer)?;
+        bytes_written += self.ncols.write(writer)?;
+        bytes_written += self.pvtype.write(writer)?;
+        bytes_written += self.irep.write(writer)?;
+        bytes_written += self.icat.write(writer)?;
+        bytes_written += self.abpp.write(writer)?;
+        bytes_written += self.pjust.write(writer)?;
+        bytes_written += self.icords.write(writer)?;
         for geo in &self.igeolo {
-            bytes_written += geo.write(writer, "READ")?;
+            bytes_written += geo.write(writer)?;
         }
-        self.nicom.write(writer, "NICOM")?;
+        self.nicom.write(writer)?;
         for comment in &self.icoms {
-            bytes_written += comment.write(writer, "READ")?;
+            bytes_written += comment.write(writer)?;
         }
 
-        bytes_written += self.ic.write(writer, "IC")?;
-        bytes_written += self.nbands.write(writer, "NBANDS")?;
+        bytes_written += self.ic.write(writer)?;
+        bytes_written += self.nbands.write(writer)?;
         // If NBANDS = 0, use XBANDS
-        if self.nbands.val().clone() != 0 {
+        if self.nbands.val != 0 {
             bytes_written += write_bands(writer, &self.bands)?;
         } else {
-            bytes_written += self.xbands.write(writer, "XBANDS")?;
+            bytes_written += self.xbands.write(writer)?;
             bytes_written += write_bands(writer, &self.bands)?;
         }
-        bytes_written += self.isync.write(writer, "ISYNC")?;
-        bytes_written += self.imode.write(writer, "IMODE")?;
-        bytes_written += self.nbpr.write(writer, "NBPR")?;
-        bytes_written += self.nbpc.write(writer, "NBPC")?;
-        bytes_written += self.nppbh.write(writer, "NPPBH")?;
-        bytes_written += self.nppbv.write(writer, "NPPBV")?;
-        bytes_written += self.nbpp.write(writer, "NBPP")?;
-        bytes_written += self.idlvl.write(writer, "IDLVL")?;
-        bytes_written += self.ialvl.write(writer, "IALVL")?;
-        bytes_written += self.iloc.write(writer, "ILOC")?;
-        bytes_written += self.imag.write(writer, "IMAG")?;
-        bytes_written += self.udidl.write(writer, "UDIDL")?;
-        let udi_data_length = self.udidl.val().clone();
+        bytes_written += self.isync.write(writer)?;
+        bytes_written += self.imode.write(writer)?;
+        bytes_written += self.nbpr.write(writer)?;
+        bytes_written += self.nbpc.write(writer)?;
+        bytes_written += self.nppbh.write(writer)?;
+        bytes_written += self.nppbv.write(writer)?;
+        bytes_written += self.nbpp.write(writer)?;
+        bytes_written += self.idlvl.write(writer)?;
+        bytes_written += self.ialvl.write(writer)?;
+        bytes_written += self.iloc.write(writer)?;
+        bytes_written += self.imag.write(writer)?;
+        bytes_written += self.udidl.write(writer)?;
+        let udi_data_length = self.udidl.val;
         if udi_data_length != 0 {
-            bytes_written += self.udofl.write(writer, "UDOFL")?;
-            bytes_written += self.udid.write(writer, "UDID")?;
+            bytes_written += self.udofl.write(writer)?;
+            bytes_written += self.udid.write(writer)?;
         }
-        bytes_written += self.ixshdl.write(writer, "IXSHDL")?;
-        let ixsh_data_length = self.ixshdl.val().clone();
+        bytes_written += self.ixshdl.write(writer)?;
+        let ixsh_data_length = self.ixshdl.val;
         if ixsh_data_length != 0 {
-            bytes_written += self.ixsofl.write(writer, "IXSOFL")?;
-            bytes_written += self.ixshd.write(writer, "IXSHD")?;
+            bytes_written += self.ixsofl.write(writer)?;
+            bytes_written += self.ixshd.write(writer)?;
         }
         Ok(bytes_written)
     }
     fn length(&self) -> usize {
         let mut length = 0;
-        length += self.im.length();
-        length += self.iid1.length();
-        length += self.idatim.length();
-        length += self.tgtid.length();
-        length += self.iid2.length();
+        length += self.im.length;
+        length += self.iid1.length;
+        length += self.idatim.length;
+        length += self.tgtid.length;
+        length += self.iid2.length;
         length += self.security.length();
-        length += self.encryp.length();
-        length += self.isorce.length();
-        length += self.nrows.length();
-        length += self.ncols.length();
-        length += self.pvtype.length();
-        length += self.irep.length();
-        length += self.icat.length();
-        length += self.abpp.length();
-        length += self.pjust.length();
-        length += self.icords.length();
+        length += self.encryp.length;
+        length += self.isorce.length;
+        length += self.nrows.length;
+        length += self.ncols.length;
+        length += self.pvtype.length;
+        length += self.irep.length;
+        length += self.icat.length;
+        length += self.abpp.length;
+        length += self.pjust.length;
+        length += self.icords.length;
         for geo in &self.igeolo {
-            length += geo.length();
+            length += geo.length;
         }
-        self.nicom.length();
+        self.nicom.length;
         for comment in &self.icoms {
-            length += comment.length();
+            length += comment.length;
         }
 
-        length += self.ic.length();
-        length += self.nbands.length();
+        length += self.ic.length;
+        length += self.nbands.length;
         // If NBANDS = 0, use XBANDS
-        if self.nbands.val().clone() != 0 {
+        if self.nbands.val != 0 {
             length += &self.bands.iter().map(|b| b.length()).sum();
         } else {
-            length += self.xbands.length();
+            length += self.xbands.length;
             length += &self.bands.iter().map(|b| b.length()).sum();
         }
-        length += self.isync.length();
-        length += self.imode.length();
-        length += self.nbpr.length();
-        length += self.nbpc.length();
-        length += self.nppbh.length();
-        length += self.nppbv.length();
-        length += self.nbpp.length();
-        length += self.idlvl.length();
-        length += self.ialvl.length();
-        length += self.iloc.length();
-        length += self.imag.length();
-        length += self.udidl.length();
-        let udi_data_length = self.udidl.val().clone();
+        length += self.isync.length;
+        length += self.imode.length;
+        length += self.nbpr.length;
+        length += self.nbpc.length;
+        length += self.nppbh.length;
+        length += self.nppbv.length;
+        length += self.nbpp.length;
+        length += self.idlvl.length;
+        length += self.ialvl.length;
+        length += self.iloc.length;
+        length += self.imag.length;
+        length += self.udidl.length;
+        let udi_data_length = self.udidl.val;
         if udi_data_length != 0 {
-            length += self.udofl.length();
-            length += self.udid.length();
+            length += self.udofl.length;
+            length += self.udid.size();
         }
-        length += self.ixshdl.length();
-        let ixsh_data_length = self.ixshdl.val().clone();
+        length += self.ixshdl.length;
+        let ixsh_data_length = self.ixshdl.val;
         if ixsh_data_length != 0 {
-            length += self.ixsofl.length();
-            length += self.ixshd.length();
+            length += self.ixsofl.length;
+            length += self.ixshd.size();
         }
         length
     }
@@ -524,7 +602,7 @@ impl Display for ImageHeader {
         out_str += format!("UDOFL: {}, ", self.udofl).as_ref();
         out_str += format!("UDID: {}, ", self.udid).as_ref();
         out_str += format!("IXSHDL: {}, ", self.ixshdl).as_ref();
-        if self.ixshdl.val().clone() != 0 {
+        if self.ixshdl.val != 0 {
             out_str += format!("IXSOFL: {}, ", self.ixsofl).as_ref();
             out_str += format!("IXSHD: {}", self.ixshd).as_ref();
         }
@@ -551,11 +629,11 @@ impl FromStr for PixelValueType {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "INT" => Ok(Self::INT),
-            "  B" => Ok(Self::B),
-            " SI" => Ok(Self::SI),
-            "  R" => Ok(Self::R),
-            "  C" => Ok(Self::C),
-            _ => Err(NitfError::EnumError("PixelValueType")),
+            "B" => Ok(Self::B),
+            "SI" => Ok(Self::SI),
+            "R" => Ok(Self::R),
+            "C" => Ok(Self::C),
+            _ => Err(NitfError::ParseError("PixelValueType".to_string())),
         }
     }
 }
@@ -563,10 +641,10 @@ impl Display for PixelValueType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::INT => write!(f, "INT"),
-            Self::B => write!(f, "  B"),
-            Self::SI => write!(f, " SI"),
-            Self::R => write!(f, "  R"),
-            Self::C => write!(f, "  C"),
+            Self::B => write!(f, "B"),
+            Self::SI => write!(f, "SI"),
+            Self::R => write!(f, "R"),
+            Self::C => write!(f, "C"),
         }
         
     }
@@ -575,30 +653,30 @@ impl FromStr for ImageRepresentation {
     type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "    MONO" => Ok(Self::MONO),
-            "     RGB" => Ok(Self::RGB),
-            "  RGBLUT" => Ok(Self::RGBLUT),
-            "   MULTI" => Ok(Self::MULTI),
+            "MONO" => Ok(Self::MONO),
+            "RGB" => Ok(Self::RGB),
+            "RGBLUT" => Ok(Self::RGBLUT),
+            "MULTI" => Ok(Self::MULTI),
             "NODISPLY" => Ok(Self::NODISPLY),
-            " NVECTOR" => Ok(Self::NVECTOR),
-            "   POLAR" => Ok(Self::POLAR),
-            "     VPH" => Ok(Self::VPH),
+            "" => Ok(Self::NVECTOR),
+            "POLAR" => Ok(Self::POLAR),
+            "VPH" => Ok(Self::VPH),
             "YCbCr601" => Ok(Self::YCbCr601),
-            _ => Err(NitfError::EnumError("ImageRepresentation")),
+            _ => Err(NitfError::ParseError("ImageRepresentation".to_string())),
         }
     }
 }
 impl Display for ImageRepresentation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::MONO => write!(f, "    MONO"),
-            Self::RGB => write!(f, "     RGB"),
-            Self::RGBLUT => write!(f, "  RGBLUT"),
-            Self::MULTI => write!(f, "   MULTI"),
+            Self::MONO => write!(f, "MONO"),
+            Self::RGB => write!(f, "RGB"),
+            Self::RGBLUT => write!(f, "RGBLUT"),
+            Self::MULTI => write!(f, "MULTI"),
             Self::NODISPLY => write!(f, "NODISPLY"),
-            Self::NVECTOR => write!(f, " NVECTOR"),
-            Self::POLAR => write!(f, "   POLAR"),
-            Self::VPH => write!(f, "     VPH"),
+            Self::NVECTOR => write!(f, "NVECTOR"),
+            Self::POLAR => write!(f, "POLAR"),
+            Self::VPH => write!(f, "VPH"),
             Self::YCbCr601 => write!(f, "YCbCr601"),
         }
     }
@@ -609,7 +687,7 @@ impl FromStr for PixelJustification {
         match s {
             "R" => Ok(Self::R),
             "L" => Ok(Self::L),
-            _ => Err(NitfError::EnumError("PixelJustification")),
+            _ => Err(NitfError::ParseError("PixelJustification".to_string())),
         }
     }
 }
@@ -625,21 +703,21 @@ impl FromStr for CoordinateRepresentation {
     type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            " " => Ok(Self::DEFAULT),
+            "" => Ok(Self::DEFAULT),
             "U" => Ok(Self::U),
             "N" => Ok(Self::N),
             "S" => Ok(Self::S),
             "P" => Ok(Self::P),
             "G" => Ok(Self::G),
             "D" => Ok(Self::D),
-            _ => Err(NitfError::EnumError("CoordinateRepresentation")),
+            _ => Err(NitfError::ParseError("CoordinateRepresentation".to_string())),
         }
     }
 }
 impl Display for CoordinateRepresentation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::DEFAULT => write!(f, " "),
+            Self::DEFAULT => write!(f, ""),
             Self::U => write!(f, "U"),
             Self::N => write!(f, "N"),
             Self::S => write!(f, "S"),
@@ -670,7 +748,7 @@ impl FromStr for Compression {
             "M6" => Ok(Self::M6),
             "M7" => Ok(Self::M7),
             "M8" => Ok(Self::M8),
-            _ => Err(NitfError::EnumError("Compression")),
+            _ => Err(NitfError::ParseError("Compression".to_string())),
         }
     }
 }
@@ -705,7 +783,7 @@ impl FromStr for Mode {
             "P" => Ok(Self::P),
             "R" => Ok(Self::R),
             "S" => Ok(Self::S),
-            _ => Err(NitfError::EnumError("Mode")),
+            _ => Err(NitfError::ParseError("Mode".to_string())),
         }
     }
 }

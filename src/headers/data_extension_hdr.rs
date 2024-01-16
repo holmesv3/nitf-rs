@@ -9,10 +9,10 @@ use crate::{NitfError, NitfResult};
 
 
 /// Metadata for Data Extension Segment
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct DataExtensionHeader {
     /// File Part Type
-    pub de: NitfField<String>,
+    pub de: NitfField<DE>,
     /// Unique DES Type Identifier
     pub desid: NitfField<String>,
     /// Check on this registration
@@ -29,6 +29,84 @@ pub struct DataExtensionHeader {
     /// User-defined Subheader Fields
     pub desshf: ExtendedSubheader,
 }
+impl Default for DataExtensionHeader {
+    fn default() -> Self {
+        Self {
+            de: NitfField::init(2u8, "DE"),
+            desid: NitfField::init(25u8, "DESID"),
+            desver: NitfField::init(2u8, "DESVER"),
+            security: Security::default(),
+            desoflw: NitfField::init(6u8, "DESOFLW"),
+            desitem: NitfField::init(3u8, "DESITEM"),
+            desshl: NitfField::init(4u8, "DESSHL"),
+            desshf: ExtendedSubheader::init("DESSHF"),
+        }
+    }
+}
+impl NitfSegmentHeader for DataExtensionHeader {
+    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
+        self.de.read(reader)?;
+        self.desid.read(reader)?;
+        self.desver.read(reader)?;
+        self.security.read(reader)?;
+        if self.desid.val.trim() == "TRE_OVERFLOW" {
+            self.desoflw.read(reader)?;
+            self.desitem.read(reader)?;
+        }
+        self.desshl.read(reader)?;
+        if self.desshl.val != 0 {
+            self.desshf.read(reader, self.desshl.val as usize)?;
+        }
+        Ok(())
+    }
+    fn write(&self, writer: &mut File) -> NitfResult<usize> {
+        let mut bytes_written = 0;
+        bytes_written += self.de.write(writer)?;
+        bytes_written += self.desid.write(writer)?;
+        bytes_written += self.desver.write(writer)?;
+        bytes_written += self.security.write(writer)?;
+        if self.desid.val.trim() == "TRE_OVERFLOW" {
+            bytes_written += self.desoflw.write(writer)?;
+            bytes_written += self.desitem.write(writer)?;
+        }
+        bytes_written += self.desshl.write(writer)?;
+        if self.desshl.val != 0 {
+            bytes_written += self.desshf.write(writer)?;
+        }
+        Ok(bytes_written)
+    }
+    fn length(&self) -> usize {
+        let mut length: usize = 0;
+        length += self.de.length;
+        length += self.desid.length;
+        length += self.desver.length;
+        length += self.security.length();
+        length += self.desoflw.length;
+        length += self.desitem.length;
+        length += self.desshl.length;
+        length += self.desshf.size();
+        length
+    }
+}
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
+pub enum DE {
+    #[default]
+    DE    
+}
+impl FromStr for DE {
+    type Err = NitfError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "DE" => Ok(Self::default()),
+            _ => Err(NitfError::ParseError("DE".to_string()))
+        }
+    }
+}
+impl Display for DE {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "DE")
+    }
+}
 
 /// Selection of which header/subheader this extension corresponds to
 #[derive(Debug, Default, Clone, Eq, PartialEq)]
@@ -44,53 +122,6 @@ pub enum OverflowedHeaderType {
     UDHD,
     /// Image subheader user defined image data overflow
     UDID,
-}
-
-impl NitfSegmentHeader for DataExtensionHeader {
-    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
-        self.de.read(reader, 2u8, "DE")?;
-        self.desid.read(reader, 25u8, "DESID")?;
-        self.desver.read(reader, 2u8, "DESVER")?;
-        self.security.read(reader)?;
-        if self.desid.string().trim() == "TRE_OVERFLOW" {
-            self.desoflw.read(reader, 6u8, "DESOFLW")?;
-            self.desitem.read(reader, 3u8, "DESITEM")?;
-        }
-        self.desshl.read(reader, 4u8, "DESSHL")?;
-        if self.desshl.val().clone() != 0 {
-            self.desshf
-                .read(reader, self.desshl.val().clone() as usize, "DESSHF")?;
-        }
-        Ok(())
-    }
-    fn write(&self, writer: &mut File) -> NitfResult<usize> {
-        let mut bytes_written = 0;
-        bytes_written += self.de.write(writer, "DE")?;
-        bytes_written += self.desid.write(writer, "DESID")?;
-        bytes_written += self.desver.write(writer, "DESVER")?;
-        bytes_written += self.security.write(writer)?;
-        if self.desid.string().trim() == "TRE_OVERFLOW" {
-            bytes_written += self.desoflw.write(writer, "DESOFLW")?;
-            bytes_written += self.desitem.write(writer, "DESITEM")?;
-        }
-        bytes_written += self.desshl.write(writer, "DESSHL")?;
-        if self.desshl.val().clone() != 0 {
-            bytes_written += self.desshf.write(writer, "DESSHF")?;
-        }
-        Ok(bytes_written)
-    }
-    fn length(&self) -> usize {
-        let mut length: usize = 0;
-        length += self.de.length();
-        length += self.desid.length();
-        length += self.desver.length();
-        length += self.security.length();
-        length += self.desoflw.length();
-        length += self.desitem.length();
-        length += self.desshl.length();
-        length += self.desshf.length() as usize;
-        length
-    }
 }
 impl Display for DataExtensionHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -115,7 +146,7 @@ impl FromStr for OverflowedHeaderType {
             "TXSHD" => Ok(Self::TXSHD),
             "UDHD" => Ok(Self::UDHD),
             "UDID" => Ok(Self::UDID),
-            _ => Err(NitfError::EnumError("OverflowedHeaderType")),
+            _ => Err(NitfError::ParseError("OverflowedHeaderType".to_string())),
         }
     }
 }

@@ -7,10 +7,10 @@ use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
 use crate::{NitfError, NitfResult};
 /// Header fields for Graphic Segment
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct GraphicHeader {
     /// File Part Type
-    pub sy: NitfField<String>,
+    pub sy: NitfField<SY>,
     /// Graphic Identifier
     pub sid: NitfField<String>,
     /// Graphic Name
@@ -44,6 +44,48 @@ pub struct GraphicHeader {
     /// Graphic Extended Subheader Data
     pub sxshd: ExtendedSubheader,
 }
+impl Default for GraphicHeader {
+    fn default() -> Self {
+        Self {
+            sy: NitfField::init(2u8, "SY"),
+            sid: NitfField::init(10u8, "SID"),
+            sname: NitfField::init(20u8, "SNAME"),
+            security: Security::default(),
+            encryp: NitfField::init(1u8, "ENCRYP"),
+            sfmt: NitfField::init(1u8, "SFMT"),
+            sstruct: NitfField::init(13u8, "SSTRUCT"),
+            sdlvl: NitfField::init(3u8, "SDLVL"),
+            salvl: NitfField::init(3u8, "SALVL"),
+            sloc: NitfField::init(10u8, "SLOC"),
+            sbnd1: NitfField::init(10u8, "SBND1"),
+            scolor: NitfField::init(1u8, "SCOLOR"),
+            sbnd2: NitfField::init(10u8, "SBND2"),
+            sres2: NitfField::init(2u8, "SRES2"),
+            sxshdl: NitfField::init(5u8, "SXSHDL"),
+            sxsofl: NitfField::init(3u8, "SXSOFL"),
+            sxshd: ExtendedSubheader::init("SXSHD"),
+        }
+    }
+}
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
+pub enum SY {
+    #[default]
+    SY    
+}
+impl FromStr for SY {
+    type Err = NitfError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "SY" => Ok(Self::default()),
+            _ => Err(NitfError::ParseError("SY".to_string()))
+        }
+    }
+}
+impl Display for SY {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "SY")
+    }
+}
 
 impl Display for GraphicHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -64,80 +106,76 @@ impl Display for GraphicHeader {
         out_str += format!("SRES2: {}, ", self.sres2).as_ref();
         out_str += format!("SXSHDL: {}, ", self.sxshdl).as_ref();
         out_str += format!("SXSOFL: {}, ", self.sxsofl).as_ref();
-        out_str += format!("[SXSHD: {}]", self.sxshd).as_ref();
+        out_str += format!("SXSHD: [{}]", self.sxshd).as_ref();
         write!(f, "[Graphic Subheader: {out_str}]")
     }
 }
 impl NitfSegmentHeader for GraphicHeader {
     fn read(&mut self, reader: &mut File) -> NitfResult<()> {
-        self.sy.read(reader, 2u8, "SY")?;
-        self.sid.read(reader, 10u8, "SID")?;
-        self.sname.read(reader, 20u8, "SNAME")?;
+        self.sy.read(reader)?;
+        self.sid.read(reader)?;
+        self.sname.read(reader)?;
         self.security.read(reader)?;
-        self.encryp.read(reader, 1u8, "ENCRYP")?;
-        self.sfmt.read(reader, 1u8, "SFMT")?;
-        self.sstruct.read(reader, 13u8, "SSTRUCT")?;
-        self.sdlvl.read(reader, 3u8, "SDLVL")?;
-        self.salvl.read(reader, 3u8, "SALVL")?;
-        self.sloc.read(reader, 10u8, "SLOC")?;
-        self.sbnd1.read(reader, 10u8, "SBND1")?;
-        self.scolor.read(reader, 1u8, "SCOLOR")?;
-        self.sbnd2.read(reader, 10u8, "SBND2")?;
-        self.sres2.read(reader, 2u8, "SRES2")?;
-        self.sxshdl.read(reader, 5u8, "SXSHDL")?;
-        let gphx_data_length = self.sxshdl.val().clone();
-        if gphx_data_length != 0 {
-            self.sxsofl.read(reader, 3u8, "SXSOFL")?;
-            self.sxshd
-                .read(reader, (gphx_data_length - 3) as usize, "SXSHD")?;
+        self.encryp.read(reader)?;
+        self.sfmt.read(reader)?;
+        self.sstruct.read(reader)?;
+        self.sdlvl.read(reader)?;
+        self.salvl.read(reader)?;
+        self.sloc.read(reader)?;
+        self.sbnd1.read(reader)?;
+        self.scolor.read(reader)?;
+        self.sbnd2.read(reader)?;
+        self.sres2.read(reader)?;
+        self.sxshdl.read(reader)?;
+        if self.sxshdl.val != 0 {
+            self.sxsofl.read(reader)?;
+            self.sxshd.read(reader, (self.sxshdl.val - 3) as usize)?;
         }
         Ok(())
     }
     fn write(&self, writer: &mut File) -> NitfResult<usize> {
         let mut bytes_written = 0;
-        bytes_written += self.sy.write(writer,"SY")?;
-        bytes_written += self.sid.write(writer,"SID")?;
-        bytes_written += self.sname.write(writer,"SNAME")?;
+        bytes_written += self.sy.write(writer)?;
+        bytes_written += self.sid.write(writer)?;
+        bytes_written += self.sname.write(writer)?;
         bytes_written += self.security.write(writer)?;
-        bytes_written += self.encryp.write(writer,"ENCRYP")?;
-        bytes_written += self.sfmt.write(writer,"SFMT")?;
-        bytes_written += self.sstruct.write(writer,"SSTRUCT")?;
-        bytes_written += self.sdlvl.write(writer,"SDLVL")?;
-        bytes_written += self.salvl.write(writer,"SALVL")?;
-        bytes_written += self.sloc.write(writer,"SLOC")?;
-        bytes_written += self.sbnd1.write(writer,"SBND1")?;
-        bytes_written += self.scolor.write(writer,"SCOLOR")?;
-        bytes_written += self.sbnd2.write(writer,"SBND2")?;
-        bytes_written += self.sres2.write(writer,"SRES2")?;
-        bytes_written += self.sxshdl.write(writer,"SXSHDL")?;
-        let gphx_data_length = self.sxshdl.val().clone();
-        if gphx_data_length != 0 {
-            bytes_written += self.sxsofl.write(writer, "SXSOFL")?;
-            bytes_written += self.sxshd.write(writer, "SXSHD")?;
+        bytes_written += self.encryp.write(writer)?;
+        bytes_written += self.sfmt.write(writer)?;
+        bytes_written += self.sstruct.write(writer)?;
+        bytes_written += self.sdlvl.write(writer)?;
+        bytes_written += self.salvl.write(writer)?;
+        bytes_written += self.sloc.write(writer)?;
+        bytes_written += self.sbnd1.write(writer)?;
+        bytes_written += self.scolor.write(writer)?;
+        bytes_written += self.sbnd2.write(writer)?;
+        bytes_written += self.sres2.write(writer)?;
+        bytes_written += self.sxshdl.write(writer)?;
+        if self.sxshdl.val != 0 {
+            bytes_written += self.sxsofl.write(writer)?;
+            bytes_written += self.sxshd.write(writer)?;
         }
         Ok(bytes_written)
     }
     fn length(&self) -> usize {
         let mut length = 0;
-        length += self.sy.length();
-        length += self.sid.length();
-        length += self.sname.length();
+        length += self.sy.length;
+        length += self.sid.length;
+        length += self.sname.length;
         length += self.security.length();
-        length += self.encryp.length();
-        length += self.sfmt.length();
-        length += self.sstruct.length();
-        length += self.sdlvl.length();
-        length += self.salvl.length();
-        length += self.sloc.length();
-        length += self.sbnd1.length();
-        length += self.scolor.length();
-        length += self.sbnd2.length();
-        length += self.sres2.length();
-        length += self.sxshdl.length();
-        let gphx_data_length = self.sxshdl.val().clone();
-        if gphx_data_length != 0 {
-            length += self.sxsofl.length();
-            length += self.sxshd.length();
+        length += self.encryp.length;
+        length += self.sfmt.length;
+        length += self.sstruct.length;
+        length += self.sdlvl.length;
+        length += self.salvl.length;
+        length += self.sloc.length;
+        length += self.sbnd1.length;
+        length += self.scolor.length;
+        length += self.sbnd2.length;
+        length += self.sres2.length;
+        length += self.sxshdl.length;
+        if self.sxshdl.val != 0 {
+            length += self.sxsofl.length;
+            length += self.sxshd.size();
         }
         length
     }
@@ -156,7 +194,7 @@ impl FromStr for Format {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "C" => Ok(Self::C),
-            _ => Err(NitfError::EnumError("Format")),
+            _ => Err(NitfError::ParseError("Format".to_string())),
         }
     }
 }
@@ -184,13 +222,13 @@ impl FromStr for BoundLocation {
             let n_char = n_char_tot / 2;
             bounds.row = s[..n_char]
                 .parse()
-                .or(Err(NitfError::EnumError("BoundLocation.row")))?;
+                .or(Err(NitfError::ParseError("BoundLocation.row".to_string())))?;
             bounds.col = s[n_char..]
                 .parse()
-                .or(Err(NitfError::EnumError("BoundLocation.col")))?;
+                .or(Err(NitfError::ParseError("BoundLocation.col".to_string())))?;
             Ok(bounds)
         } else {
-            Err(NitfError::EnumError("BoundLocation"))
+            Err(NitfError::ParseError("BoundLocation".to_string()))
         }
     }
 }
@@ -215,7 +253,7 @@ impl FromStr for Color {
         match s {
             "C" => Ok(Self::C),
             "M" => Ok(Self::M),
-            _ => Err(NitfError::EnumError("Color")),
+            _ => Err(NitfError::ParseError("Color".to_string())),
         }
     }
 }

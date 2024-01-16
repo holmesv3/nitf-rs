@@ -31,9 +31,7 @@ where
     ///
     /// reader: Stream from which to read header information
     #[allow(unused)]
-    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
-        panic!("Didn't implement read() method")
-    }
+    fn read(&mut self, reader: &mut File) -> NitfResult<()>;
     
     /// Write the segment info to stream
     ///
@@ -41,15 +39,11 @@ where
     ///
     /// writer: Stream from which to write header information
     #[allow(unused)]
-    fn write(&self, writer: &mut File) -> NitfResult<usize> {
-        panic!("Didn't implement write() method")
-    }
+    fn write(&self, writer: &mut File) -> NitfResult<usize>;
     
     /// Get the length of the segment
     #[allow(unused)]
-    fn length(&self) -> usize {
-        panic!("Didn't implement len() method")
-    }
+    fn length(&self) -> usize;
 
 
     fn from_reader(reader: &mut File) -> NitfResult<Self> {

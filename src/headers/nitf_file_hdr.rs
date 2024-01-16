@@ -1,12 +1,14 @@
 //! File header definition
+use std::default;
 use std::fmt::Display;
 use std::fs::File;
+use std::str::FromStr;
 
 use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
 use crate::{NitfError, NitfResult};
 /// Metadata for Nitf File Header
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct NitfHeader {
     /// File Profile Name
     pub fhdr: NitfField<String>,
@@ -75,11 +77,89 @@ pub struct NitfHeader {
     /// Extended Header Data
     pub xhd: ExtendedSubheader,
 }
+impl Default for  NitfHeader {
+    fn default() -> Self {
+        Self {
+            fhdr: NitfField::init(4u8, "FHDR"),
+            fver: NitfField::init(5u8, "FVER"),
+            clevel: NitfField::init(2u8, "CLEVEL"),
+            stype: NitfField::init(4u8, "STYPE"),
+            ostaid: NitfField::init(10u8, "OSTAID"),
+            fdt: NitfField::init(14u8, "FDT"),
+            ftitle: NitfField::init(80u8, "FTITLE"),
+            security: Security::default(),
+            fscop: NitfField::init(5u8, "FSCOP"),
+            fscpys: NitfField::init(5u8, "FSCPYS"),
+            encryp: NitfField::init(1u8, "ENCRYP"),
+            fbkgc: vec![NitfField::init(0, ""); 3],
+            oname: NitfField::init(24u8, "ONAME"),
+            ophone: NitfField::init(18u8, "OPHONE"),
+            fl: NitfField::init(12u8, "FL"),
+            hl: NitfField::init(6u8, "HL"),
+            numi: NitfField::init(3u8, "NUMI"),
+            imheaders: vec![],
+            nums: NitfField::init(3u8, "NUMS"),
+            graphheaders: vec![],
+            numx: NitfField::init(3u8, "NUMX"),
+            numt: NitfField::init(3u8, "NUMT"),
+            textheaders: vec![],
+            numdes: NitfField::init(3u8, "NUMDES"),
+            dextheaders: vec![],
+            numres: NitfField::init(3u8, "NUMRES"),
+            resheaders: vec![],
+            udhdl: NitfField::init(5u8, "UDHDL"),
+            udhofl: NitfField::init(3u8, "UDHOFL"),
+            udhd: ExtendedSubheader::init("UDHD"),
+            xhdl: NitfField::init(5u8, "XHDL"),
+            xhdlofl: NitfField::init(3u8, "XHDLOFL"),
+            xhd: ExtendedSubheader::init("XHD"),
+        }
+    }
+}
+
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
+pub enum FHDR {
+    #[default]
+    NITF    
+}
+impl FromStr for FHDR {
+    type Err = NitfError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "NITF" => Ok(Self::default()),
+            _ => Err(NitfError::ParseError("FHDR".to_string()))
+        }
+    }
+}
+impl Display for FHDR {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "NITF")
+    }
+}
+
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
+pub enum FVER {
+    #[default]
+    V02_10    
+}
+impl FromStr for FVER {
+    type Err = NitfError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "02.10" => Ok(Self::default()),
+            _ => Err(NitfError::ParseError("FVER".to_string()))
+        }
+    }
+}
+impl Display for FVER {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "02.10")
+    }
+}
 impl Display for NitfHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
         out_str += format!("FHDR: {}, ", self.fhdr).as_ref();
-        out_str += format!("FVER: {}, ", self.fver).as_ref();
         out_str += format!("CLEVEL: {}, ", self.clevel).as_ref();
         out_str += format!("STYPE: {}, ", self.stype).as_ref();
         out_str += format!("OSTAID: {}, ", self.ostaid).as_ref();
@@ -131,182 +211,153 @@ impl Display for NitfHeader {
 
 impl NitfSegmentHeader for NitfHeader {
     fn read(&mut self, reader: &mut File) -> NitfResult<()> {
-        self.fhdr.read(reader, 4u8, "FHDR")?;
-        // Crash if file header is not NITF
-        if self.fhdr.string() != "NITF" {
-            return Err(NitfError::FileType(self.fhdr.string().clone()));
-        }
-        self.fver.read(reader, 5u8, "FVER")?;
-        self.clevel.read(reader, 2u8, "CLEVEL")?;
-        self.stype.read(reader, 4u8, "STYPE")?;
-        self.ostaid.read(reader, 10u8, "OSTAID")?;
-        self.fdt.read(reader, 14u8, "FDT")?;
-        self.ftitle.read(reader, 80u8, "FTITLE")?;
+        self.fhdr.read(reader)?;
+        self.fver.read(reader)?;
+        self.clevel.read(reader)?;
+        self.stype.read(reader)?;
+        self.ostaid.read(reader)?;
+        self.fdt.read(reader)?;
+        self.ftitle.read(reader)?;
         self.security.read(reader)?;
-        self.fscop.read(reader, 5u8, "FSCOP")?;
-        self.fscpys.read(reader, 5u8, "FSCPYS")?;
-        self.encryp.read(reader, 1u8, "ENCRYP")?;
-        for _ in 0..3 {
-            let mut color: NitfField<String> = NitfField::default();
-            color.read(reader, 1u8, "FBKGC")?;
-            self.fbkgc.push(color);
-        }
+        self.fscop.read(reader)?;
+        self.fscpys.read(reader)?;
+        self.encryp.read(reader)?;
+        self.fbkgc = vec![NitfField::init(1u8, "FBKGC")];
+        self.fbkgc.iter_mut().try_for_each(|color| color.read(reader))?;
+        
+        self.oname.read(reader)?;
+        self.ophone.read(reader)?;
+        self.fl.read(reader)?;
+        self.hl.read(reader)?;
+        self.numi.read(reader)?;
+        self.imheaders = vec![SubHeader::init(6u8, 10u8); self.numi.val.into()];
+        self.imheaders.iter_mut().try_for_each(|hdr| hdr.read(reader))?;
 
-        self.oname.read(reader, 24u8, "ONAME")?;
-        self.ophone.read(reader, 18u8, "OPHONE")?;
-        self.fl.read(reader, 12u8, "FL")?;
-        self.hl.read(reader, 6u8, "HL")?;
-        self.numi.read(reader, 3u8, "NUMI")?;
-        for _ in 0..self.numi.val().clone() {
-            let mut subheader = SubHeader::default();
-            subheader.read(reader, 6, 10)?;
-            self.imheaders.push(subheader);
-        }
+        self.nums.read(reader)?;
+        self.graphheaders = vec![SubHeader::init(4u8, 6u8); self.nums.val.into()];
+        self.graphheaders.iter_mut().try_for_each(|hdr| hdr.read(reader))?;
 
-        self.nums.read(reader, 3u8, "NUMS")?;
-        for _ in 0..self.nums.val().clone() {
-            let mut subheader = SubHeader::default();
-            subheader.read(reader, 4, 6)?;
-            self.graphheaders.push(subheader);
-        }
+        self.numx.read(reader)?;
+        self.numt.read(reader)?;
+        self.textheaders = vec![SubHeader::init(4u8, 5u8); self.numt.val.into()];
+        self.textheaders.iter_mut().try_for_each(|hdr| hdr.read(reader))?;
 
-        self.numx.read(reader, 3u8, "NUMX")?;
-        self.numt.read(reader, 3u8, "NUMT")?;
-        for _ in 0..self.numt.val().clone() {
-            let mut subheader = SubHeader::default();
-            subheader.read(reader, 4, 5)?;
-            self.textheaders.push(subheader);
-        }
+        self.numdes.read(reader)?;
+        self.dextheaders = vec![SubHeader::init(4u8, 9u8); self.numdes.val.into()];
+        self.dextheaders.iter_mut().try_for_each(|hdr| hdr.read(reader))?;
 
-        self.numdes.read(reader, 3u8, "NUMDES")?;
-        for _ in 0..self.numdes.val().clone() {
-            let mut subheader = SubHeader::default();
-            subheader.read(reader, 4, 9)?;
-            self.dextheaders.push(subheader);
-        }
+        self.numres.read(reader)?;
+        self.resheaders = vec![SubHeader::init(4u8, 7u8); self.numres.val.into()];
+        self.resheaders.iter_mut().try_for_each(|hdr| hdr.read(reader))?; 
 
-        self.numres.read(reader, 3u8, "NUMRES")?;
-        for _ in 0..self.numres.val().clone() {
-            let mut subheader = SubHeader::default();
-            subheader.read(reader, 4, 7)?;
-            self.resheaders.push(subheader);
-        }
-
-        self.udhdl.read(reader, 5u8, "UDHDL")?;
-        if self.udhdl.val().clone() != 0 {
-            self.udhofl.read(reader, 3u8, "UDHOFL")?;
+        self.udhdl.read(reader)?;
+        if self.udhdl.val != 0 {
+            self.udhofl.read(reader)?;
             self.udhd
-                .read(reader, (self.udhdl.val() - 3) as usize, "UDHD")?;
+                .read(reader, (self.udhdl.val - 3) as usize)?;
         }
 
-        self.xhdl.read(reader, 5u8, "XHDL")?;
-        if self.xhdl.val().clone() != 0 {
-            self.xhdlofl.read(reader, 3u8, "XHDLOFL")?;
-            self.xhd.read(reader, (self.xhdl.val() - 3) as usize, "XHD")?;
+        self.xhdl.read(reader)?;
+        if self.xhdl.val != 0 {
+            self.xhdlofl.read(reader)?;
+            self.xhd.read(reader, (self.xhdl.val - 3) as usize)?;
         }
         Ok(())
     }
     fn write(&self, writer: &mut File) -> NitfResult<usize> {
-        let mut bytes_written = 0;
-        // Crash if file header is not NITF
-        if self.fhdr.string() != "NITF" {
-            return Err(NitfError::FileType(self.fhdr.string().clone()));
-        }
-        bytes_written += self.fhdr.write(writer, "FHDR")?;
-        bytes_written += self.fver.write(writer, "FVER")?;
-        bytes_written += self.clevel.write(writer, "CLEVEL")?;
-        bytes_written += self.stype.write(writer, "STYPE")?;
-        bytes_written += self.ostaid.write(writer, "OSTAID")?;
-        bytes_written += self.fdt.write(writer, "FDT")?;
-        bytes_written += self.ftitle.write(writer, "FTITLE")?;
+        let mut bytes_written = self.fhdr.write(writer)?;
+        bytes_written += self.clevel.write(writer)?;
+        bytes_written += self.clevel.write(writer)?;
+        bytes_written += self.stype.write(writer)?;
+        bytes_written += self.ostaid.write(writer)?;
+        bytes_written += self.fdt.write(writer)?;
+        bytes_written += self.ftitle.write(writer)?;
         bytes_written += self.security.write(writer)?;
-        bytes_written += self.fscop.write(writer, "FSCOP")?;
-        bytes_written += self.fscpys.write(writer, "FSCPYS")?;
-        bytes_written += self.encryp.write(writer, "ENCRYP")?;
+        bytes_written += self.fscop.write(writer)?;
+        bytes_written += self.fscpys.write(writer)?;
+        bytes_written += self.encryp.write(writer)?;
         for color in &self.fbkgc {
-            bytes_written += color.write(writer, "FBKGC")?;
+            bytes_written += color.write(writer)?;
         }
-        bytes_written += self.oname.write(writer, "ONAME")?;
-        bytes_written += self.ophone.write(writer, "OPHONE")?;
-        bytes_written += self.fl.write(writer, "FL")?;
-        bytes_written += self.hl.write(writer, "HL")?;
-        bytes_written += self.numi.write(writer, "NUMI")?;
+        bytes_written += self.oname.write(writer)?;
+        bytes_written += self.ophone.write(writer)?;
+        bytes_written += self.fl.write(writer)?;
+        bytes_written += self.hl.write(writer)?;
+        bytes_written += self.numi.write(writer)?;
         for subheader in &self.imheaders {
             bytes_written += subheader.write(writer)?;
         }
 
-        bytes_written += self.nums.write(writer, "NUMS")?;
+        bytes_written += self.nums.write(writer)?;
         for subheader in &self.graphheaders {
             bytes_written += subheader.write(writer)?;
         }
 
-        bytes_written += self.numx.write(writer, "NUMX")?;
-        bytes_written += self.numt.write(writer, "NUMT")?;
+        bytes_written += self.numx.write(writer)?;
+        bytes_written += self.numt.write(writer)?;
         for subheader in &self.textheaders {
             bytes_written += subheader.write(writer)?;
         }
 
-        bytes_written += self.numdes.write(writer, "NUMDES")?;
+        bytes_written += self.numdes.write(writer)?;
         for subheader in &self.dextheaders {
             bytes_written += subheader.write(writer)?;
         }
 
-        bytes_written += self.numres.write(writer, "NUMRES")?;
+        bytes_written += self.numres.write(writer)?;
         for subheader in &self.resheaders {
             bytes_written += subheader.write(writer)?;
         }
 
-        bytes_written += self.udhdl.write(writer, "UDHDL")?;
-        if self.udhdl.val().clone() != 0 {
-            bytes_written += self.udhofl.write(writer, "UDHOFL")?;
-            bytes_written += self.udhd.write(writer, "UDHD")?;
+        bytes_written += self.udhdl.write(writer)?;
+        if self.udhdl.val != 0 {
+            bytes_written += self.udhofl.write(writer)?;
+            bytes_written += self.udhd.write(writer)?;
         }
 
-        bytes_written += self.xhdl.write(writer, "XHDL")?;
-        if self.xhdl.val().clone() != 0 {
-            bytes_written += self.xhdlofl.write(writer, "XHDLOFL")?;
-            bytes_written += self.xhd.write(writer, "XHD")?;
+        bytes_written += self.xhdl.write(writer)?;
+        if self.xhdl.val != 0 {
+            bytes_written += self.xhdlofl.write(writer)?;
+            bytes_written += self.xhd.write(writer)?;
         }
         Ok(bytes_written)
     }
     fn length(&self) -> usize {
-        let mut length = 0;
-        length += self.fhdr.length();
-        length += self.fver.length();
-        length += self.clevel.length();
-        length += self.stype.length();
-        length += self.ostaid.length();
-        length += self.fdt.length();
-        length += self.ftitle.length();
+        let mut length = self.fhdr.length;
+        length += self.clevel.length;
+        length += self.stype.length;
+        length += self.ostaid.length;
+        length += self.fdt.length;
+        length += self.ftitle.length;
         length += self.security.length();
-        length += self.fscop.length();
-        length += self.fscpys.length();
-        length += self.encryp.length();
-        length += self.fbkgc.iter().map(|c| c.length()).sum::<usize>();
-        length += self.oname.length();
-        length += self.ophone.length();
-        length += self.fl.length();
-        length += self.hl.length();
-        length += self.numi.length();
+        length += self.fscop.length;
+        length += self.fscpys.length;
+        length += self.encryp.length;
+        length += self.fbkgc.iter().map(|c| c.length).sum::<usize>();
+        length += self.oname.length;
+        length += self.ophone.length;
+        length += self.fl.length;
+        length += self.hl.length;
+        length += self.numi.length;
         length += self.imheaders.iter().map(|s| s.length()).sum::<usize>();
-        length += self.nums.length();
+        length += self.nums.length;
         length += self.graphheaders.iter().map(|s| s.length()).sum::<usize>();
-        length += self.numx.length();
-        length += self.numt.length();
+        length += self.numx.length;
+        length += self.numt.length;
         length += self.textheaders.iter().map(|s| s.length()).sum::<usize>();
-        length += self.numdes.length();
+        length += self.numdes.length;
         length += self.dextheaders.iter().map(|s| s.length()).sum::<usize>();
-        length += self.numres.length();
+        length += self.numres.length;
         length += self.resheaders.iter().map(|s| s.length()).sum::<usize>();
-        length += self.udhdl.length();
-        if self.udhdl.val().clone() != 0 {
-            length += self.udhofl.length();
-            length += self.udhd.length();
+        length += self.udhdl.length;
+        if self.udhdl.val != 0 {
+            length += self.udhofl.length;
+            length += self.udhd.size();
         }
-        length += self.xhdl.length();
-        if self.xhdl.val().clone() != 0 {
-            length += self.xhdlofl.length();
-            length += self.xhd.length();
+        length += self.xhdl.length;
+        if self.xhdl.val != 0 {
+            length += self.xhdlofl.length;
+            length += self.xhd.size();
         }
         length
     }
@@ -323,20 +374,24 @@ pub struct SubHeader {
     pub item_size: NitfField<u64>,
 }
 impl SubHeader {
-    pub fn read(&mut self, reader: &mut File, sh_size: u64, item_size: u64) -> NitfResult<()> {
-        self.subheader_size
-            .read(reader, sh_size, "SUBHEADER_SIZE")?;
-        self.item_size.read(reader, item_size, "ITEM_SIZE")?;
+    pub fn init(subheader_len: u8, item_len: u8) -> Self {
+        Self {
+            subheader_size: NitfField::init(subheader_len, "SUBHEADER_SIZE"), 
+            item_size: NitfField::init(item_len, "ITEM_SIZE")
+        }
+    }
+    pub fn read(&mut self, reader: &mut File) -> NitfResult<()> {
+        self.subheader_size.read(reader)?;
+        self.item_size.read(reader)?;
         Ok(())
     }
     pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
-        let mut bytes_written = 0;
-        bytes_written += self.subheader_size.write(writer, "SUBHEADER_SIZE")?;
-        bytes_written += self.item_size.write(writer, "ITEM_SIZE")?;
+        let mut bytes_written = self.subheader_size.write(writer)?;
+        bytes_written += self.item_size.write(writer)?;
         Ok(bytes_written)
     }
     pub fn length(&self) -> usize {
-        self.subheader_size.length() + self.item_size.length()
+        self.subheader_size.length + self.item_size.length
     }
 }
 impl Display for SubHeader {
@@ -344,7 +399,7 @@ impl Display for SubHeader {
         write!(
             f,
             "[subheader_size: {}, item_size: {}]",
-            self.subheader_size.string(), self.item_size.string()
+            self.subheader_size, self.item_size
         )
     }
 }

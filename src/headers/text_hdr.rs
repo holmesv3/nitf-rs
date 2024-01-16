@@ -8,10 +8,10 @@ use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
 use crate::{NitfError, NitfResult};
 /// Text Segment Metadata
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct TextHeader {
     /// File Part Type
-    pub te: NitfField<String>,
+    pub te: NitfField<TE>,
     /// Text Identifier
     pub textid: NitfField<String>,
     /// Text Attachment Level
@@ -33,6 +33,43 @@ pub struct TextHeader {
     /// Text Extended Subheader Data
     pub txshd: ExtendedSubheader,
 }
+impl Default for TextHeader {
+    fn default() -> Self {
+        Self {
+            te: NitfField::init(2u8, "TE"),
+            textid: NitfField::init(7u8, "TEXTID"),
+            txtalvl: NitfField::init(3u8, "TXTALVL"),
+            txtdt: NitfField::init(14u8, "TXTDT"),
+            txttitl: NitfField::init(80u8, "TXTTITL"),
+            security: Security::default(),
+            encryp: NitfField::init(1u8, "ENCRYP"),
+            txtfmt: NitfField::init(3u8, "TXTFMT"),
+            txshdl: NitfField::init(5u8, "TXSHDL"),
+            txsofl: NitfField::init(3u8, "TXSOFL"),
+            txshd: ExtendedSubheader::init("TXSHD"),
+        }
+    }
+}
+
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
+pub enum TE {
+    #[default]
+    TE    
+}
+impl FromStr for TE {
+    type Err = NitfError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "TE" => Ok(Self::default()),
+            _ => Err(NitfError::ParseError("TE".to_string()))
+        }
+    }
+}
+impl Display for TE {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "TE")
+    }
+}
 
 /// Formatting specification
 #[derive(Debug, Default, Clone, Eq, PartialEq)]
@@ -50,56 +87,52 @@ pub enum TextFormat {
 
 impl NitfSegmentHeader for TextHeader {
     fn read(&mut self, reader: &mut File) -> NitfResult<()> {
-        self.te.read(reader, 2u8, "TE")?;
-        self.textid.read(reader, 7u8, "TEXTID")?;
-        self.txtalvl.read(reader, 3u8, "TXTALVL")?;
-        self.txtdt.read(reader, 14u8, "TXTDT")?;
-        self.txttitl.read(reader, 80u8, "TXTTITL")?;
+        self.te.read(reader)?;
+        self.textid.read(reader)?;
+        self.txtalvl.read(reader)?;
+        self.txtdt.read(reader)?;
+        self.txttitl.read(reader)?;
         self.security.read(reader)?;
-        self.encryp.read(reader, 1u8, "ENCRYP")?;
-        self.txtfmt.read(reader, 3u8, "TXTFMT")?;
-        self.txshdl.read(reader, 5u8, "TXSHDL")?;
-        let extended_length = self.txshdl.val().clone();
-        if extended_length != 0 {
-            self.txsofl.read(reader, 3u8, "TXSOFL")?;
-            self.txshd
-                .read(reader, (extended_length - 3) as usize, "TXSHD")?;
+        self.encryp.read(reader)?;
+        self.txtfmt.read(reader)?;
+        self.txshdl.read(reader)?;
+        if self.txshdl.val != 0 {
+            self.txsofl.read(reader, )?;
+            self.txshd.read(reader, (self.txshdl.val - 3) as usize)?;
         }
         Ok(())
     }
     fn write(&self, writer: &mut File) -> NitfResult<usize> {
         let mut bytes_written = 0;
-        bytes_written += self.te.write(writer, "TE")?;
-        bytes_written += self.textid.write(writer, "TEXTID")?;
-        bytes_written += self.txtalvl.write(writer, "TXTALVL")?;
-        bytes_written += self.txtdt.write(writer, "TXTDT")?;
-        bytes_written += self.txttitl.write(writer, "TXTTITL")?;
+        bytes_written += self.te.write(writer)?;
+        bytes_written += self.textid.write(writer)?;
+        bytes_written += self.txtalvl.write(writer)?;
+        bytes_written += self.txtdt.write(writer)?;
+        bytes_written += self.txttitl.write(writer)?;
         bytes_written += self.security.write(writer)?;
-        bytes_written += self.encryp.write(writer, "ENCRYP")?;
-        bytes_written += self.txtfmt.write(writer, "TXTFMT")?;
-        bytes_written += self.txshdl.write(writer, "TXSHDL")?;
-        let extended_length = self.txshdl.val().clone();
-        if extended_length != 0 {
-            bytes_written += self.txsofl.write(writer, "TXSOFL")?;
-            bytes_written += self.txshd.write(writer, "TXSHD")?;
+        bytes_written += self.encryp.write(writer)?;
+        bytes_written += self.txtfmt.write(writer)?;
+        bytes_written += self.txshdl.write(writer)?;
+        if self.txshdl.val != 0 {
+            bytes_written += self.txsofl.write(writer)?;
+            bytes_written += self.txshd.write(writer)?;
         }
         Ok(bytes_written)
     }
     fn length(&self) -> usize {
         let mut length = 0;
-        length += self.te.length();
-        length += self.textid.length();
-        length += self.txtalvl.length();
-        length += self.txtdt.length();
-        length += self.txttitl.length();
+        length += self.te.length;
+        length += self.textid.length;
+        length += self.txtalvl.length;
+        length += self.txtdt.length;
+        length += self.txttitl.length;
         length += self.security.length();
-        length += self.encryp.length();
-        length += self.txtfmt.length();
-        length += self.txshdl.length();
-        let extended_length = self.txshdl.val().clone();
-        if extended_length != 0 {
-            length += self.txsofl.length();
-            length += self.txshd.length();
+        length += self.encryp.length;
+        length += self.txtfmt.length;
+        length += self.txshdl.length;
+        if self.txshdl.val != 0 {
+            length += self.txsofl.length;
+            length += self.txshd.size();
         }
         length
         
@@ -130,7 +163,7 @@ impl FromStr for TextFormat {
             "STA" => Ok(Self::STA),
             "UT1" => Ok(Self::UT1),
             "U8S" => Ok(Self::U8S),
-            _ => Err(NitfError::EnumError("TextFormat")),
+            _ => Err(NitfError::ParseError("TextFormat".to_string())),
         }
     }
 }
