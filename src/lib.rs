@@ -9,7 +9,7 @@
 //! ```no_run
 //! // Read a nitf file and dump metadata to stdout
 //! use std::path::Path;
-//! let nitf_path = Path::new("../example.nitf");
+//! let nitf_path = Path::new("example.nitf");
 //! let nitf = nitf_rs::read_nitf(&nitf_path).unwrap();
 //! println!("{nitf:?}");
 //! ```
@@ -21,19 +21,18 @@
 //! ```no_run
 //! // Get the bytes from the first image segment
 //! use std::path::Path;
-//! let nitf_path = Path::new("../example.nitf");
+//! let nitf_path = Path::new("example.nitf");
 //! let nitf = nitf_rs::read_nitf(&nitf_path).unwrap();
 //! let im_seg = &nitf.image_segments[0];
 //! let u8_slice = &im_seg.data[..];
 //! ```
-//! Most metadata elements are stored in a [NitfField] structure. This structure
-//! stores the `bytes` which encode the value, a `string` representation, and a
-//! `val` which holds on to native value of the field (i.e., the bytes parsed into a
-//! u8, u16, String, enum, etc.)
+//! Most metadata elements are stored in a [NitfField](types::NitfField) structure. 
+//! This structure hold onto the `val` which holds on to native value of the field 
+//! (i.e., the bytes parsed into a u8, u16, String, enum, etc.)
 //! ```no_run
 //! // Read in a nitf and extract the...
 //! use std::path::Path;
-//! let nitf_path = Path::new("../example.nitf");
+//! let nitf_path = Path::new("example.nitf");
 //! let nitf = nitf_rs::read_nitf(&nitf_path).unwrap();
 //! // .. File title
 //! let file_title = nitf.nitf_header.meta.ftitle.val;
@@ -133,7 +132,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.imheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size = seg_info.item_size.val;
-            let seg = ImageSegment::initialize(file, header_size, data_size)?;
+            let seg = ImageSegment::init(file, header_size, data_size)?;
             nitf.image_segments.push(seg);
         }
 
@@ -142,7 +141,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.graphheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size: u64 = seg_info.item_size.val;
-            let seg = GraphicSegment::initialize(file, header_size, data_size)?;
+            let seg = GraphicSegment::init(file, header_size, data_size)?;
             nitf.graphic_segments.push(seg);
         }
 
@@ -151,7 +150,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.textheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size: u64 = seg_info.item_size.val;
-            let seg = TextSegment::initialize(file, header_size, data_size)?;
+            let seg = TextSegment::init(file, header_size, data_size)?;
             nitf.text_segments.push(seg);
         }
 
@@ -160,7 +159,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.dextheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size: u64 = seg_info.item_size.val;
-            let seg = DataExtensionSegment::initialize(file, header_size, data_size)?;
+            let seg = DataExtensionSegment::init(file, header_size, data_size)?;
             nitf.data_extension_segments.push(seg);
         }
 
@@ -169,7 +168,7 @@ impl Nitf {
             let seg_info = &nitf.nitf_header.meta.resheaders[i_seg];
             let header_size = seg_info.subheader_size.val;
             let data_size = seg_info.item_size.val;
-            let seg = ReservedExtensionSegment::initialize(file, header_size, data_size)?;
+            let seg = ReservedExtensionSegment::init(file, header_size, data_size)?;
             nitf.reserved_extension_segments.push(seg);
         }
         Ok(nitf)

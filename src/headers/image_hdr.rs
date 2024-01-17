@@ -367,6 +367,22 @@ fn write_bands(writer: &mut File, bands: &Vec<Band>) -> NitfResult<usize> {
     }
     Ok(bytes_written)
 }
+fn is_comrat(compression: &Compression) -> bool {
+    match compression {
+        Compression::C1 => true,
+        Compression::C3 => true, 
+        Compression::C4 => true, 
+        Compression::C5 => true, 
+        Compression::C8 => true, 
+        Compression::M1 => true, 
+        Compression::M3 => true, 
+        Compression::M4 => true, 
+        Compression::M5 => true, 
+        Compression::M8 => true, 
+        Compression::I1 => true,
+        _ => false,
+    }
+}
 
 // TRAIT IMPLEMENTATIONS
 impl NitfSegmentHeader for ImageHeader {
@@ -387,20 +403,18 @@ impl NitfSegmentHeader for ImageHeader {
         self.abpp.read(reader)?;
         self.pjust.read(reader)?;
         self.icords.read(reader)?;
-        for _ in 0..4 {
-            let mut geoloc = NitfField::init(15u8, "IGEOLOC");
-            geoloc.read(reader)?;
-            self.igeolo.push(geoloc);
-        }
+       
+        self.igeolo = vec![NitfField::init(15u8, "IGEOLOC"); 4];
+        self.igeolo.iter_mut().try_for_each(|geoloc| geoloc.read(reader))?;
+    
         self.nicom.read(reader)?;
-        for _ in 0..self.nicom.val {
-            let mut comment = NitfField::init(80u8, "ICOM");
-            comment.read(reader)?;
-            self.icoms.push(comment);
-        }
+        self.icoms = vec![NitfField::init(80u8, "ICOM"); self.nicom.val.into()];
+        self.icoms.iter_mut().try_for_each(|com| com.read(reader))?;
 
         self.ic.read(reader)?;
-        self.nbands.read(reader)?;
+        if is_comrat(&self.ic.val) {
+            self.comrat.read(reader)?;
+        }
         self.nbands.read(reader)?;
         // If NBANDS = 0, use XBANDS
         if self.nbands.val != 0 {
@@ -421,17 +435,15 @@ impl NitfSegmentHeader for ImageHeader {
         self.iloc.read(reader)?;
         self.imag.read(reader)?;
         self.udidl.read(reader)?;
-        let udi_data_length = self.udidl.val;
-        if udi_data_length != 0 {
+        if self.udidl.val != 0 {
             self.udofl.read(reader)?;
-            self.udid.read(reader, (udi_data_length - 3) as usize)?;
+            self.udid.read(reader, (self.udidl.val - 3) as usize)?;
         }
         self.ixshdl.read(reader)?;
-        let ixsh_data_length = self.ixshdl.val;
-        if ixsh_data_length != 0 {
+        if self.ixshdl.val != 0 {
             self.ixsofl.read(reader)?;
             self.ixshd
-                .read(reader, (ixsh_data_length - 3) as usize)?;
+                .read(reader, (self.ixshdl.val - 3) as usize)?;
         }
         Ok(())
     }
@@ -462,6 +474,9 @@ impl NitfSegmentHeader for ImageHeader {
         }
 
         bytes_written += self.ic.write(writer)?;
+        if is_comrat(&self.ic.val) {
+            self.comrat.write(writer)?;
+        }
         bytes_written += self.nbands.write(writer)?;
         // If NBANDS = 0, use XBANDS
         if self.nbands.val != 0 {

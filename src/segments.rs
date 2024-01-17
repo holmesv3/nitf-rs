@@ -50,7 +50,7 @@ pub struct NitfSegment<T: NitfSegmentHeader> {
     pub data_size: u64,
 }
 impl<T: NitfSegmentHeader> NitfSegment<T> {
-    pub fn initialize(reader: &mut File, header_size: u32, data_size: u64) -> NitfResult<Self> {
+    pub fn init(reader: &mut File, header_size: u32, data_size: u64) -> NitfResult<Self> {
         // Crash if cursor error
         let header_offset = reader.stream_position()?;
         let header_size = header_size;

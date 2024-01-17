@@ -11,9 +11,9 @@ use crate::{NitfError, NitfResult};
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct NitfHeader {
     /// File Profile Name
-    pub fhdr: NitfField<String>,
+    pub fhdr: NitfField<FHDR>,
     /// File Version
-    pub fver: NitfField<String>,
+    pub fver: NitfField<FVER>,
     /// Complexity Level
     pub clevel: NitfField<u8>,
     /// Standard Type
@@ -91,7 +91,7 @@ impl Default for  NitfHeader {
             fscop: NitfField::init(5u8, "FSCOP"),
             fscpys: NitfField::init(5u8, "FSCPYS"),
             encryp: NitfField::init(1u8, "ENCRYP"),
-            fbkgc: vec![NitfField::init(0, ""); 3],
+            fbkgc: vec![NitfField::init(1u8, "FBKGC"); 3],
             oname: NitfField::init(24u8, "ONAME"),
             ophone: NitfField::init(18u8, "OPHONE"),
             fl: NitfField::init(12u8, "FL"),
@@ -222,7 +222,7 @@ impl NitfSegmentHeader for NitfHeader {
         self.fscop.read(reader)?;
         self.fscpys.read(reader)?;
         self.encryp.read(reader)?;
-        self.fbkgc = vec![NitfField::init(1u8, "FBKGC")];
+        self.fbkgc = vec![NitfField::init(1u8, "FBKGC"); 3];
         self.fbkgc.iter_mut().try_for_each(|color| color.read(reader))?;
         
         self.oname.read(reader)?;
@@ -266,7 +266,7 @@ impl NitfSegmentHeader for NitfHeader {
     }
     fn write(&self, writer: &mut File) -> NitfResult<usize> {
         let mut bytes_written = self.fhdr.write(writer)?;
-        bytes_written += self.clevel.write(writer)?;
+        bytes_written += self.fver.write(writer)?;
         bytes_written += self.clevel.write(writer)?;
         bytes_written += self.stype.write(writer)?;
         bytes_written += self.ostaid.write(writer)?;

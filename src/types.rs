@@ -1,5 +1,5 @@
 //! Common types use throughout
-use log::{trace, warn};
+use log::{trace, warn, debug};
 use std::fmt::{Debug, Display, format};
 use std::fs::File;
 use std::io::{Read, Seek, Write};
@@ -77,10 +77,11 @@ V: FromStr + Debug + Default + Display,
         &self,
         writer: &mut File,
     ) -> NitfResult<usize> {
-        let string = format!("{:>1$}", self.val, self.length);
+        let val_string = self.val.to_string();
+        let buf = format!("{:<1$}", val_string, self.length);
 
-        trace!("Writing {}: {string}", self.name);
-        writer.write(string.as_bytes()).map_err(|e| NitfError::IOError(e))
+        trace!("Writing {} bytes for {}: {buf}", buf.len(), self.name);
+        writer.write(buf.as_bytes()).map_err(|e| NitfError::IOError(e))
     }
 }
 
