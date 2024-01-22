@@ -54,14 +54,14 @@ impl Default for TextHeader {
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub enum TE {
     #[default]
-    TE    
+    TE,
 }
 impl FromStr for TE {
     type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "TE" => Ok(Self::default()),
-            _ => Err(NitfError::ParseError("TE".to_string()))
+            _ => Err(NitfError::ParseError("TE".to_string())),
         }
     }
 }
@@ -97,7 +97,7 @@ impl NitfSegmentHeader for TextHeader {
         self.txtfmt.read(reader)?;
         self.txshdl.read(reader)?;
         if self.txshdl.val != 0 {
-            self.txsofl.read(reader, )?;
+            self.txsofl.read(reader)?;
             self.txshd.read(reader, (self.txshdl.val - 3) as usize)?;
         }
         Ok(())
@@ -135,7 +135,6 @@ impl NitfSegmentHeader for TextHeader {
             length += self.txshd.size();
         }
         length
-        
     }
 }
 impl Display for TextHeader {

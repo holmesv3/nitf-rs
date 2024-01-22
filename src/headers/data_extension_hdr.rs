@@ -7,7 +7,6 @@ use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
 use crate::{NitfError, NitfResult};
 
-
 /// Metadata for Data Extension Segment
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct DataExtensionHeader {
@@ -91,14 +90,14 @@ impl NitfSegmentHeader for DataExtensionHeader {
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub enum DE {
     #[default]
-    DE    
+    DE,
 }
 impl FromStr for DE {
     type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "DE" => Ok(Self::default()),
-            _ => Err(NitfError::ParseError("DE".to_string()))
+            _ => Err(NitfError::ParseError("DE".to_string())),
         }
     }
 }

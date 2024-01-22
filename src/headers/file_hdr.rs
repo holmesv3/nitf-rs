@@ -1,5 +1,4 @@
 //! File header definition
-use std::default;
 use std::fmt::Display;
 use std::fs::File;
 use std::str::FromStr;
@@ -77,7 +76,102 @@ pub struct NitfHeader {
     /// Extended Header Data
     pub xhd: ExtendedSubheader,
 }
-impl Default for  NitfHeader {
+
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
+pub enum FHDR {
+    #[default]
+    NITF,
+}
+impl FromStr for FHDR {
+    type Err = NitfError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "NITF" => Ok(Self::default()),
+            _ => Err(NitfError::ParseError("FHDR".to_string())),
+        }
+    }
+}
+impl Display for FHDR {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "NITF")
+    }
+}
+
+#[derive(Default, Clone, Debug, Eq, PartialEq)]
+pub enum FVER {
+    #[default]
+    V02_10,
+}
+impl FromStr for FVER {
+    type Err = NitfError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "02.10" => Ok(Self::default()),
+            _ => Err(NitfError::ParseError("FVER".to_string())),
+        }
+    }
+}
+impl Display for FVER {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "02.10")
+    }
+}
+pub(crate) enum Segment {
+    Image,
+    Graphic,
+    Text,
+    DataExtension,
+    ReservedExtension,
+}
+impl Segment {
+    pub fn size(&self) -> (u8, u8) {
+        match self {
+            Self::Image => (6u8, 10u8),
+            Self::Graphic => (4u8, 6u8),
+            Self::Text => (4u8, 5u8),
+            Self::DataExtension => (4u8, 9u8),
+            Self::ReservedExtension => (4u8, 7u8),
+        }
+    }
+}
+
+impl NitfHeader {
+    pub(crate) fn add_subheader(
+        &mut self,
+        segment_type: Segment,
+        subheader_size: u32,
+        item_size: u64,
+    ) {
+        use Segment::*;
+        let mut subheader = SubHeader::new(&segment_type);
+        subheader.subheader_size.val = subheader_size;
+        subheader.item_size.val = item_size;
+
+        match segment_type {
+            Image => {
+                self.numi.val += 1;
+                self.imheaders.push(subheader);
+            }
+            Graphic => {
+                self.nums.val += 1;
+                self.graphheaders.push(subheader);
+            }
+            Text => {
+                self.numt.val += 1;
+                self.textheaders.push(subheader);
+            }
+            DataExtension => {
+                self.numdes.val += 1;
+                self.dextheaders.push(subheader);
+            }
+            ReservedExtension => {
+                self.numres.val += 1;
+                self.resheaders.push(subheader);
+            }
+        }
+    }
+}
+impl Default for NitfHeader {
     fn default() -> Self {
         Self {
             fhdr: NitfField::init(4u8, "FHDR"),
@@ -114,46 +208,6 @@ impl Default for  NitfHeader {
             xhdlofl: NitfField::init(3u8, "XHDLOFL"),
             xhd: ExtendedSubheader::init("XHD"),
         }
-    }
-}
-
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
-pub enum FHDR {
-    #[default]
-    NITF    
-}
-impl FromStr for FHDR {
-    type Err = NitfError;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "NITF" => Ok(Self::default()),
-            _ => Err(NitfError::ParseError("FHDR".to_string()))
-        }
-    }
-}
-impl Display for FHDR {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "NITF")
-    }
-}
-
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
-pub enum FVER {
-    #[default]
-    V02_10    
-}
-impl FromStr for FVER {
-    type Err = NitfError;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "02.10" => Ok(Self::default()),
-            _ => Err(NitfError::ParseError("FVER".to_string()))
-        }
-    }
-}
-impl Display for FVER {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "02.10")
     }
 }
 impl Display for NitfHeader {
@@ -223,38 +277,49 @@ impl NitfSegmentHeader for NitfHeader {
         self.fscpys.read(reader)?;
         self.encryp.read(reader)?;
         self.fbkgc = vec![NitfField::init(1u8, "FBKGC"); 3];
-        self.fbkgc.iter_mut().try_for_each(|color| color.read(reader))?;
-        
+        self.fbkgc
+            .iter_mut()
+            .try_for_each(|color| color.read(reader))?;
+
         self.oname.read(reader)?;
         self.ophone.read(reader)?;
         self.fl.read(reader)?;
         self.hl.read(reader)?;
         self.numi.read(reader)?;
-        self.imheaders = vec![SubHeader::init(6u8, 10u8); self.numi.val.into()];
-        self.imheaders.iter_mut().try_for_each(|hdr| hdr.read(reader))?;
+        self.imheaders = vec![SubHeader::new(&Segment::Image); self.numi.val.into()];
+        self.imheaders
+            .iter_mut()
+            .try_for_each(|hdr| hdr.read(reader))?;
 
         self.nums.read(reader)?;
-        self.graphheaders = vec![SubHeader::init(4u8, 6u8); self.nums.val.into()];
-        self.graphheaders.iter_mut().try_for_each(|hdr| hdr.read(reader))?;
+        self.graphheaders = vec![SubHeader::new(&Segment::Graphic); self.nums.val.into()];
+        self.graphheaders
+            .iter_mut()
+            .try_for_each(|hdr| hdr.read(reader))?;
 
         self.numx.read(reader)?;
         self.numt.read(reader)?;
-        self.textheaders = vec![SubHeader::init(4u8, 5u8); self.numt.val.into()];
-        self.textheaders.iter_mut().try_for_each(|hdr| hdr.read(reader))?;
+        self.textheaders = vec![SubHeader::new(&Segment::Text); self.numt.val.into()];
+        self.textheaders
+            .iter_mut()
+            .try_for_each(|hdr| hdr.read(reader))?;
 
         self.numdes.read(reader)?;
-        self.dextheaders = vec![SubHeader::init(4u8, 9u8); self.numdes.val.into()];
-        self.dextheaders.iter_mut().try_for_each(|hdr| hdr.read(reader))?;
+        self.dextheaders = vec![SubHeader::new(&Segment::DataExtension); self.numdes.val.into()];
+        self.dextheaders
+            .iter_mut()
+            .try_for_each(|hdr| hdr.read(reader))?;
 
         self.numres.read(reader)?;
-        self.resheaders = vec![SubHeader::init(4u8, 7u8); self.numres.val.into()];
-        self.resheaders.iter_mut().try_for_each(|hdr| hdr.read(reader))?; 
+        self.resheaders = vec![SubHeader::new(&Segment::ReservedExtension); self.numres.val.into()];
+        self.resheaders
+            .iter_mut()
+            .try_for_each(|hdr| hdr.read(reader))?;
 
         self.udhdl.read(reader)?;
         if self.udhdl.val != 0 {
             self.udhofl.read(reader)?;
-            self.udhd
-                .read(reader, (self.udhdl.val - 3) as usize)?;
+            self.udhd.read(reader, (self.udhdl.val - 3) as usize)?;
         }
 
         self.xhdl.read(reader)?;
@@ -376,22 +441,30 @@ pub struct SubHeader {
 impl SubHeader {
     pub fn init(subheader_len: u8, item_len: u8) -> Self {
         Self {
-            subheader_size: NitfField::init(subheader_len, "SUBHEADER_SIZE"), 
-            item_size: NitfField::init(item_len, "ITEM_SIZE")
+            subheader_size: NitfField::init(subheader_len, "SUBHEADER_SIZE"),
+            item_size: NitfField::init(item_len, "ITEM_SIZE"),
         }
     }
+
     pub fn read(&mut self, reader: &mut File) -> NitfResult<()> {
         self.subheader_size.read(reader)?;
         self.item_size.read(reader)?;
         Ok(())
     }
+
     pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
         let mut bytes_written = self.subheader_size.write(writer)?;
         bytes_written += self.item_size.write(writer)?;
         Ok(bytes_written)
     }
+
     pub fn length(&self) -> usize {
         self.subheader_size.length + self.item_size.length
+    }
+
+    pub(crate) fn new(segment_type: &Segment) -> Self {
+        let (sh_size, item_size) = Segment::size(&segment_type);
+        SubHeader::init(sh_size, item_size)
     }
 }
 impl Display for SubHeader {

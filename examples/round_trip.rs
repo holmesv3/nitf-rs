@@ -19,24 +19,22 @@ fn main() {
         usage();
         return;
     }
-    
+
     let out_path = std::path::Path::new(&args[1]);
     log::info!("Found OUT path: {}", out_path.display());
-    
+
     let nitf = nitf_rs::Nitf::default();
     log::info!("Created empty NITF successfully");
-    
+
     let n_bytes = nitf.write(out_path).unwrap();
     log::debug!("Wrote {n_bytes} bytes");
     log::info!("Successfully wrote NITF");
-    
+
     let nitf_path = std::path::Path::new(&args[1]);
     log::info!("Found NITF at: {}", nitf_path.display());
-    
+
     let nitf = nitf_rs::read_nitf(nitf_path).unwrap();
     log::info!("Read NITF successfully");
-    
+
     log::info!("NITF metadata: {}", nitf);
-    
-    
 }

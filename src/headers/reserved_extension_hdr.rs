@@ -5,7 +5,7 @@ use std::str::FromStr;
 
 use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
-use crate::{NitfResult, NitfError};
+use crate::{NitfError, NitfResult};
 /// Metadata for Reserved Extension Segment
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ReservedExtensionHeader {
@@ -30,21 +30,21 @@ impl Default for ReservedExtensionHeader {
             resver: NitfField::init(2u8, "RESVER"),
             security: Security::default(),
             resshl: NitfField::init(4u8, "RESSHL"),
-            resshf: ExtendedSubheader::init("RESSHF"), 
+            resshf: ExtendedSubheader::init("RESSHF"),
         }
     }
 }
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub enum RE {
     #[default]
-    RE    
+    RE,
 }
 impl FromStr for RE {
     type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "RE" => Ok(Self::default()),
-            _ => Err(NitfError::ParseError("RE".to_string()))
+            _ => Err(NitfError::ParseError("RE".to_string())),
         }
     }
 }
@@ -73,8 +73,7 @@ impl NitfSegmentHeader for ReservedExtensionHeader {
         self.security.read(reader)?;
         self.resshl.read(reader)?;
         if self.resshl.val != 0 {
-            self.resshf
-                .read(reader, self.resshl.val as usize)?;
+            self.resshf.read(reader, self.resshl.val as usize)?;
         }
         Ok(())
     }
@@ -101,6 +100,5 @@ impl NitfSegmentHeader for ReservedExtensionHeader {
             length += self.resshf.size();
         }
         length
-        
     }
 }

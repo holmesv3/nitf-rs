@@ -1,4 +1,8 @@
 //! Example to read a nitf and print metadata
+
+use std::{fs::File, ops::Deref, os::raw::c_void};
+
+use memmap2::Mmap;
 fn usage() {
     eprintln!("Example of writing a NITF file");
     eprintln!("Usage: cargo run --example write -- <OUT>");
@@ -19,14 +23,13 @@ fn main() {
         usage();
         return;
     }
-    
+
     let out_path = std::path::Path::new(&args[1]);
     log::info!("Found OUT path: {}", out_path.display());
-    
-    let nitf = nitf_rs::Nitf::default();
-    log::info!("Created empty NITF successfully");
-    
-    nitf.write(out_path).unwrap();
+    let mut nitf = nitf_rs::Nitf::default();
+
+    log::info!("Created NITF successfully");
+    nitf.file = Some(File::create(out_path).unwrap());
+    nitf.write_headers().unwrap();
     log::info!("Successfully wrote NITF");
-    
 }

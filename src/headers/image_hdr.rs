@@ -120,7 +120,7 @@ impl Default for ImageHeader {
             comrat: NitfField::init(4u8, "COMRAT"),
             nbands: NitfField::init(1u8, "NBANDS"),
             xbands: NitfField::init(5u8, "XBANDS"),
-            bands: vec![],    
+            bands: vec![],
             isync: NitfField::init(1u8, "ISYNC"),
             imode: NitfField::init(1u8, "IMODE"),
             nbpr: NitfField::init(4u8, "NBPR"),
@@ -145,14 +145,14 @@ impl Default for ImageHeader {
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub enum IM {
     #[default]
-    IM    
+    IM,
 }
 impl FromStr for IM {
     type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "IM" => Ok(Self::default()),
-            _ => Err(NitfError::ParseError("IM".to_string()))
+            _ => Err(NitfError::ParseError("IM".to_string())),
         }
     }
 }
@@ -202,7 +202,7 @@ impl Band {
         length += self.imflt.length;
         length += self.nluts.length;
         length += self.nelut.length;
-        length += self.lutd.len();  // each element is 1 byte,  
+        length += self.lutd.len(); // each element is 1 byte,
         length
     }
 }
@@ -370,15 +370,15 @@ fn write_bands(writer: &mut File, bands: &Vec<Band>) -> NitfResult<usize> {
 fn is_comrat(compression: &Compression) -> bool {
     match compression {
         Compression::C1 => true,
-        Compression::C3 => true, 
-        Compression::C4 => true, 
-        Compression::C5 => true, 
-        Compression::C8 => true, 
-        Compression::M1 => true, 
-        Compression::M3 => true, 
-        Compression::M4 => true, 
-        Compression::M5 => true, 
-        Compression::M8 => true, 
+        Compression::C3 => true,
+        Compression::C4 => true,
+        Compression::C5 => true,
+        Compression::C8 => true,
+        Compression::M1 => true,
+        Compression::M3 => true,
+        Compression::M4 => true,
+        Compression::M5 => true,
+        Compression::M8 => true,
         Compression::I1 => true,
         _ => false,
     }
@@ -403,10 +403,12 @@ impl NitfSegmentHeader for ImageHeader {
         self.abpp.read(reader)?;
         self.pjust.read(reader)?;
         self.icords.read(reader)?;
-       
+
         self.igeolo = vec![NitfField::init(15u8, "IGEOLOC"); 4];
-        self.igeolo.iter_mut().try_for_each(|geoloc| geoloc.read(reader))?;
-    
+        self.igeolo
+            .iter_mut()
+            .try_for_each(|geoloc| geoloc.read(reader))?;
+
         self.nicom.read(reader)?;
         self.icoms = vec![NitfField::init(80u8, "ICOM"); self.nicom.val.into()];
         self.icoms.iter_mut().try_for_each(|com| com.read(reader))?;
@@ -442,8 +444,7 @@ impl NitfSegmentHeader for ImageHeader {
         self.ixshdl.read(reader)?;
         if self.ixshdl.val != 0 {
             self.ixsofl.read(reader)?;
-            self.ixshd
-                .read(reader, (self.ixshdl.val - 3) as usize)?;
+            self.ixshd.read(reader, (self.ixshdl.val - 3) as usize)?;
         }
         Ok(())
     }
@@ -661,7 +662,6 @@ impl Display for PixelValueType {
             Self::R => write!(f, "R"),
             Self::C => write!(f, "C"),
         }
-        
     }
 }
 impl FromStr for ImageRepresentation {
@@ -725,7 +725,9 @@ impl FromStr for CoordinateRepresentation {
             "P" => Ok(Self::P),
             "G" => Ok(Self::G),
             "D" => Ok(Self::D),
-            _ => Err(NitfError::ParseError("CoordinateRepresentation".to_string())),
+            _ => Err(NitfError::ParseError(
+                "CoordinateRepresentation".to_string(),
+            )),
         }
     }
 }

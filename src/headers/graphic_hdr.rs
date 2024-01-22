@@ -70,14 +70,14 @@ impl Default for GraphicHeader {
 #[derive(Default, Clone, Debug, Eq, PartialEq)]
 pub enum SY {
     #[default]
-    SY    
+    SY,
 }
 impl FromStr for SY {
     type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "SY" => Ok(Self::default()),
-            _ => Err(NitfError::ParseError("SY".to_string()))
+            _ => Err(NitfError::ParseError("SY".to_string())),
         }
     }
 }
@@ -263,6 +263,5 @@ impl Display for Color {
             Self::C => write!(f, "C"),
             Self::M => write!(f, "M"),
         }
-        
     }
 }

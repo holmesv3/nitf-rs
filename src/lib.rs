@@ -26,8 +26,8 @@
 //! let im_seg = &nitf.image_segments[0];
 //! let u8_slice = &im_seg.data[..];
 //! ```
-//! Most metadata elements are stored in a [NitfField](types::NitfField) structure. 
-//! This structure hold onto the `val` which holds on to native value of the field 
+//! Most metadata elements are stored in a [NitfField](types::NitfField) structure.
+//! This structure hold onto the `val` which holds on to native value of the field
 //! (i.e., the bytes parsed into a u8, u16, String, enum, etc.)
 //! ```no_run
 //! // Read in a nitf and extract the...
@@ -35,21 +35,29 @@
 //! let nitf_path = Path::new("example.nitf");
 //! let nitf = nitf_rs::read_nitf(&nitf_path).unwrap();
 //! // .. File title
-//! let file_title = nitf.nitf_header.meta.ftitle.val;
+//! let file_title = nitf.nitf_header.ftitle.val;
 //! // .. Number of image segments
-//! let n_img_segments = nitf.nitf_header.meta.numi.val;
+//! let n_img_segments = nitf.nitf_header.numi.val;
 //! // .. and number of rows in the first image segment data
 //! let n_rows = nitf.image_segments[0].meta.nrows.val;
 //! ```
 //!
 //! If there is user-defined tagged-record-extension (TRE) data within a segment,
 //! it is stored in an [ExtendedSubheader] for the user to parse accordingly.
-use headers::NitfSegmentHeader;
+//!
+pub mod headers;
+pub mod types;
+
 use log::debug;
 use std::fmt::Display;
 use std::fs::File;
+use std::io::Write;
 use std::path::Path;
 use thiserror::Error;
+
+use headers::file_hdr::Segment::{self, *};
+use headers::*;
+use types::NitfSegment;
 
 pub type NitfResult<T> = Result<T, NitfError>;
 
@@ -59,7 +67,9 @@ pub enum NitfError {
     #[error("error parsing {0}")]
     ParseError(String),
     #[error("Fatal error reading {0}")]
-    Fatal(String),
+    ReadFatal(String),
+    #[error("Cannot write without first providing a file")]
+    FileFatal,
     #[error("value of {0} does not match")]
     Value(String),
     #[error("Couldn't update header values")]
@@ -69,27 +79,22 @@ pub enum NitfError {
     IOError(#[from] std::io::Error),
 }
 
-pub mod headers;
-pub mod segments;
-pub mod types;
-
 // Convenience type-defs
-use segments::NitfSegment;
-type ImageSegment = NitfSegment<headers::ImageHeader>;
-type GraphicSegment = NitfSegment<headers::GraphicHeader>;
-type TextSegment = NitfSegment<headers::TextHeader>;
-type DataExtensionSegment = NitfSegment<headers::DataExtensionHeader>;
-type ReservedExtensionSegment = NitfSegment<headers::ReservedExtensionHeader>;
+pub type ImageSegment = NitfSegment<ImageHeader>;
+pub type GraphicSegment = NitfSegment<GraphicHeader>;
+pub type TextSegment = NitfSegment<TextHeader>;
+pub type DataExtensionSegment = NitfSegment<DataExtensionHeader>;
+pub type ReservedExtensionSegment = NitfSegment<ReservedExtensionHeader>;
 
-use segments::FileHeader;
 #[allow(unused_imports)]
 use types::ExtendedSubheader;
 
 /// Top level NITF interface
-#[derive(Default, Debug, Eq, PartialEq)]
+#[derive(Default, Debug)]
 pub struct Nitf {
+    pub file: Option<File>,
     /// Nitf file header.
-    pub nitf_header: FileHeader,
+    pub nitf_header: NitfHeader,
 
     /// Vector of image segments.
     pub image_segments: Vec<ImageSegment>,
@@ -117,185 +122,179 @@ pub struct Nitf {
 /// ```
 pub fn read_nitf(path: &Path) -> NitfResult<Nitf> {
     // Crash if failure to open file
-    let mut file = File::open(path)?;
-    Nitf::from_file(&mut file)
+    let file = File::open(path)?;
+    Nitf::from_file(file)
 }
 
 impl Nitf {
-    pub fn from_file(file: &mut File) -> NitfResult<Self> {
+    pub fn from_file(mut file: File) -> NitfResult<Self> {
         let mut nitf = Self::default();
+        nitf.file = Some(file);
+        let mut reader = nitf.file.as_mut().unwrap();
         debug!("Reading NITF file header");
-        nitf.nitf_header.read(file)?;
+        nitf.nitf_header.read(&mut reader)?;
 
-        let mut n_seg = nitf.nitf_header.meta.numi.val as usize;
+        let mut n_seg = nitf.nitf_header.numi.val as usize;
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.imheaders[i_seg];
-            let header_size = seg_info.subheader_size.val;
+            let seg_info = &nitf.nitf_header.imheaders[i_seg];
             let data_size = seg_info.item_size.val;
-            let seg = ImageSegment::init(file, header_size, data_size)?;
+            let seg = ImageSegment::from_reader(&mut reader, data_size)?;
             nitf.image_segments.push(seg);
         }
 
-        n_seg = nitf.nitf_header.meta.nums.val as usize;
+        n_seg = nitf.nitf_header.nums.val as usize;
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.graphheaders[i_seg];
-            let header_size = seg_info.subheader_size.val;
+            let seg_info = &nitf.nitf_header.graphheaders[i_seg];
             let data_size: u64 = seg_info.item_size.val;
-            let seg = GraphicSegment::init(file, header_size, data_size)?;
+            let seg = GraphicSegment::from_reader(&mut reader, data_size)?;
             nitf.graphic_segments.push(seg);
         }
 
-        n_seg = nitf.nitf_header.meta.numt.val as usize;
+        n_seg = nitf.nitf_header.numt.val as usize;
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.textheaders[i_seg];
-            let header_size = seg_info.subheader_size.val;
+            let seg_info = &nitf.nitf_header.textheaders[i_seg];
             let data_size: u64 = seg_info.item_size.val;
-            let seg = TextSegment::init(file, header_size, data_size)?;
+            let seg = TextSegment::from_reader(&mut reader, data_size)?;
             nitf.text_segments.push(seg);
         }
 
-        n_seg = nitf.nitf_header.meta.numdes.val as usize;
+        n_seg = nitf.nitf_header.numdes.val as usize;
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.dextheaders[i_seg];
-            let header_size = seg_info.subheader_size.val;
+            let seg_info = &nitf.nitf_header.dextheaders[i_seg];
             let data_size: u64 = seg_info.item_size.val;
-            let seg = DataExtensionSegment::init(file, header_size, data_size)?;
+            let seg = DataExtensionSegment::from_reader(&mut reader, data_size)?;
             nitf.data_extension_segments.push(seg);
         }
 
-        n_seg = nitf.nitf_header.meta.numres.val as usize;
+        n_seg = nitf.nitf_header.numres.val as usize;
         for i_seg in 0..n_seg {
-            let seg_info = &nitf.nitf_header.meta.resheaders[i_seg];
-            let header_size = seg_info.subheader_size.val;
+            let seg_info = &nitf.nitf_header.resheaders[i_seg];
             let data_size = seg_info.item_size.val;
-            let seg = ReservedExtensionSegment::init(file, header_size, data_size)?;
+            let seg = ReservedExtensionSegment::from_reader(&mut reader, data_size)?;
             nitf.reserved_extension_segments.push(seg);
         }
         Ok(nitf)
     }
-    
-    /// Write the nitf object to a file
-    pub fn write(&self, path: &Path) -> NitfResult<usize> {
+
+    /// Write the header information for all segments to a file
+    pub fn write_headers(&mut self) -> NitfResult<usize> {
         debug!("Writing NITF file header");
         let mut bytes_written = 0;
-        // Verify that the header values match 
-        match self.check_headers() {
-            // Try to update, if it fails, error
-            Err(_) => self.update_headers().or(Err(NitfError::Update()))?,
-            _ => true,
-        }; 
-        
-        let mut writer = File::create(path)?;
-        writer.set_len(self.length() as u64)?;
-        
+
+        let length = self.length();
+        let mut writer = self.file.as_mut().ok_or(NitfError::FileFatal)?;
+        writer.set_len(length as u64)?;
         bytes_written += self.nitf_header.write(&mut writer)?;
-        for seg in self.image_segments.iter() {
-            bytes_written += seg.write(&mut writer)?;
+        for seg in self.image_segments.iter_mut() {
+            bytes_written += seg.write_header(&mut writer)?;
         }
-        for seg in self.graphic_segments.iter() {
-            bytes_written += seg.write(&mut writer)?;
+        for seg in self.graphic_segments.iter_mut() {
+            bytes_written += seg.write_header(&mut writer)?;
         }
-        for seg in self.text_segments.iter() {
-            bytes_written += seg.write(&mut writer)?;
+        for seg in self.text_segments.iter_mut() {
+            bytes_written += seg.write_header(&mut writer)?;
         }
-        for seg in self.data_extension_segments.iter() {
-            bytes_written += seg.write(&mut writer)?;
+        for seg in self.data_extension_segments.iter_mut() {
+            bytes_written += seg.write_header(&mut writer)?;
         }
-        for seg in self.reserved_extension_segments.iter() {
-            bytes_written += seg.write(&mut writer)?;
+        for seg in self.reserved_extension_segments.iter_mut() {
+            bytes_written += seg.write_header(&mut writer)?;
         }
         Ok(bytes_written)
     }
-    
-    /// Check the header values are accurate
-    fn check_headers(&self) -> NitfResult<bool> {
-        debug!("Checking header values for consistency");
-        let hdr = &self.nitf_header.meta;
-        // Check image segments
-        let n_img = hdr.numi.val as usize;
-        if self.image_segments.len() != n_img {
-            return Err(NitfError::Value("NUMI".to_string()))
-        };
-        for (seg, hdrval) in self.image_segments.iter().zip(hdr.imheaders.iter()) {
-            if seg.meta.length() != hdrval.subheader_size.length {
-                return Err(NitfError::Value("Subheader length".to_string()))
-            };
-            if seg.data.len() != hdrval.item_size.length {
-                return Err(NitfError::Value("Item length".to_string()))
-            };
-        }
-        
-        // Check graphic segments
-        let n_gph = hdr.nums.val as usize;
-        if self.graphic_segments.len() != n_gph {
-            return Err(NitfError::Value("NUMS".to_string()))
-        };
-        for (seg, hdrval) in self.graphic_segments.iter().zip(hdr.graphheaders.iter()) {
-            if seg.meta.length() != hdrval.subheader_size.length {
-                return Err(NitfError::Value("Subheader length".to_string()))
-            };
-            if seg.data.len() != hdrval.item_size.length {
-                return Err(NitfError::Value("Item length".to_string()))
-            };
-        }
-        
-        // Check text segments
-        let n_txt = hdr.numt.val as usize;
-        if self.text_segments.len() != n_txt {
-            return Err(NitfError::Value("NUMT".to_string()))
-        };
-        for (seg, hdrval) in self.text_segments.iter().zip(hdr.textheaders.iter()) {
-            if seg.meta.length() != hdrval.subheader_size.length {
-                return Err(NitfError::Value("Subheader length".to_string()))
-            };
-            if seg.data.len() != hdrval.item_size.length {
-                return Err(NitfError::Value("Item length".to_string()))
-            };
-        }
-        
-        // Check data extension segments
-        let n_dex = hdr.numdes.val as usize;
-        if self.data_extension_segments.len() != n_dex {
-            return Err(NitfError::Value("NUMDES".to_string()))
-        };
-        for (seg, hdrval) in self.data_extension_segments.iter().zip(hdr.dextheaders.iter()) {
-            if seg.meta.length() != hdrval.subheader_size.length {
-                return Err(NitfError::Value("Subheader length".to_string()))
-            };
-            if seg.data.len() != hdrval.item_size.length {
-                return Err(NitfError::Value("Item length".to_string()))
-            };
-        }
-        
-        // Check reserved extension segments
-        let n_rex = hdr.numres.val as usize;
-        if self.reserved_extension_segments.len() != n_rex {
-            return Err(NitfError::Value("NUMRES".to_string()))
-        };
-        for (seg, hdrval) in self.reserved_extension_segments.iter().zip(hdr.resheaders.iter()) {
-            if seg.meta.length() != hdrval.subheader_size.length {
-                return Err(NitfError::Value("Subheader length".to_string()))
-            };
-            if seg.data.len() != hdrval.item_size.length {
-                return Err(NitfError::Value("Item length".to_string()))
-            };
-        }
-        Ok(true)
+    pub fn write_segment_data(
+        &self,
+        segment_type: Segment,
+        segment_idx: usize,
+        data: &[u8],
+    ) -> NitfResult<usize> {
+        let mut writer = self.file.as_ref().ok_or(NitfError::FileFatal)?;
+        let bytes_written = writer.write(data)?;
+        Ok(bytes_written)
     }
-    
-    pub fn update_headers(&self) -> NitfResult<bool> {
-        debug!("Updating header values");
-        Ok(true)
-    }
+
     pub fn length(&self) -> usize {
         let mut length = 0;
-        length += self.nitf_header.meta.length();
-        length += self.image_segments.iter().map(|seg| seg.length()).sum::<usize>();
-        length += self.graphic_segments.iter().map(|seg| seg.length()).sum::<usize>();
-        length += self.text_segments.iter().map(|seg| seg.length()).sum::<usize>();
-        length += self.data_extension_segments.iter().map(|seg| seg.length()).sum::<usize>();
-        length += self.reserved_extension_segments.iter().map(|seg| seg.length()).sum::<usize>();
+        length += self.nitf_header.length();
+        length += self
+            .image_segments
+            .iter()
+            .map(|seg| seg.length())
+            .sum::<usize>();
+        length += self
+            .graphic_segments
+            .iter()
+            .map(|seg| seg.length())
+            .sum::<usize>();
+        length += self
+            .text_segments
+            .iter()
+            .map(|seg| seg.length())
+            .sum::<usize>();
+        length += self
+            .data_extension_segments
+            .iter()
+            .map(|seg| seg.length())
+            .sum::<usize>();
+        length += self
+            .reserved_extension_segments
+            .iter()
+            .map(|seg| seg.length())
+            .sum::<usize>();
         length
+    }
+
+    // I could  wrap these in an enum to match off the type and have one function,
+    // but I think the more explicit funcntions makes for a cleaner interface..
+    /// Add a [ImageSegment] to the object
+    pub fn add_im(&mut self, seg: ImageSegment) {
+        let segment_type = Image;
+        let subheader_size = seg.header.length() as u32;
+        let item_size = seg.data_size;
+        self.nitf_header
+            .add_subheader(segment_type, subheader_size, item_size);
+        self.image_segments.push(seg);
+        debug!("Added Image Segment to NITF");
+    }
+    /// Add a [GraphicSegment] to the object
+    pub fn add_sy(&mut self, seg: GraphicSegment) {
+        let segment_type = Graphic;
+        let subheader_size = seg.header.length() as u32;
+        let item_size = seg.data_size;
+        self.nitf_header
+            .add_subheader(segment_type, subheader_size, item_size);
+        self.graphic_segments.push(seg);
+        debug!("Added Graphic Segment to NITF");
+    }
+    /// Add a [TextSegment] to the object
+    pub fn add_te(&mut self, seg: TextSegment) {
+        let segment_type = Text;
+        let subheader_size = seg.header.length() as u32;
+        let item_size = seg.data_size;
+        self.nitf_header
+            .add_subheader(segment_type, subheader_size, item_size);
+        self.text_segments.push(seg);
+        debug!("Added Text Segment to NITF");
+    }
+    /// Add a [DataExtensionSegment] to the object
+    pub fn add_de(&mut self, seg: DataExtensionSegment) {
+        let segment_type = DataExtension;
+        let subheader_size = seg.header.length() as u32;
+        let item_size = seg.data_size;
+        self.nitf_header
+            .add_subheader(segment_type, subheader_size, item_size);
+        self.data_extension_segments.push(seg);
+        debug!("Added Data Extension Segment to NITF");
+    }
+    /// Add a [ReservedExtensionSegment] to the object
+    pub fn add_re(&mut self, seg: ReservedExtensionSegment) {
+        let segment_type = ReservedExtension;
+        let subheader_size = seg.header.length() as u32;
+        let item_size = seg.data_size;
+        self.nitf_header
+            .add_subheader(segment_type, subheader_size, item_size);
+        self.reserved_extension_segments.push(seg);
+        debug!("Added Reserved Extension Segment to NITF");
     }
 }
 

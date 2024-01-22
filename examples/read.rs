@@ -19,13 +19,12 @@ fn main() {
         usage();
         return;
     }
-    
+
     let nitf_path = std::path::Path::new(&args[1]);
     log::info!("Found NITF at: {}", nitf_path.display());
-    
+
     let nitf = nitf_rs::read_nitf(nitf_path).unwrap();
     log::info!("Read NITF successfully");
-    
+
     log::info!("NITF metadata: {}", nitf);
-    
 }

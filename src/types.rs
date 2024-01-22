@@ -1,10 +1,13 @@
 //! Common types use throughout
-use log::{trace, warn, debug};
-use std::fmt::{Debug, Display, format};
+use log::{trace, warn};
+use memmap2::{Mmap, MmapOptions};
+use std::fmt::{Debug, Display};
 use std::fs::File;
 use std::io::{Read, Seek, Write};
+use std::ops::Deref;
 use std::str::FromStr;
 
+use crate::headers::NitfSegmentHeader;
 use crate::{NitfError, NitfResult};
 
 /// Lowest level object for file parsing
@@ -21,8 +24,8 @@ pub struct NitfField<V: FromStr + Debug + Default + Display> {
 /// Provide default implementation of reading a field.
 impl<V> NitfField<V>
 where
-V: FromStr + Debug + Default + Display,
-<V as FromStr>::Err: Debug,
+    V: FromStr + Debug + Default + Display,
+    <V as FromStr>::Err: Debug,
 {
     pub fn init(length: u8, name: &str) -> Self {
         Self {
@@ -34,24 +37,20 @@ V: FromStr + Debug + Default + Display,
     // Reading/Writing
 
     /// Read the specified number of bytes and parse the value of a given field
-    pub fn read(
-        &mut self,
-        reader: &mut File,
-    ) -> NitfResult<()> {
-        
+    pub fn read(&mut self, reader: &mut File) -> NitfResult<()> {
         let mut bytes = vec![0; self.length];
-        let mut string = String::default();
-        
+        let string;
+
         // Crash if something goes wrong with the cursor
         reader
             .stream_position()
-            .or(Err(NitfError::Fatal(self.name.clone())))?;
+            .or(Err(NitfError::ReadFatal(self.name.clone())))?;
 
         // Crash if there is an error reading the bytes
         reader
             .read_exact(&mut bytes)
-            .or(Err(NitfError::Fatal(self.name.clone())))?;
-        
+            .or(Err(NitfError::ReadFatal(self.name.clone())))?;
+
         // Try to read the bytes to a string
         match String::from_utf8(bytes.to_vec()) {
             // If it's ok, trim and try to parse to enum/native representation
@@ -73,23 +72,73 @@ V: FromStr + Debug + Default + Display,
         Ok(())
     }
 
-    pub fn write(
-        &self,
-        writer: &mut File,
-    ) -> NitfResult<usize> {
-        let val_string = self.val.to_string();
-        let buf = format!("{:<1$}", val_string, self.length);
+    pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
+        let buf = format!("{:<1$}", self.val.to_string(), self.length);
 
         trace!("Writing {} bytes for {}: {buf}", buf.len(), self.name);
-        writer.write(buf.as_bytes()).map_err(|e| NitfError::IOError(e))
+        writer
+            .write(buf.as_bytes())
+            .map_err(|e| NitfError::IOError(e))
     }
 }
 
 impl<V: FromStr + Debug + Default + Display> Display for NitfField<V> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:>1$}", self.val, self.length)
+        write!(f, "{:<1$}", self.val.to_string(), self.length)
     }
 }
+
+#[derive(Debug)]
+pub struct NitfSegment<T: NitfSegmentHeader> {
+    /// Header fields defined in module
+    pub header: T,
+    /// Segment data offset
+    pub header_offset: u64,
+    /// Segment data size
+    pub data_size: u64,
+    /// Segment data offset
+    pub data_offset: u64,
+}
+impl<T: NitfSegmentHeader> NitfSegment<T> {
+    pub(crate) fn from_reader(reader: &mut File, data_size: u64) -> NitfResult<Self> {
+        let header_offset = reader.stream_position()?;
+        let header = T::from_reader(reader)?;
+        let data_size = data_size;
+        let data_offset = reader.stream_position()?;
+        // Seek to end of data for next segment to be read
+        reader.seek(std::io::SeekFrom::Start(data_offset + data_size))?;
+        Ok(Self {
+            header,
+            header_offset,
+            data_size,
+            data_offset,
+        })
+    }
+    /// Write segment header to file. Assumes cursor is in correct position
+    pub fn write_header(&mut self, writer: &mut File) -> NitfResult<usize> {
+        let bytes_written = self.header.write(writer)?;
+        self.data_offset = writer.stream_position()?;
+        Ok(bytes_written)
+    }
+    /// Write segment data to file. Assumes cursor is in correct position
+    pub fn write_data(&self, writer: &mut File, data: &[u8]) -> NitfResult<usize> {
+        writer.write(data).map_err(|e| NitfError::IOError(e))
+    }
+    pub fn length(&self) -> usize {
+        self.header.length() + self.data_size as usize
+    }
+}
+impl<T: NitfSegmentHeader + Display> Display for NitfSegment<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.header)
+    }
+}
+impl<T: NitfSegmentHeader + PartialEq> PartialEq for NitfSegment<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.header == other.header
+    }
+}
+impl<T: NitfSegmentHeader + Eq> Eq for NitfSegment<T> {}
 
 /// Standard security metadata
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -338,26 +387,28 @@ impl FromStr for DeclassificationExemption {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "" => Ok(Self::DEFAULT),
-            "X1" => Ok(Self::DExX1),   // DOD 5200.01-V1, 4-201b(1)
-            "X2" => Ok(Self::DExX2),   // DOD 5200.01-V1, 4-201b(2)
-            "X3" => Ok(Self::DExX3),   // DOD 5200.01-V1, 4-201b(3)
-            "X4" => Ok(Self::DExX4),   // DOD 5200.01-V1, 4-201b(4)
-            "X5" => Ok(Self::DExX5),   // DOD 5200.01-V1, 4-201b(5)
-            "X6" => Ok(Self::DExX6),   // DOD 5200.01-V1, 4-201b(6)
-            "X7" => Ok(Self::DExX7),   // DOD 5200.01-V1, 4-201b(7)
-            "X8" => Ok(Self::DExX8),   // DOD 5200.01-V1, 4-201b(8)
-            "25X1" => Ok(Self::DEx25X1),   // DOD 5200.01-V1, 4-301b(1)
-            "25X2" => Ok(Self::DEx25X2),   // DOD 5200.01-V1, 4-301b(2)
-            "25X3" => Ok(Self::DEx25X3),   // DOD 5200.01-V1, 4-301b(3)
-            "25X4" => Ok(Self::DEx25X4),   // DOD 5200.01-V1, 4-301b(4)
-            "25X5" => Ok(Self::DEx25X5),   // DOD 5200.01-V1, 4-301b(5)
-            "25X6" => Ok(Self::DEx25X6),   // DOD 5200.01-V1, 4-301b(6)
-            "25X7" => Ok(Self::DEx25X7),   // DOD 5200.01-V1, 4-301b(7)
-            "25X8" => Ok(Self::DEx25X8),   // DOD 5200.01-V1, 4-301b(8)
-            "25X9" => Ok(Self::DEx25X9),   // DOD 5200.01-V1, 4-301b(9)
+            "X1" => Ok(Self::DExX1),     // DOD 5200.01-V1, 4-201b(1)
+            "X2" => Ok(Self::DExX2),     // DOD 5200.01-V1, 4-201b(2)
+            "X3" => Ok(Self::DExX3),     // DOD 5200.01-V1, 4-201b(3)
+            "X4" => Ok(Self::DExX4),     // DOD 5200.01-V1, 4-201b(4)
+            "X5" => Ok(Self::DExX5),     // DOD 5200.01-V1, 4-201b(5)
+            "X6" => Ok(Self::DExX6),     // DOD 5200.01-V1, 4-201b(6)
+            "X7" => Ok(Self::DExX7),     // DOD 5200.01-V1, 4-201b(7)
+            "X8" => Ok(Self::DExX8),     // DOD 5200.01-V1, 4-201b(8)
+            "25X1" => Ok(Self::DEx25X1), // DOD 5200.01-V1, 4-301b(1)
+            "25X2" => Ok(Self::DEx25X2), // DOD 5200.01-V1, 4-301b(2)
+            "25X3" => Ok(Self::DEx25X3), // DOD 5200.01-V1, 4-301b(3)
+            "25X4" => Ok(Self::DEx25X4), // DOD 5200.01-V1, 4-301b(4)
+            "25X5" => Ok(Self::DEx25X5), // DOD 5200.01-V1, 4-301b(5)
+            "25X6" => Ok(Self::DEx25X6), // DOD 5200.01-V1, 4-301b(6)
+            "25X7" => Ok(Self::DEx25X7), // DOD 5200.01-V1, 4-301b(7)
+            "25X8" => Ok(Self::DEx25X8), // DOD 5200.01-V1, 4-301b(8)
+            "25X9" => Ok(Self::DEx25X9), // DOD 5200.01-V1, 4-301b(9)
             "DN10" => Ok(Self::DExDN10),
             "DNI" => Ok(Self::DExDNI),
-            _ => {Err(NitfError::ParseError("DeclassificationExemption".to_string()))}
+            _ => Err(NitfError::ParseError(
+                "DeclassificationExemption".to_string(),
+            )),
         }
     }
 }
@@ -445,7 +496,9 @@ impl FromStr for ClassificationAuthorityType {
             "O" => Ok(Self::O),
             "D" => Ok(Self::D),
             "M" => Ok(Self::M),
-            _ => Err(NitfError::ParseError("ClassificationAuthorityType".to_string())),
+            _ => Err(NitfError::ParseError(
+                "ClassificationAuthorityType".to_string(),
+            )),
         }
     }
 }
@@ -550,7 +603,9 @@ impl ExtendedSubheader {
     }
     pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
         trace!("Writing: {}", self.name);
-        writer.write(self.tre.as_slice()).map_err(|e| NitfError::IOError(e))
+        writer
+            .write(self.tre.as_slice())
+            .map_err(|e| NitfError::IOError(e))
     }
 }
 impl Display for ExtendedSubheader {
