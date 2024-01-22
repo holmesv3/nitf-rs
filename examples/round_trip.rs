@@ -1,4 +1,5 @@
 //! Example to read a nitf and print metadata
+
 fn usage() {
     eprintln!("Example of writing and reading a NITF file");
     eprintln!("Usage: cargo run --example write -- <OUT>");
@@ -9,32 +10,43 @@ fn usage() {
 fn main() {
     simple_logger::SimpleLogger::new().init().unwrap();
     let args: Vec<String> = std::env::args().collect();
-    if args.len() == 1 {
-        log::error!("Must provide an output path");
-        usage();
-        return;
-    }
-    if args.len() > 2 {
-        log::error!("Only one argument can be provided");
-        usage();
-        return;
-    }
+    // if args.len() == 1 {
+    //     log::error!("Must provide an output path");
+    //     usage();
+    //     return;
+    // }
+    // if args.len() > 2 {
+    //     log::error!("Only one argument can be provided");
+    //     usage();
+    //     return;
+    // }
 
-    let out_path = std::path::Path::new(&args[1]);
-    log::info!("Found OUT path: {}", out_path.display());
+    let vec = vec![0u8, 1, 2, 3];
+    let mut opts = memmap2::MmapOptions::new();
+    let mut map = opts.len(vec.len()).map_anon().unwrap();
+    map.iter().for_each(|x| {
+        println!("PRE: {}", x);
+    });
+    map.iter_mut().zip(vec).for_each(|(a, b)| *a = b);
+    map.iter().for_each(|x| {
+        println!("POST: {}", x);
+    });
 
-    let nitf = nitf_rs::Nitf::default();
-    log::info!("Created empty NITF successfully");
+    // let out_path = std::path::Path::new(&args[1]);
+    // log::info!("Found OUT path: {}", out_path.display());
 
-    let n_bytes = nitf.write(out_path).unwrap();
-    log::debug!("Wrote {n_bytes} bytes");
-    log::info!("Successfully wrote NITF");
+    // let nitf = nitf_rs::Nitf::default();
+    // log::info!("Created empty NITF successfully");
 
-    let nitf_path = std::path::Path::new(&args[1]);
-    log::info!("Found NITF at: {}", nitf_path.display());
+    // let n_bytes = nitf.write(out_path).unwrap();
+    // log::debug!("Wrote {n_bytes} bytes");
+    // log::info!("Successfully wrote NITF");
 
-    let nitf = nitf_rs::read_nitf(nitf_path).unwrap();
-    log::info!("Read NITF successfully");
+    // let nitf_path = std::path::Path::new(&args[1]);
+    // log::info!("Found NITF at: {}", nitf_path.display());
 
-    log::info!("NITF metadata: {}", nitf);
+    // let nitf = nitf_rs::read_nitf(nitf_path).unwrap();
+    // log::info!("Read NITF successfully");
+
+    // log::info!("NITF metadata: {}", nitf);
 }

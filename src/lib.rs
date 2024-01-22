@@ -48,6 +48,7 @@
 pub mod headers;
 pub mod types;
 
+use headers::file_hdr::SubHeader;
 use log::debug;
 use std::fmt::Display;
 use std::fs::File;
@@ -66,6 +67,8 @@ pub enum NitfError {
     // Crate specific errors
     #[error("error parsing {0}")]
     ParseError(String),
+    #[error("{0}")]
+    Fatal(String),
     #[error("Fatal error reading {0}")]
     ReadFatal(String),
     #[error("Cannot write without first providing a file")]
@@ -127,7 +130,7 @@ pub fn read_nitf(path: &Path) -> NitfResult<Nitf> {
 }
 
 impl Nitf {
-    pub fn from_file(mut file: File) -> NitfResult<Self> {
+    pub fn from_file(file: File) -> NitfResult<Self> {
         let mut nitf = Self::default();
         nitf.file = Some(file);
         let mut reader = nitf.file.as_mut().unwrap();
@@ -202,16 +205,6 @@ impl Nitf {
         }
         Ok(bytes_written)
     }
-    pub fn write_segment_data(
-        &self,
-        segment_type: Segment,
-        segment_idx: usize,
-        data: &[u8],
-    ) -> NitfResult<usize> {
-        let mut writer = self.file.as_ref().ok_or(NitfError::FileFatal)?;
-        let bytes_written = writer.write(data)?;
-        Ok(bytes_written)
-    }
 
     pub fn length(&self) -> usize {
         let mut length = 0;
@@ -244,6 +237,40 @@ impl Nitf {
         length
     }
 
+    /// After changing something with the size or number of segments, need to update internal info
+    fn update_offsets(&mut self) {
+        let mut offset = self.nitf_header.length();
+        for seg in self.image_segments.iter_mut() {
+            seg.header_offset = offset as u64;
+            offset += seg.header.length();
+            seg.data_offset = offset as u64;
+            offset += seg.data_size as usize;
+        }
+        for seg in self.graphic_segments.iter_mut() {
+            seg.header_offset = offset as u64;
+            offset += seg.header.length();
+            seg.data_offset = offset as u64;
+            offset += seg.data_size as usize;
+        }
+        for seg in self.text_segments.iter_mut() {
+            seg.header_offset = offset as u64;
+            offset += seg.header.length();
+            seg.data_offset = offset as u64;
+            offset += seg.data_size as usize;
+        }
+        for seg in self.data_extension_segments.iter_mut() {
+            seg.header_offset = offset as u64;
+            offset += seg.header.length();
+            seg.data_offset = offset as u64;
+            offset += seg.data_size as usize;
+        }
+        for seg in self.reserved_extension_segments.iter_mut() {
+            seg.header_offset = offset as u64;
+            offset += seg.header.length();
+            seg.data_offset = offset as u64;
+            offset += seg.data_size as usize;
+        }
+    }
     // I could  wrap these in an enum to match off the type and have one function,
     // but I think the more explicit funcntions makes for a cleaner interface..
     /// Add a [ImageSegment] to the object
@@ -254,6 +281,8 @@ impl Nitf {
         self.nitf_header
             .add_subheader(segment_type, subheader_size, item_size);
         self.image_segments.push(seg);
+        // update offsets
+        self.update_offsets();
         debug!("Added Image Segment to NITF");
     }
     /// Add a [GraphicSegment] to the object
@@ -264,6 +293,7 @@ impl Nitf {
         self.nitf_header
             .add_subheader(segment_type, subheader_size, item_size);
         self.graphic_segments.push(seg);
+        self.update_offsets();
         debug!("Added Graphic Segment to NITF");
     }
     /// Add a [TextSegment] to the object
@@ -274,6 +304,7 @@ impl Nitf {
         self.nitf_header
             .add_subheader(segment_type, subheader_size, item_size);
         self.text_segments.push(seg);
+        self.update_offsets();
         debug!("Added Text Segment to NITF");
     }
     /// Add a [DataExtensionSegment] to the object
@@ -284,6 +315,7 @@ impl Nitf {
         self.nitf_header
             .add_subheader(segment_type, subheader_size, item_size);
         self.data_extension_segments.push(seg);
+        self.update_offsets();
         debug!("Added Data Extension Segment to NITF");
     }
     /// Add a [ReservedExtensionSegment] to the object
@@ -294,6 +326,7 @@ impl Nitf {
         self.nitf_header
             .add_subheader(segment_type, subheader_size, item_size);
         self.reserved_extension_segments.push(seg);
+        self.update_offsets();
         debug!("Added Reserved Extension Segment to NITF");
     }
 }

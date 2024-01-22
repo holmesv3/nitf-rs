@@ -120,6 +120,21 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
         self.data_offset = writer.stream_position()?;
         Ok(bytes_written)
     }
+
+    /// Read segment data from file into an immutable memory map.
+    pub fn read_data(&self, reader: &mut File) -> NitfResult<Mmap> {
+        if self.data_offset == 0 {
+            Err(NitfError::Fatal(
+                "Data offset location is not set. Cannot read data".to_string(),
+            ))?
+        }
+        let mut opts = MmapOptions::new();
+        Ok(unsafe {
+            opts.len(self.data_size as usize)
+                .offset(self.data_offset)
+                .map(reader.deref())
+        }?)
+    }
     /// Write segment data to file. Assumes cursor is in correct position
     pub fn write_data(&self, writer: &mut File, data: &[u8]) -> NitfResult<usize> {
         writer.write(data).map_err(|e| NitfError::IOError(e))
