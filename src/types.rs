@@ -42,7 +42,7 @@ where
         let string;
 
         // Crash if something goes wrong with the cursor
-        reader
+        let offset = reader
             .stream_position()
             .or(Err(NitfError::ReadFatal(self.name.clone())))?;
 
@@ -68,14 +68,14 @@ where
                 warn!("Failed to parse {} from bytes: {bytes:?}", self.name);
             }
         }
-        trace!("Read {}: {string}", self.name);
+        trace!("Read {} at offset {offset}: {string}", self.name);
         Ok(())
     }
 
     pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
         let buf = format!("{:<1$}", self.val.to_string(), self.length);
-
-        trace!("Writing {} bytes for {}: {buf}", buf.len(), self.name);
+        let offset = writer.stream_position()?;
+        trace!("Wrote {} bytes for {} at {offset}: {buf}", buf.len(), self.name);
         writer
             .write(buf.as_bytes())
             .map_err(|e| NitfError::IOError(e))
@@ -88,7 +88,7 @@ impl<V: FromStr + Debug + Default + Display> Display for NitfField<V> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct NitfSegment<T: NitfSegmentHeader> {
     /// Header fields defined in module
     pub header: T,
@@ -114,13 +114,14 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
             data_offset,
         })
     }
-    /// Write segment header to file. Assumes cursor is in correct position
+    /// Write segment header to file
     pub fn write_header(&mut self, writer: &mut File) -> NitfResult<usize> {
+        writer.seek(std::io::SeekFrom::Start(self.header_offset))?;
         let bytes_written = self.header.write(writer)?;
         self.data_offset = writer.stream_position()?;
         Ok(bytes_written)
     }
-
+    
     /// Read segment data from file into an immutable memory map.
     pub fn read_data(&self, reader: &mut File) -> NitfResult<Mmap> {
         if self.data_offset == 0 {
@@ -131,12 +132,13 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
         let mut opts = MmapOptions::new();
         Ok(unsafe {
             opts.len(self.data_size as usize)
-                .offset(self.data_offset)
-                .map(reader.deref())
+            .offset(self.data_offset)
+            .map(reader.deref())
         }?)
     }
     /// Write segment data to file. Assumes cursor is in correct position
     pub fn write_data(&self, writer: &mut File, data: &[u8]) -> NitfResult<usize> {
+        writer.seek(std::io::SeekFrom::Start(self.data_offset))?;
         writer.write(data).map_err(|e| NitfError::IOError(e))
     }
     pub fn length(&self) -> usize {

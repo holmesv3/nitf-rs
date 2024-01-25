@@ -48,15 +48,13 @@
 pub mod headers;
 pub mod types;
 
-use headers::file_hdr::SubHeader;
-use log::debug;
+use log::{debug, trace};
 use std::fmt::Display;
 use std::fs::File;
-use std::io::Write;
 use std::path::Path;
 use thiserror::Error;
 
-use headers::file_hdr::Segment::{self, *};
+use headers::file_hdr::Segment::*;
 use headers::*;
 use types::NitfSegment;
 
@@ -181,6 +179,9 @@ impl Nitf {
 
     /// Write the header information for all segments to a file
     pub fn write_headers(&mut self) -> NitfResult<usize> {
+        if self.file.is_none() {
+            Err(NitfError::Fatal("Must set 'file' before writing".to_string()))?;
+        }
         debug!("Writing NITF file header");
         let mut bytes_written = 0;
 
@@ -240,36 +241,59 @@ impl Nitf {
     /// After changing something with the size or number of segments, need to update internal info
     fn update_offsets(&mut self) {
         let mut offset = self.nitf_header.length();
-        for seg in self.image_segments.iter_mut() {
+        let mut trace_string = "Updated offsets: \n".to_string();
+        trace_string += &format!("\tFile Header length: {offset}\n");
+        for (i_seg, seg) in self.image_segments.iter_mut().enumerate() {
             seg.header_offset = offset as u64;
             offset += seg.header.length();
+            trace_string += &format!("\tImage segment {i_seg} header offset: {}\n", seg.header_offset);
+            trace_string += &format!("\tImage segment {i_seg} header length: {}\n", seg.header.length());
             seg.data_offset = offset as u64;
             offset += seg.data_size as usize;
+            trace_string += &format!("\tImage segment {i_seg} data offset: {}\n", seg.data_offset);
+            trace_string += &format!("\tImage segment {i_seg} data length: {}\n", seg.data_size);
         }
-        for seg in self.graphic_segments.iter_mut() {
+        for (i_seg, seg) in self.graphic_segments.iter_mut().enumerate() {
             seg.header_offset = offset as u64;
             offset += seg.header.length();
+            trace_string += &format!("\tGraphic segment {i_seg} header offset: {}\n", seg.header_offset);
+            trace_string += &format!("\tGraphic segment {i_seg} header length: {}\n", seg.header.length());
             seg.data_offset = offset as u64;
             offset += seg.data_size as usize;
+            trace_string += &format!("\tGraphic segment {i_seg} data offset: {}\n", seg.data_offset);
+            trace_string += &format!("\tGraphic segment {i_seg} data length: {}\n", seg.data_size);
         }
-        for seg in self.text_segments.iter_mut() {
+        for (i_seg, seg) in self.text_segments.iter_mut().enumerate() {
             seg.header_offset = offset as u64;
             offset += seg.header.length();
+            trace_string += &format!("\tText segment {i_seg} header offset: {}\n", seg.header_offset);
+            trace_string += &format!("\tText segment {i_seg} header length: {}\n", seg.header.length());
             seg.data_offset = offset as u64;
             offset += seg.data_size as usize;
+            trace_string += &format!("\tText segment {i_seg} data offset: {}\n", seg.data_offset);
+            trace_string += &format!("\tText segment {i_seg} data length: {}\n", seg.data_size);
         }
-        for seg in self.data_extension_segments.iter_mut() {
+        for (i_seg, seg) in self.data_extension_segments.iter_mut().enumerate() {
             seg.header_offset = offset as u64;
             offset += seg.header.length();
+            trace_string += &format!("\tData Extension segment {i_seg} header offset: {}\n", seg.header_offset);
+            trace_string += &format!("\tData Extension segment {i_seg} header length: {}\n", seg.header.length());
             seg.data_offset = offset as u64;
             offset += seg.data_size as usize;
+            trace_string += &format!("\tData Extension segment {i_seg} data offset: {}\n", seg.data_offset);
+            trace_string += &format!("\tData Extension segment {i_seg} data length: {}\n", seg.data_size);
         }
-        for seg in self.reserved_extension_segments.iter_mut() {
+        for (i_seg, seg) in self.reserved_extension_segments.iter_mut().enumerate() {
             seg.header_offset = offset as u64;
             offset += seg.header.length();
+            trace_string += &format!("\tReserved Extension segment {i_seg} header offset: {}\n", seg.header_offset);
+            trace_string += &format!("\tReserved Extension segment {i_seg} header length: {}\n", seg.header.length());
             seg.data_offset = offset as u64;
             offset += seg.data_size as usize;
+            trace_string += &format!("\tReserved Extension segment {i_seg} data offset: {}\n", seg.data_offset);
+            trace_string += &format!("\tReserved Extension segment {i_seg} data length: {}\n", seg.data_size);
         }
+        trace!("{trace_string}");
     }
     // I could  wrap these in an enum to match off the type and have one function,
     // but I think the more explicit funcntions makes for a cleaner interface..

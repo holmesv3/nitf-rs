@@ -389,6 +389,7 @@ impl NitfSegmentHeader for NitfHeader {
     }
     fn length(&self) -> usize {
         let mut length = self.fhdr.length;
+        length += self.fver.length;
         length += self.clevel.length;
         length += self.stype.length;
         length += self.ostaid.length;

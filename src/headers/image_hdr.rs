@@ -36,7 +36,7 @@ pub struct ImageHeader {
     /// Image Representation
     pub irep: NitfField<ImageRepresentation>,
     /// Image Category
-    pub icat: NitfField<String>, // TODO: Check value registry
+    pub icat: NitfField<String>,
     /// Actual Bits-Per-Pixel Per Band
     pub abpp: NitfField<u8>,
     /// Pixel Justification
@@ -44,7 +44,7 @@ pub struct ImageHeader {
     /// Image Coordinate Representation
     pub icords: NitfField<CoordinateRepresentation>,
     /// Image Geographic Location
-    pub igeolo: Vec<NitfField<String>>, // TODO: Check this out
+    pub igeolo: NitfField<String>,
     /// Number of Image Comments
     pub nicom: NitfField<u8>,
     /// Image Comments
@@ -86,7 +86,7 @@ pub struct ImageHeader {
     /// User Defined Overflow
     pub udofl: NitfField<u16>,
     /// User Defined Image Data
-    pub udid: ExtendedSubheader, // TODO
+    pub udid: ExtendedSubheader,
     /// Image Extended Subheader Data Length
     pub ixshdl: NitfField<u32>,
     /// Image Extended Subheader Overflow
@@ -113,14 +113,14 @@ impl Default for ImageHeader {
             abpp: NitfField::init(2u8, "ABPP"),
             pjust: NitfField::init(1u8, "PJUST"),
             icords: NitfField::init(1u8, "ICORDS"),
-            igeolo: vec![],
+            igeolo: NitfField::init(60u8, "IGEOLO"),
             nicom: NitfField::init(1u8, "NICOM"),
             icoms: vec![],
             ic: NitfField::init(2u8, "IC"),
             comrat: NitfField::init(4u8, "COMRAT"),
             nbands: NitfField::init(1u8, "NBANDS"),
             xbands: NitfField::init(5u8, "XBANDS"),
-            bands: vec![],
+            bands: vec![Band::default()],
             isync: NitfField::init(1u8, "ISYNC"),
             imode: NitfField::init(1u8, "IMODE"),
             nbpr: NitfField::init(4u8, "NBPR"),
@@ -166,11 +166,11 @@ impl Display for IM {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Band {
     /// Band Representation
-    pub irepband: NitfField<String>, // TODO: Check how to do this
+    pub irepband: NitfField<ImageRepresentationBand>,
     /// Band Subcategory
     pub isubcat: NitfField<String>, // User specified
     /// Band Image Filter Condition
-    pub ifc: NitfField<String>, // Reserved for future use
+    pub ifc: NitfField<ImageFilterCondition>, // Reserved for future use
     /// Band Standard Image Filter Code
     pub imflt: NitfField<String>, // Reserved for future use
     /// Number of Look-Up-Tables for the Image Band
@@ -246,6 +246,34 @@ pub enum ImageRepresentation {
     /// Compressed in the ITU-R recommendation
     YCbCr601,
 }
+/// Image representation values
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
+pub enum ImageRepresentationBand {
+    #[default]
+    /// Default spaces
+    DEFAULT,
+    /// Monochrome
+    M,
+    /// RGB
+    R,
+    G,
+    B,
+    /// LUT Reperesentation
+    LU,
+    /// Luminance
+    Y,
+    /// Chrominance Blue
+    Cb,
+    /// Chrominance Red
+    Cr,
+}
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
+pub enum ImageFilterCondition {
+    #[default]
+    /// None
+    N
+}
+
 
 /// Pixel justification
 #[derive(Debug, Default, Clone, Eq, PartialEq)]
@@ -403,12 +431,7 @@ impl NitfSegmentHeader for ImageHeader {
         self.abpp.read(reader)?;
         self.pjust.read(reader)?;
         self.icords.read(reader)?;
-
-        self.igeolo = vec![NitfField::init(15u8, "IGEOLOC"); 4];
-        self.igeolo
-            .iter_mut()
-            .try_for_each(|geoloc| geoloc.read(reader))?;
-
+        self.igeolo.read(reader)?;
         self.nicom.read(reader)?;
         self.icoms = vec![NitfField::init(80u8, "ICOM"); self.nicom.val.into()];
         self.icoms.iter_mut().try_for_each(|com| com.read(reader))?;
@@ -466,9 +489,7 @@ impl NitfSegmentHeader for ImageHeader {
         bytes_written += self.abpp.write(writer)?;
         bytes_written += self.pjust.write(writer)?;
         bytes_written += self.icords.write(writer)?;
-        for geo in &self.igeolo {
-            bytes_written += geo.write(writer)?;
-        }
+        bytes_written += self.igeolo.write(writer)?;
         self.nicom.write(writer)?;
         for comment in &self.icoms {
             bytes_written += comment.write(writer)?;
@@ -476,7 +497,7 @@ impl NitfSegmentHeader for ImageHeader {
 
         bytes_written += self.ic.write(writer)?;
         if is_comrat(&self.ic.val) {
-            self.comrat.write(writer)?;
+            bytes_written += self.comrat.write(writer)?;
         }
         bytes_written += self.nbands.write(writer)?;
         // If NBANDS = 0, use XBANDS
@@ -529,15 +550,16 @@ impl NitfSegmentHeader for ImageHeader {
         length += self.abpp.length;
         length += self.pjust.length;
         length += self.icords.length;
-        for geo in &self.igeolo {
-            length += geo.length;
-        }
+        length += self.igeolo.length;
         self.nicom.length;
         for comment in &self.icoms {
             length += comment.length;
         }
 
         length += self.ic.length;
+        if is_comrat(&self.ic.val) {
+            length += self.comrat.length;
+        }
         length += self.nbands.length;
         // If NBANDS = 0, use XBANDS
         if self.nbands.val != 0 {
@@ -591,14 +613,15 @@ impl Display for ImageHeader {
         out_str += format!("ABPP: {}, ", self.abpp).as_ref();
         out_str += format!("PJUST: {}, ", self.pjust).as_ref();
         out_str += format!("ICORDS: {}, ", self.icords).as_ref();
-        for geolocation in &self.igeolo {
-            out_str += format!("[GEOLO: {}], ", geolocation).as_ref();
-        }
+        out_str += format!("IGEOLO: {}, ", self.igeolo).as_ref();
         out_str += format!("NICOM: {}, ", self.nicom).as_ref();
         for comment in &self.icoms {
             out_str += format!("[ICOM: {}], ", comment).as_ref();
         }
         out_str += format!("IC: {}, ", self.ic).as_ref();
+        if is_comrat(&self.ic.val) {
+            out_str += format!("COMRAT: {}, ", self.comrat).as_ref();
+        }
         out_str += format!("NBANDS: {}, ", self.nbands).as_ref();
         for band in &self.bands {
             out_str += format!("[BAND: {}], ", band).as_ref();
@@ -693,6 +716,54 @@ impl Display for ImageRepresentation {
             Self::POLAR => write!(f, "POLAR"),
             Self::VPH => write!(f, "VPH"),
             Self::YCbCr601 => write!(f, "YCbCr601"),
+        }
+    }
+}
+impl FromStr for ImageRepresentationBand {
+    type Err = NitfError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            ""=> Ok(Self::DEFAULT),
+            "M"=> Ok(Self::M),
+            "R"=> Ok(Self::R),
+            "G"=> Ok(Self::G),
+            "B"=> Ok(Self::B),
+            "LU"=> Ok(Self::LU),
+            "Y"=> Ok(Self::Y),
+            "Cb"=> Ok(Self::Cb),
+            "Cr"=> Ok(Self::Cr),
+            _ => Err(NitfError::ParseError("ImageRepresentationBand".to_string())),
+        }
+    }
+}
+impl Display for ImageRepresentationBand {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::DEFAULT => write!(f, ""),
+            Self::M => write!(f, "M"),
+            Self::R => write!(f, "R"),
+            Self::G => write!(f, "G"),
+            Self::B => write!(f, "B"),
+            Self::LU => write!(f, "LU"),
+            Self::Y => write!(f, "Y"),
+            Self::Cb => write!(f, "Cb"),
+            Self::Cr => write!(f, "Cr"),
+        }
+    }
+}
+impl FromStr for ImageFilterCondition {
+    type Err = NitfError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "N" => Ok(Self::N),
+            _ => Err(NitfError::ParseError("PixelJustification".to_string())),
+        }
+    }
+}
+impl Display for ImageFilterCondition {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::N => write!(f, "N"),
         }
     }
 }
