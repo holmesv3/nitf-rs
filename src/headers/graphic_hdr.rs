@@ -28,7 +28,7 @@ pub struct GraphicHeader {
     /// Graphic Attachment Level
     pub salvl: NitfField<u16>,
     /// Graphic Location
-    pub sloc: NitfField<String>, // TODO: Same image image ILOC type thing
+    pub sloc: NitfField<BoundLocation>, // TODO: Same image image ILOC type thing
     /// First Graphic Bound Location
     pub sbnd1: NitfField<BoundLocation>,
     /// Graphic Color
@@ -90,24 +90,24 @@ impl Display for SY {
 impl Display for GraphicHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("SY: {}, ", self.sy).as_ref();
-        out_str += format!("SID: {}, ", self.sid).as_ref();
-        out_str += format!("SNAME: {}, ", self.sname).as_ref();
+        out_str += format!("{}, ", self.sy).as_ref();
+        out_str += format!("{}, ", self.sid).as_ref();
+        out_str += format!("{}, ", self.sname).as_ref();
         out_str += format!("SECURITY: [{}], ", self.security).as_ref();
-        out_str += format!("ENCRYP: {}, ", self.encryp).as_ref();
-        out_str += format!("SFMT: {}, ", self.sfmt).as_ref();
-        out_str += format!("SSTRUCT: {}, ", self.sstruct).as_ref();
-        out_str += format!("SDLVL: {}, ", self.sdlvl).as_ref();
-        out_str += format!("SALVL: {}, ", self.salvl).as_ref();
-        out_str += format!("SLOC: {}, ", self.sloc).as_ref();
-        out_str += format!("SBND1: {}, ", self.sbnd1).as_ref();
-        out_str += format!("SCOLOR: {}, ", self.scolor).as_ref();
-        out_str += format!("SBND2: {}, ", self.sbnd2).as_ref();
-        out_str += format!("SRES2: {}, ", self.sres2).as_ref();
-        out_str += format!("SXSHDL: {}, ", self.sxshdl).as_ref();
-        out_str += format!("SXSOFL: {}, ", self.sxsofl).as_ref();
-        out_str += format!("SXSHD: [{}]", self.sxshd).as_ref();
-        write!(f, "[Graphic Subheader: {out_str}]")
+        out_str += format!("{}, ", self.encryp).as_ref();
+        out_str += format!("{}, ", self.sfmt).as_ref();
+        out_str += format!("{}, ", self.sstruct).as_ref();
+        out_str += format!("{}, ", self.sdlvl).as_ref();
+        out_str += format!("{}, ", self.salvl).as_ref();
+        out_str += format!("{}, ", self.sloc).as_ref();
+        out_str += format!("{}, ", self.sbnd1).as_ref();
+        out_str += format!("{}, ", self.scolor).as_ref();
+        out_str += format!("{}, ", self.sbnd2).as_ref();
+        out_str += format!("{}, ", self.sres2).as_ref();
+        out_str += format!("{}, ", self.sxshdl).as_ref();
+        out_str += format!("{}, ", self.sxsofl).as_ref();
+        out_str += format!("{}", self.sxshd).as_ref();
+        write!(f, "Graphic Header: [{out_str}]")
     }
 }
 impl NitfSegmentHeader for GraphicHeader {
@@ -216,16 +216,15 @@ pub struct BoundLocation {
 impl FromStr for BoundLocation {
     type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let n_char_tot = s.len();
-        if n_char_tot % 2 == 0 {
-            let mut bounds = Self::default();
-            let n_char = n_char_tot / 2;
-            bounds.row = s[..n_char]
-                .parse()
-                .or(Err(NitfError::ParseError("BoundLocation.row".to_string())))?;
-            bounds.col = s[n_char..]
-                .parse()
-                .or(Err(NitfError::ParseError("BoundLocation.col".to_string())))?;
+        if s.len() == 10 {
+            let bounds = Self {
+                row: s[..5]
+                    .parse()
+                    .or(Err(NitfError::ParseError("BoundLocation.row".to_string())))?,
+                col: s[5..]
+                    .parse()
+                    .or(Err(NitfError::ParseError("BoundLocation.col".to_string())))?,
+            };
             Ok(bounds)
         } else {
             Err(NitfError::ParseError("BoundLocation".to_string()))
@@ -234,7 +233,7 @@ impl FromStr for BoundLocation {
 }
 impl Display for BoundLocation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:>5}{:>5}", self.row, self.col)
+        write!(f, "{:0<5}{:0<5}", self.row, self.col)
     }
 }
 /// Color type of graphics

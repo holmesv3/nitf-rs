@@ -120,7 +120,7 @@ impl Default for ImageHeader {
             comrat: NitfField::init(4u8, "COMRAT"),
             nbands: NitfField::init(1u8, "NBANDS"),
             xbands: NitfField::init(5u8, "XBANDS"),
-            bands: vec![Band::default()],
+            bands: vec![],
             isync: NitfField::init(1u8, "ISYNC"),
             imode: NitfField::init(1u8, "IMODE"),
             nbpr: NitfField::init(4u8, "NBPR"),
@@ -201,8 +201,10 @@ impl Band {
         length += self.ifc.length;
         length += self.imflt.length;
         length += self.nluts.length;
-        length += self.nelut.length;
-        length += self.lutd.len(); // each element is 1 byte,
+        if self.nluts.val != 0 {
+            length += self.nelut.length;
+            length += self.lutd.len(); // each element is 1 byte,
+        }
         length
     }
 }
@@ -271,9 +273,8 @@ pub enum ImageRepresentationBand {
 pub enum ImageFilterCondition {
     #[default]
     /// None
-    N
+    N,
 }
-
 
 /// Pixel justification
 #[derive(Debug, Default, Clone, Eq, PartialEq)]
@@ -371,8 +372,11 @@ fn read_bands(reader: &mut File, n_band: u32) -> NitfResult<Vec<Band>> {
         band.nluts.read(reader)?;
         if band.nluts.val != 0 {
             band.nelut.read(reader)?;
-            band.lutd = vec![NitfField::init(1u8, "LUDT"); band.nelut.val.into()];
-            band.lutd.iter_mut().try_for_each(|lut| lut.read(reader))?;
+        }
+        let n_lutd = (band.nelut.val * band.nluts.val as u16) as usize;
+        band.lutd = vec![NitfField::init(1u8, "LUDT"); n_lutd];
+        for lut in band.lutd.iter_mut() {
+            lut.read(reader)?;
         }
     }
     Ok(bands)
@@ -387,29 +391,30 @@ fn write_bands(writer: &mut File, bands: &Vec<Band>) -> NitfResult<usize> {
         bytes_written += band.imflt.write(writer)?;
         bytes_written += band.nluts.write(writer)?;
         if band.nluts.val != 0 {
-            bytes_written += band.nelut.write(writer)?;
-            for lut in &band.lutd {
-                bytes_written += lut.write(writer)?;
-            }
+            band.nelut.write(writer)?;
+        }
+        // Assumes luts are setup properly
+        for lut in band.lutd.iter() {
+            bytes_written += lut.write(writer)?;
         }
     }
     Ok(bytes_written)
 }
 fn is_comrat(compression: &Compression) -> bool {
-    match compression {
-        Compression::C1 => true,
-        Compression::C3 => true,
-        Compression::C4 => true,
-        Compression::C5 => true,
-        Compression::C8 => true,
-        Compression::M1 => true,
-        Compression::M3 => true,
-        Compression::M4 => true,
-        Compression::M5 => true,
-        Compression::M8 => true,
-        Compression::I1 => true,
-        _ => false,
-    }
+    matches!(
+        compression,
+        Compression::C1
+            | Compression::C3
+            | Compression::C4
+            | Compression::C5
+            | Compression::C8
+            | Compression::M1
+            | Compression::M3
+            | Compression::M4
+            | Compression::M5
+            | Compression::M8
+            | Compression::I1
+    )
 }
 
 // TRAIT IMPLEMENTATIONS
@@ -501,12 +506,10 @@ impl NitfSegmentHeader for ImageHeader {
         }
         bytes_written += self.nbands.write(writer)?;
         // If NBANDS = 0, use XBANDS
-        if self.nbands.val != 0 {
-            bytes_written += write_bands(writer, &self.bands)?;
-        } else {
+        if self.nbands.val == 0 {
             bytes_written += self.xbands.write(writer)?;
-            bytes_written += write_bands(writer, &self.bands)?;
         }
+        bytes_written += write_bands(writer, &self.bands)?;
         bytes_written += self.isync.write(writer)?;
         bytes_written += self.imode.write(writer)?;
         bytes_written += self.nbpr.write(writer)?;
@@ -519,14 +522,12 @@ impl NitfSegmentHeader for ImageHeader {
         bytes_written += self.iloc.write(writer)?;
         bytes_written += self.imag.write(writer)?;
         bytes_written += self.udidl.write(writer)?;
-        let udi_data_length = self.udidl.val;
-        if udi_data_length != 0 {
+        if self.udidl.val != 0 {
             bytes_written += self.udofl.write(writer)?;
             bytes_written += self.udid.write(writer)?;
         }
         bytes_written += self.ixshdl.write(writer)?;
-        let ixsh_data_length = self.ixshdl.val;
-        if ixsh_data_length != 0 {
+        if self.ixshdl.val != 0 {
             bytes_written += self.ixsofl.write(writer)?;
             bytes_written += self.ixshd.write(writer)?;
         }
@@ -551,7 +552,7 @@ impl NitfSegmentHeader for ImageHeader {
         length += self.pjust.length;
         length += self.icords.length;
         length += self.igeolo.length;
-        self.nicom.length;
+        length += self.nicom.length;
         for comment in &self.icoms {
             length += comment.length;
         }
@@ -562,12 +563,10 @@ impl NitfSegmentHeader for ImageHeader {
         }
         length += self.nbands.length;
         // If NBANDS = 0, use XBANDS
-        if self.nbands.val != 0 {
-            length += &self.bands.iter().map(|b| b.length()).sum();
-        } else {
+        if self.nbands.val == 0 {
             length += self.xbands.length;
-            length += &self.bands.iter().map(|b| b.length()).sum();
         }
+        length += &self.bands.iter().map(|b| b.length()).sum();
         length += self.isync.length;
         length += self.imode.length;
         length += self.nbpr.length;
@@ -580,85 +579,83 @@ impl NitfSegmentHeader for ImageHeader {
         length += self.iloc.length;
         length += self.imag.length;
         length += self.udidl.length;
-        let udi_data_length = self.udidl.val;
-        if udi_data_length != 0 {
-            length += self.udofl.length;
-            length += self.udid.size();
-        }
+        length += self.udidl.val as usize;
         length += self.ixshdl.length;
-        let ixsh_data_length = self.ixshdl.val;
-        if ixsh_data_length != 0 {
-            length += self.ixsofl.length;
-            length += self.ixshd.size();
-        }
+        length += self.ixshdl.val as usize;
         length
     }
 }
 impl Display for ImageHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("IM: {}, ", self.im).as_ref();
-        out_str += format!("IID1: {}, ", self.iid1).as_ref();
-        out_str += format!("IDATIM: {}, ", self.idatim).as_ref();
-        out_str += format!("TGTID: {}, ", self.tgtid).as_ref();
-        out_str += format!("IID2: {}, ", self.iid2).as_ref();
+        out_str += format!("{}, ", self.im).as_ref();
+        out_str += format!("{}, ", self.iid1).as_ref();
+        out_str += format!("{}, ", self.idatim).as_ref();
+        out_str += format!("{}, ", self.tgtid).as_ref();
+        out_str += format!("{}, ", self.iid2).as_ref();
         out_str += format!("SECURITY: [{}], ", self.security).as_ref();
-        out_str += format!("ENCRYP: {}, ", self.encryp).as_ref();
-        out_str += format!("ISORCE: {}, ", self.isorce).as_ref();
-        out_str += format!("NROWS: {}, ", self.nrows).as_ref();
-        out_str += format!("NCOLS: {}, ", self.ncols).as_ref();
-        out_str += format!("PVTYPE: {}, ", self.pvtype).as_ref();
-        out_str += format!("IREP: {}, ", self.irep).as_ref();
-        out_str += format!("ICAT: {}, ", self.icat).as_ref();
-        out_str += format!("ABPP: {}, ", self.abpp).as_ref();
-        out_str += format!("PJUST: {}, ", self.pjust).as_ref();
-        out_str += format!("ICORDS: {}, ", self.icords).as_ref();
-        out_str += format!("IGEOLO: {}, ", self.igeolo).as_ref();
-        out_str += format!("NICOM: {}, ", self.nicom).as_ref();
-        for comment in &self.icoms {
-            out_str += format!("[ICOM: {}], ", comment).as_ref();
+        out_str += format!("{}, ", self.encryp).as_ref();
+        out_str += format!("{}, ", self.isorce).as_ref();
+        out_str += format!("{}, ", self.nrows).as_ref();
+        out_str += format!("{}, ", self.ncols).as_ref();
+        out_str += format!("{}, ", self.pvtype).as_ref();
+        out_str += format!("{}, ", self.irep).as_ref();
+        out_str += format!("{}, ", self.icat).as_ref();
+        out_str += format!("{}, ", self.abpp).as_ref();
+        out_str += format!("{}, ", self.pjust).as_ref();
+        out_str += format!("{}, ", self.icords).as_ref();
+        out_str += format!("{}, ", self.igeolo).as_ref();
+        out_str += format!("{}, ", self.nicom).as_ref();
+        for (i_com, com) in self.icoms.iter().enumerate() {
+            out_str += format!("ICOM {i_com}: {com},",).as_ref();
         }
-        out_str += format!("IC: {}, ", self.ic).as_ref();
+        out_str += format!("{}, ", self.ic).as_ref();
         if is_comrat(&self.ic.val) {
-            out_str += format!("COMRAT: {}, ", self.comrat).as_ref();
+            out_str += format!("{}, ", self.comrat).as_ref();
         }
-        out_str += format!("NBANDS: {}, ", self.nbands).as_ref();
-        for band in &self.bands {
-            out_str += format!("[BAND: {}], ", band).as_ref();
+        out_str += format!("{}, ", self.nbands).as_ref();
+        for (i_band, band) in self.bands.iter().enumerate() {
+            out_str += format!("BAND {i_band}: [{band}], ").as_ref();
         }
-        out_str += format!("ISYNC: {}, ", self.isync).as_ref();
-        out_str += format!("IMODE: {}, ", self.imode).as_ref();
-        out_str += format!("NBPR: {}, ", self.nbpr).as_ref();
-        out_str += format!("NBPC: {}, ", self.nbpc).as_ref();
-        out_str += format!("NPPBH: {}, ", self.nppbh).as_ref();
-        out_str += format!("NPPBV: {}, ", self.nppbv).as_ref();
-        out_str += format!("NBPP: {}, ", self.nbpp).as_ref();
-        out_str += format!("IDLVL: {}, ", self.idlvl).as_ref();
-        out_str += format!("IALVL: {}, ", self.ialvl).as_ref();
-        out_str += format!("ILOC: {}, ", self.iloc).as_ref();
-        out_str += format!("IMAG: {}, ", self.imag).as_ref();
-        out_str += format!("UDIDL: {}, ", self.udidl).as_ref();
-        out_str += format!("UDOFL: {}, ", self.udofl).as_ref();
-        out_str += format!("UDID: {}, ", self.udid).as_ref();
-        out_str += format!("IXSHDL: {}, ", self.ixshdl).as_ref();
+        out_str += format!("{}, ", self.isync).as_ref();
+        out_str += format!("{}, ", self.imode).as_ref();
+        out_str += format!("{}, ", self.nbpr).as_ref();
+        out_str += format!("{}, ", self.nbpc).as_ref();
+        out_str += format!("{}, ", self.nppbh).as_ref();
+        out_str += format!("{}, ", self.nppbv).as_ref();
+        out_str += format!("{}, ", self.nbpp).as_ref();
+        out_str += format!("{}, ", self.idlvl).as_ref();
+        out_str += format!("{}, ", self.ialvl).as_ref();
+        out_str += format!("{}, ", self.iloc).as_ref();
+        out_str += format!("{}, ", self.imag).as_ref();
+        out_str += format!("{}, ", self.udidl).as_ref();
+        if self.udidl.val != 0 {
+            out_str += format!("{}, ", self.udofl).as_ref();
+            out_str += format!("{}, ", self.udid).as_ref();
+        }
+        out_str += format!("{}, ", self.ixshdl).as_ref();
         if self.ixshdl.val != 0 {
-            out_str += format!("IXSOFL: {}, ", self.ixsofl).as_ref();
-            out_str += format!("IXSHD: {}", self.ixshd).as_ref();
+            out_str += format!("{}, ", self.ixsofl).as_ref();
+            out_str += format!("{}", self.ixshd).as_ref();
         }
-        write!(f, "[Image Subheader: {out_str}]")
+        write!(f, "Image Header: {out_str}")
     }
 }
 impl Display for Band {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("IREPBAND: {}, ", self.irepband).as_ref();
-        out_str += format!("ISUBCAT: {}, ", self.isubcat).as_ref();
-        out_str += format!("IFC: {}, ", self.ifc).as_ref();
-        out_str += format!("IMFLT: {}, ", self.imflt).as_ref();
-        out_str += format!("NLUTS: {}, ", self.nluts).as_ref();
-        out_str += format!("NELUT: {}, ", self.nelut).as_ref();
-        for look_up in &self.lutd {
-            out_str += format!("LUTD: {look_up}, ").as_ref();
+        out_str += format!("{}, ", self.irepband).as_ref();
+        out_str += format!("{}, ", self.isubcat).as_ref();
+        out_str += format!("{}, ", self.ifc).as_ref();
+        out_str += format!("{}, ", self.imflt).as_ref();
+        out_str += format!("{}, ", self.nluts).as_ref();
+        if self.nluts.val != 0 {
+            for i_lut in 0..self.nluts.val {
+                out_str += format!("{}, ", self.nelut).as_ref();
+                for (i_elem, lut) in self.lutd.iter().enumerate() {
+                    out_str += format!("LUT{i_lut}{i_elem}: {}", lut.val).as_ref();
+                }
+            }
         }
         write!(f, "{out_str}")
     }
@@ -723,15 +720,15 @@ impl FromStr for ImageRepresentationBand {
     type Err = NitfError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            ""=> Ok(Self::DEFAULT),
-            "M"=> Ok(Self::M),
-            "R"=> Ok(Self::R),
-            "G"=> Ok(Self::G),
-            "B"=> Ok(Self::B),
-            "LU"=> Ok(Self::LU),
-            "Y"=> Ok(Self::Y),
-            "Cb"=> Ok(Self::Cb),
-            "Cr"=> Ok(Self::Cr),
+            "" => Ok(Self::DEFAULT),
+            "M" => Ok(Self::M),
+            "R" => Ok(Self::R),
+            "G" => Ok(Self::G),
+            "B" => Ok(Self::B),
+            "LU" => Ok(Self::LU),
+            "Y" => Ok(Self::Y),
+            "Cb" => Ok(Self::Cb),
+            "Cr" => Ok(Self::Cr),
             _ => Err(NitfError::ParseError("ImageRepresentationBand".to_string())),
         }
     }

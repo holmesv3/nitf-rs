@@ -1,8 +1,7 @@
 //! Example to read a nitf and print metadata
 
-use std::{fs::File, ops::Deref, os::raw::c_void};
+use std::fs::File;
 
-use memmap2::Mmap;
 fn usage() {
     eprintln!("Example of writing a NITF file");
     eprintln!("Usage: cargo run --example write -- <OUT>");

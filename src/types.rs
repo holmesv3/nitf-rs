@@ -57,8 +57,8 @@ where
             Ok(str) => {
                 string = str.clone();
                 // Warn and assign a default value if error parsing
-                self.val = str.trim().parse().unwrap_or_else(|_| {
-                    warn!("Non-fatal error parsing {}", self.name);
+                self.val = str.trim().parse().unwrap_or_else(|e| {
+                    warn!("Non-fatal error parsing {}: {e:?}", self.name);
                     V::default()
                 });
             }
@@ -75,16 +75,24 @@ where
     pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
         let buf = format!("{:<1$}", self.val.to_string(), self.length);
         let offset = writer.stream_position()?;
-        trace!("Wrote {} bytes for {} at {offset}: {buf}", buf.len(), self.name);
-        writer
-            .write(buf.as_bytes())
-            .map_err(|e| NitfError::IOError(e))
+        trace!(
+            "Wrote {} bytes for {} at {offset}: {buf}",
+            buf.len(),
+            self.name
+        );
+        writer.write(buf.as_bytes()).map_err(NitfError::IOError)
     }
 }
 
 impl<V: FromStr + Debug + Default + Display> Display for NitfField<V> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:<1$}", self.val.to_string(), self.length)
+        write!(
+            f,
+            "{}: {:<2$}",
+            self.name,
+            self.val.to_string(),
+            self.length
+        )
     }
 }
 
@@ -103,7 +111,6 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
     pub(crate) fn from_reader(reader: &mut File, data_size: u64) -> NitfResult<Self> {
         let header_offset = reader.stream_position()?;
         let header = T::from_reader(reader)?;
-        let data_size = data_size;
         let data_offset = reader.stream_position()?;
         // Seek to end of data for next segment to be read
         reader.seek(std::io::SeekFrom::Start(data_offset + data_size))?;
@@ -121,7 +128,7 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
         self.data_offset = writer.stream_position()?;
         Ok(bytes_written)
     }
-    
+
     /// Read segment data from file into an immutable memory map.
     pub fn read_data(&self, reader: &mut File) -> NitfResult<Mmap> {
         if self.data_offset == 0 {
@@ -132,14 +139,14 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
         let mut opts = MmapOptions::new();
         Ok(unsafe {
             opts.len(self.data_size as usize)
-            .offset(self.data_offset)
-            .map(reader.deref())
+                .offset(self.data_offset)
+                .map(reader.deref())
         }?)
     }
     /// Write segment data to file. Assumes cursor is in correct position
     pub fn write_data(&self, writer: &mut File, data: &[u8]) -> NitfResult<usize> {
         writer.seek(std::io::SeekFrom::Start(self.data_offset))?;
-        writer.write(data).map_err(|e| NitfError::IOError(e))
+        writer.write(data).map_err(NitfError::IOError)
     }
     pub fn length(&self) -> usize {
         self.header.length() + self.data_size as usize
@@ -265,23 +272,23 @@ impl Security {
 impl Display for Security {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("CLAS: {}, ", self.clas).as_ref();
-        out_str += format!("CLSY: {}, ", self.clsy).as_ref();
-        out_str += format!("CODE: {}, ", self.code).as_ref();
-        out_str += format!("CTLH: {}, ", self.ctlh).as_ref();
-        out_str += format!("REL: {}, ", self.rel).as_ref();
-        out_str += format!("DCTP: {}, ", self.dctp).as_ref();
-        out_str += format!("DCDT: {}, ", self.dcdt).as_ref();
-        out_str += format!("DCXM: {}, ", self.dcxm).as_ref();
-        out_str += format!("DG: {}, ", self.dg).as_ref();
-        out_str += format!("DGDT: {}, ", self.dgdt).as_ref();
-        out_str += format!("CLTX: {}, ", self.cltx).as_ref();
-        out_str += format!("CATP: {}, ", self.catp).as_ref();
-        out_str += format!("CAUT: {}, ", self.caut).as_ref();
-        out_str += format!("CRSN: {}, ", self.crsn).as_ref();
-        out_str += format!("SRDT: {}, ", self.srdt).as_ref();
-        out_str += format!("CTLN: {}", self.ctln).as_ref();
-        write!(f, "{}", out_str)
+        out_str += &format!("{}, ", self.clas);
+        out_str += &format!("{}, ", self.clsy);
+        out_str += &format!("{}, ", self.code);
+        out_str += &format!("{}, ", self.ctlh);
+        out_str += &format!("{}, ", self.rel);
+        out_str += &format!("{}, ", self.dctp);
+        out_str += &format!("{}, ", self.dcdt);
+        out_str += &format!("{}, ", self.dcxm);
+        out_str += &format!("{}, ", self.dg);
+        out_str += &format!("{}, ", self.dgdt);
+        out_str += &format!("{}, ", self.cltx);
+        out_str += &format!("{}, ", self.catp);
+        out_str += &format!("{}, ", self.caut);
+        out_str += &format!("{}, ", self.crsn);
+        out_str += &format!("{}, ", self.srdt);
+        out_str += &format!("{}", self.ctln);
+        write!(f, "{out_str}")
     }
 }
 
@@ -616,19 +623,19 @@ impl ExtendedSubheader {
         trace!("Reading: {}", self.name);
         reader
             .read_exact(self.tre.as_mut_slice())
-            .map_err(|e| NitfError::IOError(e))
+            .map_err(NitfError::IOError)
     }
     pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
         trace!("Writing: {}", self.name);
         writer
             .write(self.tre.as_slice())
-            .map_err(|e| NitfError::IOError(e))
+            .map_err(NitfError::IOError)
     }
 }
 impl Display for ExtendedSubheader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // Can't copy vector directly, convert to slice, then clone into new vector
         let out_str = String::from_utf8(self.tre.to_vec()).or(Err(std::fmt::Error))?;
-        write!(f, "[{out_str}]")
+        write!(f, "{}: [{out_str}], ", self.name)
     }
 }

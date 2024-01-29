@@ -2,15 +2,14 @@
 
 //! Interface for NITF version 2.1
 //!
-//! Constructing a [Nitf] object parses the header and subheader information.
-//! Each segment in contains a `meta` field which stores the respective
-//! fields defined in the file standard. The primary function for constructing a
+//! Constructing a [Nitf] object parses the file header and segment metadata.
+//! Each segment in contains a `header` field which stores the respective
+//! metadata defined in the file standard. The primary function for constructing a
 //! [Nitf] is [read_nitf()]
 //! ```no_run
 //! // Read a nitf file and dump metadata to stdout
-//! use std::path::Path;
-//! let nitf_path = Path::new("example.nitf");
-//! let nitf = nitf_rs::read_nitf(&nitf_path).unwrap();
+//! let nitf_file = std::fs::File::open("example.nitf").unwrap();
+//! let nitf = nitf_rs::read_nitf(nitf_file).unwrap();
 //! println!("{nitf:?}");
 //! ```
 //!
@@ -20,26 +19,23 @@
 //! a memory-map of the segment data.
 //! ```no_run
 //! // Get the bytes from the first image segment
-//! use std::path::Path;
-//! let nitf_path = Path::new("example.nitf");
-//! let nitf = nitf_rs::read_nitf(&nitf_path).unwrap();
+//! let nitf_file = std::fs::File::open("example.nitf").unwrap();
+//! let nitf = nitf_rs::read_nitf(nitf_file).unwrap();
 //! let im_seg = &nitf.image_segments[0];
-//! let u8_slice = &im_seg.data[..];
 //! ```
 //! Most metadata elements are stored in a [NitfField](types::NitfField) structure.
 //! This structure hold onto the `val` which holds on to native value of the field
 //! (i.e., the bytes parsed into a u8, u16, String, enum, etc.)
 //! ```no_run
 //! // Read in a nitf and extract the...
-//! use std::path::Path;
-//! let nitf_path = Path::new("example.nitf");
-//! let nitf = nitf_rs::read_nitf(&nitf_path).unwrap();
+//! let nitf_file = std::fs::File::open("example.nitf").unwrap();
+//! let nitf = nitf_rs::read_nitf(nitf_file).unwrap();
 //! // .. File title
 //! let file_title = nitf.nitf_header.ftitle.val;
 //! // .. Number of image segments
 //! let n_img_segments = nitf.nitf_header.numi.val;
 //! // .. and number of rows in the first image segment data
-//! let n_rows = nitf.image_segments[0].meta.nrows.val;
+//! let n_rows = nitf.image_segments[0].header.nrows.val;
 //! ```
 //!
 //! If there is user-defined tagged-record-extension (TRE) data within a segment,
@@ -51,7 +47,6 @@ pub mod types;
 use log::{debug, trace};
 use std::fmt::Display;
 use std::fs::File;
-use std::path::Path;
 use thiserror::Error;
 
 use headers::file_hdr::Segment::*;
@@ -117,29 +112,29 @@ pub struct Nitf {
 ///
 /// # Example
 /// ```no_run
-/// use std::path::Path;
-/// let nitf_path = Path::new("../example.nitf");
-/// let nitf = nitf_rs::read_nitf(nitf_path).unwrap();
+/// let nitf_file = std::fs::File::open("example.nitf").unwrap();
+/// let nitf = nitf_rs::read_nitf(nitf_file).unwrap();
 /// ```
-pub fn read_nitf(path: &Path) -> NitfResult<Nitf> {
+pub fn read_nitf(file: File) -> NitfResult<Nitf> {
     // Crash if failure to open file
-    let file = File::open(path)?;
-    Nitf::from_file(file)
+    Nitf::from_file(file.try_clone()?)
 }
 
 impl Nitf {
     pub fn from_file(file: File) -> NitfResult<Self> {
-        let mut nitf = Self::default();
-        nitf.file = Some(file);
-        let mut reader = nitf.file.as_mut().unwrap();
+        let mut nitf = Nitf {
+            file: Some(file),
+            ..Default::default()
+        };
+        let reader = nitf.file.as_mut().unwrap();
         debug!("Reading NITF file header");
-        nitf.nitf_header.read(&mut reader)?;
+        nitf.nitf_header.read(reader)?;
 
         let mut n_seg = nitf.nitf_header.numi.val as usize;
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.imheaders[i_seg];
             let data_size = seg_info.item_size.val;
-            let seg = ImageSegment::from_reader(&mut reader, data_size)?;
+            let seg = ImageSegment::from_reader(reader, data_size)?;
             nitf.image_segments.push(seg);
         }
 
@@ -147,7 +142,7 @@ impl Nitf {
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.graphheaders[i_seg];
             let data_size: u64 = seg_info.item_size.val;
-            let seg = GraphicSegment::from_reader(&mut reader, data_size)?;
+            let seg = GraphicSegment::from_reader(reader, data_size)?;
             nitf.graphic_segments.push(seg);
         }
 
@@ -155,7 +150,7 @@ impl Nitf {
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.textheaders[i_seg];
             let data_size: u64 = seg_info.item_size.val;
-            let seg = TextSegment::from_reader(&mut reader, data_size)?;
+            let seg = TextSegment::from_reader(reader, data_size)?;
             nitf.text_segments.push(seg);
         }
 
@@ -163,7 +158,7 @@ impl Nitf {
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.dextheaders[i_seg];
             let data_size: u64 = seg_info.item_size.val;
-            let seg = DataExtensionSegment::from_reader(&mut reader, data_size)?;
+            let seg = DataExtensionSegment::from_reader(reader, data_size)?;
             nitf.data_extension_segments.push(seg);
         }
 
@@ -171,7 +166,7 @@ impl Nitf {
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.resheaders[i_seg];
             let data_size = seg_info.item_size.val;
-            let seg = ReservedExtensionSegment::from_reader(&mut reader, data_size)?;
+            let seg = ReservedExtensionSegment::from_reader(reader, data_size)?;
             nitf.reserved_extension_segments.push(seg);
         }
         Ok(nitf)
@@ -180,29 +175,31 @@ impl Nitf {
     /// Write the header information for all segments to a file
     pub fn write_headers(&mut self) -> NitfResult<usize> {
         if self.file.is_none() {
-            Err(NitfError::Fatal("Must set 'file' before writing".to_string()))?;
+            Err(NitfError::Fatal(
+                "Must set 'file' before writing".to_string(),
+            ))?;
         }
         debug!("Writing NITF file header");
         let mut bytes_written = 0;
 
-        let length = self.length();
-        let mut writer = self.file.as_mut().ok_or(NitfError::FileFatal)?;
-        writer.set_len(length as u64)?;
-        bytes_written += self.nitf_header.write(&mut writer)?;
+        let file_length = self.length() as u64;
+        let writer = self.file.as_mut().ok_or(NitfError::FileFatal)?;
+        writer.set_len(file_length)?;
+        bytes_written += self.nitf_header.write_header(writer, file_length)?;
         for seg in self.image_segments.iter_mut() {
-            bytes_written += seg.write_header(&mut writer)?;
+            bytes_written += seg.write_header(writer)?;
         }
         for seg in self.graphic_segments.iter_mut() {
-            bytes_written += seg.write_header(&mut writer)?;
+            bytes_written += seg.write_header(writer)?;
         }
         for seg in self.text_segments.iter_mut() {
-            bytes_written += seg.write_header(&mut writer)?;
+            bytes_written += seg.write_header(writer)?;
         }
         for seg in self.data_extension_segments.iter_mut() {
-            bytes_written += seg.write_header(&mut writer)?;
+            bytes_written += seg.write_header(writer)?;
         }
         for seg in self.reserved_extension_segments.iter_mut() {
-            bytes_written += seg.write_header(&mut writer)?;
+            bytes_written += seg.write_header(writer)?;
         }
         Ok(bytes_written)
     }
@@ -246,8 +243,14 @@ impl Nitf {
         for (i_seg, seg) in self.image_segments.iter_mut().enumerate() {
             seg.header_offset = offset as u64;
             offset += seg.header.length();
-            trace_string += &format!("\tImage segment {i_seg} header offset: {}\n", seg.header_offset);
-            trace_string += &format!("\tImage segment {i_seg} header length: {}\n", seg.header.length());
+            trace_string += &format!(
+                "\tImage segment {i_seg} header offset: {}\n",
+                seg.header_offset
+            );
+            trace_string += &format!(
+                "\tImage segment {i_seg} header length: {}\n",
+                seg.header.length()
+            );
             seg.data_offset = offset as u64;
             offset += seg.data_size as usize;
             trace_string += &format!("\tImage segment {i_seg} data offset: {}\n", seg.data_offset);
@@ -256,18 +259,33 @@ impl Nitf {
         for (i_seg, seg) in self.graphic_segments.iter_mut().enumerate() {
             seg.header_offset = offset as u64;
             offset += seg.header.length();
-            trace_string += &format!("\tGraphic segment {i_seg} header offset: {}\n", seg.header_offset);
-            trace_string += &format!("\tGraphic segment {i_seg} header length: {}\n", seg.header.length());
+            trace_string += &format!(
+                "\tGraphic segment {i_seg} header offset: {}\n",
+                seg.header_offset
+            );
+            trace_string += &format!(
+                "\tGraphic segment {i_seg} header length: {}\n",
+                seg.header.length()
+            );
             seg.data_offset = offset as u64;
             offset += seg.data_size as usize;
-            trace_string += &format!("\tGraphic segment {i_seg} data offset: {}\n", seg.data_offset);
+            trace_string += &format!(
+                "\tGraphic segment {i_seg} data offset: {}\n",
+                seg.data_offset
+            );
             trace_string += &format!("\tGraphic segment {i_seg} data length: {}\n", seg.data_size);
         }
         for (i_seg, seg) in self.text_segments.iter_mut().enumerate() {
             seg.header_offset = offset as u64;
             offset += seg.header.length();
-            trace_string += &format!("\tText segment {i_seg} header offset: {}\n", seg.header_offset);
-            trace_string += &format!("\tText segment {i_seg} header length: {}\n", seg.header.length());
+            trace_string += &format!(
+                "\tText segment {i_seg} header offset: {}\n",
+                seg.header_offset
+            );
+            trace_string += &format!(
+                "\tText segment {i_seg} header length: {}\n",
+                seg.header.length()
+            );
             seg.data_offset = offset as u64;
             offset += seg.data_size as usize;
             trace_string += &format!("\tText segment {i_seg} data offset: {}\n", seg.data_offset);
@@ -276,22 +294,46 @@ impl Nitf {
         for (i_seg, seg) in self.data_extension_segments.iter_mut().enumerate() {
             seg.header_offset = offset as u64;
             offset += seg.header.length();
-            trace_string += &format!("\tData Extension segment {i_seg} header offset: {}\n", seg.header_offset);
-            trace_string += &format!("\tData Extension segment {i_seg} header length: {}\n", seg.header.length());
+            trace_string += &format!(
+                "\tData Extension segment {i_seg} header offset: {}\n",
+                seg.header_offset
+            );
+            trace_string += &format!(
+                "\tData Extension segment {i_seg} header length: {}\n",
+                seg.header.length()
+            );
             seg.data_offset = offset as u64;
             offset += seg.data_size as usize;
-            trace_string += &format!("\tData Extension segment {i_seg} data offset: {}\n", seg.data_offset);
-            trace_string += &format!("\tData Extension segment {i_seg} data length: {}\n", seg.data_size);
+            trace_string += &format!(
+                "\tData Extension segment {i_seg} data offset: {}\n",
+                seg.data_offset
+            );
+            trace_string += &format!(
+                "\tData Extension segment {i_seg} data length: {}\n",
+                seg.data_size
+            );
         }
         for (i_seg, seg) in self.reserved_extension_segments.iter_mut().enumerate() {
             seg.header_offset = offset as u64;
             offset += seg.header.length();
-            trace_string += &format!("\tReserved Extension segment {i_seg} header offset: {}\n", seg.header_offset);
-            trace_string += &format!("\tReserved Extension segment {i_seg} header length: {}\n", seg.header.length());
+            trace_string += &format!(
+                "\tReserved Extension segment {i_seg} header offset: {}\n",
+                seg.header_offset
+            );
+            trace_string += &format!(
+                "\tReserved Extension segment {i_seg} header length: {}\n",
+                seg.header.length()
+            );
             seg.data_offset = offset as u64;
             offset += seg.data_size as usize;
-            trace_string += &format!("\tReserved Extension segment {i_seg} data offset: {}\n", seg.data_offset);
-            trace_string += &format!("\tReserved Extension segment {i_seg} data length: {}\n", seg.data_size);
+            trace_string += &format!(
+                "\tReserved Extension segment {i_seg} data offset: {}\n",
+                seg.data_offset
+            );
+            trace_string += &format!(
+                "\tReserved Extension segment {i_seg} data length: {}\n",
+                seg.data_size
+            );
         }
         trace!("{trace_string}");
     }
@@ -360,19 +402,19 @@ impl Display for Nitf {
         let mut out_str = String::default();
         out_str += format!("{}", self.nitf_header).as_ref();
         for segment in &self.image_segments {
-            out_str += format!("{}", segment).as_ref();
+            out_str += format!("{}, ", segment).as_ref();
         }
         for segment in &self.graphic_segments {
-            out_str += format!("{}", segment).as_ref();
+            out_str += format!("{}, ", segment).as_ref();
         }
         for segment in &self.text_segments {
-            out_str += format!("{}", segment).as_ref();
+            out_str += format!("{}, ", segment).as_ref();
         }
         for segment in &self.data_extension_segments {
-            out_str += format!("{}", segment).as_ref();
+            out_str += format!("{}, ", segment).as_ref();
         }
         for segment in &self.reserved_extension_segments {
-            out_str += format!("{}", segment).as_ref();
+            out_str += format!("{}, ", segment).as_ref();
         }
         write!(f, "{}", out_str)
     }

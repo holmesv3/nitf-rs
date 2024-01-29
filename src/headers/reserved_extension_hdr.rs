@@ -56,13 +56,13 @@ impl Display for RE {
 impl Display for ReservedExtensionHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("RE: {}, ", self.re).as_ref();
-        out_str += format!("RESID: {}, ", self.resid).as_ref();
-        out_str += format!("RESVER: {}, ", self.resver).as_ref();
+        out_str += format!("{}, ", self.re).as_ref();
+        out_str += format!("{}, ", self.resid).as_ref();
+        out_str += format!("{}, ", self.resver).as_ref();
         out_str += format!("SECURITY: [{}], ", self.security).as_ref();
-        out_str += format!("RESSHL: {}, ", self.resshl).as_ref();
-        out_str += format!("RESSHF: {}, ", self.resshf).as_ref();
-        write!(f, "[Reserved Extension Subheader: {out_str}]")
+        out_str += format!("{}, ", self.resshl).as_ref();
+        out_str += format!("{}, ", self.resshf).as_ref();
+        write!(f, "Reserved Extension Segment: [{out_str}]")
     }
 }
 impl NitfSegmentHeader for ReservedExtensionHeader {

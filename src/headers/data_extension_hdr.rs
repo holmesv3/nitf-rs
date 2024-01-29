@@ -80,8 +80,10 @@ impl NitfSegmentHeader for DataExtensionHeader {
         length += self.desid.length;
         length += self.desver.length;
         length += self.security.length();
-        length += self.desoflw.length;
-        length += self.desitem.length;
+        if self.desid.val.trim() == "TRE_OVERFLOW" {
+            length += self.desoflw.length;
+            length += self.desitem.length;
+        }
         length += self.desshl.length;
         length += self.desshf.size();
         length
@@ -125,15 +127,15 @@ pub enum OverflowedHeaderType {
 impl Display for DataExtensionHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("DE: {}, ", self.de).as_ref();
-        out_str += format!("DESID: {}, ", self.desid).as_ref();
-        out_str += format!("DESVER: {}, ", self.desver).as_ref();
+        out_str += format!("{}, ", self.de).as_ref();
+        out_str += format!("{}, ", self.desid).as_ref();
+        out_str += format!("{}, ", self.desver).as_ref();
         out_str += format!("SECURITY: [{}], ", self.security).as_ref();
-        out_str += format!("DESOFLW: {}, ", self.desoflw).as_ref();
-        out_str += format!("DESITEM: {}, ", self.desitem).as_ref();
-        out_str += format!("DESSHL: {}, ", self.desshl).as_ref();
-        out_str += format!("DESSHF: {}", self.desshf).as_ref();
-        write!(f, "[Data Extension Subheader: {out_str}]")
+        out_str += format!("{}, ", self.desoflw).as_ref();
+        out_str += format!("{}, ", self.desitem).as_ref();
+        out_str += format!("{}, ", self.desshl).as_ref();
+        out_str += format!("{}", self.desshf).as_ref();
+        write!(f, "Data Extension Segment: [{out_str}]")
     }
 }
 impl FromStr for OverflowedHeaderType {

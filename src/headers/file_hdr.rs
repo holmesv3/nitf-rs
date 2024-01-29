@@ -136,6 +136,15 @@ impl Segment {
 }
 
 impl NitfHeader {
+    pub(crate) fn write_header(
+        &mut self,
+        writer: &mut File,
+        file_length: u64,
+    ) -> NitfResult<usize> {
+        self.hl.val = self.length() as u32;
+        self.fl.val = file_length;
+        self.write(writer)
+    }
     pub(crate) fn add_subheader(
         &mut self,
         segment_type: Segment,
@@ -213,53 +222,53 @@ impl Default for NitfHeader {
 impl Display for NitfHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("FHDR: {}, ", self.fhdr).as_ref();
-        out_str += format!("CLEVEL: {}, ", self.clevel).as_ref();
-        out_str += format!("STYPE: {}, ", self.stype).as_ref();
-        out_str += format!("OSTAID: {}, ", self.ostaid).as_ref();
-        out_str += format!("FDT: {}, ", self.fdt).as_ref();
-        out_str += format!("FTITLE: {}, ", self.ftitle).as_ref();
+        out_str += format!("{}, ", self.fhdr).as_ref();
+        out_str += format!("{}, ", self.clevel).as_ref();
+        out_str += format!("{}, ", self.stype).as_ref();
+        out_str += format!("{}, ", self.ostaid).as_ref();
+        out_str += format!("{}, ", self.fdt).as_ref();
+        out_str += format!("{}, ", self.ftitle).as_ref();
         out_str += format!("SECURITY: [{}], ", self.security).as_ref();
-        out_str += format!("FSCOP: {}, ", self.fscop).as_ref();
-        out_str += format!("FSCPYS: {}, ", self.fscpys).as_ref();
-        out_str += format!("ENCRYP: {}, ", self.encryp).as_ref();
+        out_str += format!("{}, ", self.fscop).as_ref();
+        out_str += format!("{}, ", self.fscpys).as_ref();
+        out_str += format!("{}, ", self.encryp).as_ref();
         out_str += format!(
             "FBKGC: [R: {}, G: {}, B: {}], ",
             self.fbkgc[0], self.fbkgc[1], self.fbkgc[2],
         )
         .as_ref();
-        out_str += format!("ONAME: {}, ", self.oname).as_ref();
-        out_str += format!("OPHONE: {}, ", self.ophone).as_ref();
-        out_str += format!("FL: {}, ", self.fl).as_ref();
-        out_str += format!("HL: {}, ", self.hl).as_ref();
-        out_str += format!("NUMI: {}, ", self.numi).as_ref();
-        for seg in &self.imheaders {
-            out_str += format!("[IMHEADER: {}], ", seg).as_ref()
+        out_str += format!("{}, ", self.oname).as_ref();
+        out_str += format!("{}, ", self.ophone).as_ref();
+        out_str += format!("{}, ", self.fl).as_ref();
+        out_str += format!("{}, ", self.hl).as_ref();
+        out_str += format!("{}, ", self.numi).as_ref();
+        for (i_seg, seg) in self.imheaders.iter().enumerate() {
+            out_str += format!("Image Segment {i_seg}: [{seg}], ").as_ref();
         }
-        out_str += format!("NUMS: {}, ", self.nums).as_ref();
-        for seg in &self.graphheaders {
-            out_str += format!("[GRAPHHEADERS: {}], ", seg).as_ref()
+        out_str += format!("{}, ", self.nums).as_ref();
+        for (i_seg, seg) in self.graphheaders.iter().enumerate() {
+            out_str += format!("Graphic Segment {i_seg}: [{seg}], ").as_ref();
         }
-        out_str += format!("NUMX: {}, ", self.numx).as_ref();
-        out_str += format!("NUMT: {}, ", self.numt).as_ref();
-        for seg in &self.textheaders {
-            out_str += format!("[TEXTHEADER: {}], ", seg).as_ref()
+        out_str += format!("{}, ", self.numx).as_ref();
+        out_str += format!("{}, ", self.numt).as_ref();
+        for (i_seg, seg) in self.textheaders.iter().enumerate() {
+            out_str += format!("Text Segment {i_seg}: [{seg}], ").as_ref();
         }
-        out_str += format!("NUMDES: {}, ", self.numdes).as_ref();
-        for seg in &self.dextheaders {
-            out_str += format!("[DEXTHEADER: {}], ", seg).as_ref()
+        out_str += format!("{}, ", self.numdes).as_ref();
+        for (i_seg, seg) in self.dextheaders.iter().enumerate() {
+            out_str += format!("Data Extension Segment {i_seg}: [{seg}], ").as_ref();
         }
-        out_str += format!("NUMRES: {}, ", self.numres).as_ref();
-        for seg in &self.resheaders {
-            out_str += format!("[RESHEADER: {}], ", seg).as_ref()
+        out_str += format!("{}, ", self.numres).as_ref();
+        for (i_seg, seg) in self.resheaders.iter().enumerate() {
+            out_str += format!("Reserved Extension Segment {i_seg}: [{seg}], ").as_ref();
         }
-        out_str += format!("UDHDL: {}, ", self.udhdl).as_ref();
-        out_str += format!("UDHOFL: {}, ", self.udhofl).as_ref();
-        out_str += format!("UDHD: {}, ", self.udhd).as_ref();
-        out_str += format!("XHDL: {}, ", self.xhdl).as_ref();
-        out_str += format!("XHDLOFL: {}, ", self.xhdlofl).as_ref();
-        out_str += format!("XHD: {}", self.xhd).as_ref();
-        write!(f, "[NitfHeader: {out_str}]")
+        out_str += format!("{}, ", self.udhdl).as_ref();
+        out_str += format!("{}, ", self.udhofl).as_ref();
+        out_str += format!("{}, ", self.udhd).as_ref();
+        out_str += format!("{}, ", self.xhdl).as_ref();
+        out_str += format!("{}, ", self.xhdlofl).as_ref();
+        out_str += format!("{}", self.xhd).as_ref();
+        write!(f, "Nitf Header: [{out_str}]")
     }
 }
 
@@ -464,16 +473,12 @@ impl SubHeader {
     }
 
     pub(crate) fn new(segment_type: &Segment) -> Self {
-        let (sh_size, item_size) = Segment::size(&segment_type);
+        let (sh_size, item_size) = Segment::size(segment_type);
         SubHeader::init(sh_size, item_size)
     }
 }
 impl Display for SubHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "[subheader_size: {}, item_size: {}]",
-            self.subheader_size, self.item_size
-        )
+        write!(f, "{}, {}", self.subheader_size, self.item_size)
     }
 }

@@ -140,18 +140,18 @@ impl NitfSegmentHeader for TextHeader {
 impl Display for TextHeader {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut out_str = String::default();
-        out_str += format!("TE: {}, ", self.te).as_ref();
-        out_str += format!("TEXTID: {}, ", self.textid).as_ref();
-        out_str += format!("TXTALVL: {}, ", self.txtalvl).as_ref();
-        out_str += format!("TXTDT: {}, ", self.txtdt).as_ref();
-        out_str += format!("TXTTITL: {}, ", self.txttitl).as_ref();
+        out_str += format!("{}, ", self.te).as_ref();
+        out_str += format!("{}, ", self.textid).as_ref();
+        out_str += format!("{}, ", self.txtalvl).as_ref();
+        out_str += format!("{}, ", self.txtdt).as_ref();
+        out_str += format!("{}, ", self.txttitl).as_ref();
         out_str += format!("SECURITY: [{}], ", self.security).as_ref();
-        out_str += format!("ENCRYP: {}, ", self.encryp).as_ref();
-        out_str += format!("TXTFMT: {}, ", self.txtfmt).as_ref();
-        out_str += format!("TXSHDL: {}", self.txshdl).as_ref();
-        out_str += format!("TXSOFL: {}", self.txsofl).as_ref();
-        out_str += format!("TXSHD: {}", self.txshd).as_ref();
-        write!(f, "[Text Subheader: {out_str}]")
+        out_str += format!("{}, ", self.encryp).as_ref();
+        out_str += format!("{}, ", self.txtfmt).as_ref();
+        out_str += format!("{}", self.txshdl).as_ref();
+        out_str += format!("{}", self.txsofl).as_ref();
+        out_str += format!("{}", self.txshd).as_ref();
+        write!(f, "Text Segment: [{out_str}]")
     }
 }
 impl FromStr for TextFormat {

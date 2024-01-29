@@ -21,9 +21,10 @@ fn main() {
     }
 
     let nitf_path = std::path::Path::new(&args[1]);
+    let nitf_file = std::fs::File::open(nitf_path).unwrap();
     log::info!("Found NITF at: {}", nitf_path.display());
 
-    let nitf = nitf_rs::read_nitf(nitf_path).unwrap();
+    let nitf = nitf_rs::read_nitf(nitf_file).unwrap();
     log::info!("Read NITF successfully");
 
     log::info!("NITF metadata: {}", nitf);
