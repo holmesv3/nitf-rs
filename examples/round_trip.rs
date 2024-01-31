@@ -1,5 +1,4 @@
 //! Example to read a nitf and print metadata
-
 use nitf_rs::{headers::image_hdr::Band, *};
 
 fn usage() {
@@ -22,43 +21,44 @@ fn main() {
         usage();
         return;
     }
-
     let out_path = std::path::Path::new(&args[1]);
-    log::info!("Found OUT path: {}", out_path.display());
 
-    let mut nitf = nitf_rs::Nitf::default();
+    let mut nitf_out = nitf_rs::Nitf::default();
     log::info!("Created empty NITF successfully");
-
-    nitf.file = Some(std::fs::File::create(out_path).unwrap());
+    
+    let mut file = std::fs::File::create(out_path).unwrap();
     let mut img_segment = ImageSegment::default();
     let band = Band::default();
+    let data = Vec::from_iter(0u8..8);
 
-    img_segment.data_size = 512;
+    img_segment.data_size = data.len() as u64;
     img_segment.header.nbands.val = 1;
-    img_segment.header.bands.push(band.clone());
-    nitf.add_im(img_segment);
+    img_segment.header.bands.push(band);
+    nitf_out.add_im(img_segment);
 
     let ghx_segment = GraphicSegment::default();
     let txt_segment = TextSegment::default();
     let dex_segment = DataExtensionSegment::default();
     let rex_segment = ReservedExtensionSegment::default();
 
-    nitf.add_sy(ghx_segment);
-    nitf.add_te(txt_segment);
-    nitf.add_de(dex_segment);
-    nitf.add_re(rex_segment);
+    nitf_out.add_sy(ghx_segment);
+    nitf_out.add_te(txt_segment);
+    nitf_out.add_de(dex_segment);
+    nitf_out.add_re(rex_segment);
 
-    let n_bytes = nitf.write_headers().unwrap();
+    let mut n_bytes = nitf_out.write_headers(&mut file).unwrap();
+    n_bytes += nitf_out.image_segments[0].write_data(&mut file, data.as_slice()).unwrap();
 
     log::debug!("Wrote {n_bytes} bytes");
     log::info!("Successfully wrote NITF");
 
-    let nitf_path = std::path::Path::new(&args[1]);
-    let nitf_file = std::fs::File::open(nitf_path).unwrap();
-    log::info!("Found NITF at: {}", nitf_path.display());
+    let mut nitf_file = std::fs::File::open(out_path).unwrap();
 
-    let nitf = nitf_rs::read_nitf(nitf_file).unwrap();
+    let nitf_in = nitf_rs::read_nitf(&mut nitf_file).unwrap();
+    let im_data_read = nitf_in.image_segments[0].read_data(&mut nitf_file).unwrap();
     log::info!("Read NITF successfully");
 
-    log::info!("NITF metadata: {}", nitf);
+    log::info!("NITF metadata: {}", nitf_in);
+    assert_eq!(nitf_out, nitf_in, "Verifying the metadata we wrote and read are equivalent... ");
+    assert_eq!(data, im_data_read[..], "Verifying the data we wrote and read are equivalent... ");
 }

@@ -88,7 +88,6 @@ use types::ExtendedSubheader;
 /// Top level NITF interface
 #[derive(Default, Debug)]
 pub struct Nitf {
-    pub file: Option<File>,
     /// Nitf file header.
     pub nitf_header: NitfHeader,
 
@@ -115,18 +114,15 @@ pub struct Nitf {
 /// let nitf_file = std::fs::File::open("example.nitf").unwrap();
 /// let nitf = nitf_rs::read_nitf(nitf_file).unwrap();
 /// ```
-pub fn read_nitf(file: File) -> NitfResult<Nitf> {
+pub fn read_nitf(file: &mut File) -> NitfResult<Nitf> {
     // Crash if failure to open file
-    Nitf::from_file(file.try_clone()?)
+    Nitf::read(file)
 }
 
 impl Nitf {
-    pub fn from_file(file: File) -> NitfResult<Self> {
-        let mut nitf = Nitf {
-            file: Some(file),
-            ..Default::default()
-        };
-        let reader = nitf.file.as_mut().unwrap();
+    pub fn read(reader: &mut File) -> NitfResult<Self> {
+        let mut nitf = Nitf::default();
+
         debug!("Reading NITF file header");
         nitf.nitf_header.read(reader)?;
 
@@ -134,7 +130,7 @@ impl Nitf {
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.imheaders[i_seg];
             let data_size = seg_info.item_size.val;
-            let seg = ImageSegment::from_reader(reader, data_size)?;
+            let seg = ImageSegment::read(reader, data_size)?;
             nitf.image_segments.push(seg);
         }
 
@@ -142,7 +138,7 @@ impl Nitf {
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.graphheaders[i_seg];
             let data_size: u64 = seg_info.item_size.val;
-            let seg = GraphicSegment::from_reader(reader, data_size)?;
+            let seg = GraphicSegment::read(reader, data_size)?;
             nitf.graphic_segments.push(seg);
         }
 
@@ -150,7 +146,7 @@ impl Nitf {
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.textheaders[i_seg];
             let data_size: u64 = seg_info.item_size.val;
-            let seg = TextSegment::from_reader(reader, data_size)?;
+            let seg = TextSegment::read(reader, data_size)?;
             nitf.text_segments.push(seg);
         }
 
@@ -158,7 +154,7 @@ impl Nitf {
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.dextheaders[i_seg];
             let data_size: u64 = seg_info.item_size.val;
-            let seg = DataExtensionSegment::from_reader(reader, data_size)?;
+            let seg = DataExtensionSegment::read(reader, data_size)?;
             nitf.data_extension_segments.push(seg);
         }
 
@@ -166,24 +162,18 @@ impl Nitf {
         for i_seg in 0..n_seg {
             let seg_info = &nitf.nitf_header.resheaders[i_seg];
             let data_size = seg_info.item_size.val;
-            let seg = ReservedExtensionSegment::from_reader(reader, data_size)?;
+            let seg = ReservedExtensionSegment::read(reader, data_size)?;
             nitf.reserved_extension_segments.push(seg);
         }
         Ok(nitf)
     }
 
     /// Write the header information for all segments to a file
-    pub fn write_headers(&mut self) -> NitfResult<usize> {
-        if self.file.is_none() {
-            Err(NitfError::Fatal(
-                "Must set 'file' before writing".to_string(),
-            ))?;
-        }
+    pub fn write_headers(&mut self, writer: &mut File) -> NitfResult<usize> {
         debug!("Writing NITF file header");
         let mut bytes_written = 0;
 
         let file_length = self.length() as u64;
-        let writer = self.file.as_mut().ok_or(NitfError::FileFatal)?;
         writer.set_len(file_length)?;
         bytes_written += self.nitf_header.write_header(writer, file_length)?;
         for seg in self.image_segments.iter_mut() {
@@ -347,7 +337,6 @@ impl Nitf {
         self.nitf_header
             .add_subheader(segment_type, subheader_size, item_size);
         self.image_segments.push(seg);
-        // update offsets
         self.update_offsets();
         debug!("Added Image Segment to NITF");
     }
@@ -394,7 +383,7 @@ impl Nitf {
         self.reserved_extension_segments.push(seg);
         self.update_offsets();
         debug!("Added Reserved Extension Segment to NITF");
-    }
+    }    
 }
 
 impl Display for Nitf {
@@ -419,3 +408,14 @@ impl Display for Nitf {
         write!(f, "{}", out_str)
     }
 }
+impl PartialEq for Nitf {
+    fn eq(&self, other: &Self) -> bool {
+        self.nitf_header == other.nitf_header &&
+        self.image_segments == other.image_segments &&
+        self.graphic_segments == other.graphic_segments &&
+        self.text_segments == other.text_segments &&
+        self.data_extension_segments == other.data_extension_segments &&
+        self.reserved_extension_segments == other.reserved_extension_segments
+    }
+}
+impl Eq for Nitf {}

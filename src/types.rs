@@ -21,7 +21,7 @@ pub struct NitfField<V: FromStr + Debug + Default + Display> {
     pub name: String,
 }
 
-/// Provide default implementation of reading a field.
+/// Provide default field implementations.
 impl<V> NitfField<V>
 where
     V: FromStr + Debug + Default + Display,
@@ -96,7 +96,7 @@ impl<V: FromStr + Debug + Default + Display> Display for NitfField<V> {
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Copy)]
 pub struct NitfSegment<T: NitfSegmentHeader> {
     /// Header fields defined in module
     pub header: T,
@@ -108,7 +108,7 @@ pub struct NitfSegment<T: NitfSegmentHeader> {
     pub data_offset: u64,
 }
 impl<T: NitfSegmentHeader> NitfSegment<T> {
-    pub(crate) fn from_reader(reader: &mut File, data_size: u64) -> NitfResult<Self> {
+    pub(crate) fn read(reader: &mut File, data_size: u64) -> NitfResult<Self> {
         let header_offset = reader.stream_position()?;
         let header = T::from_reader(reader)?;
         let data_offset = reader.stream_position()?;
@@ -122,7 +122,7 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
         })
     }
     /// Write segment header to file
-    pub fn write_header(&mut self, writer: &mut File) -> NitfResult<usize> {
+    pub(crate) fn write_header(&mut self, writer: &mut File) -> NitfResult<usize> {
         writer.seek(std::io::SeekFrom::Start(self.header_offset))?;
         let bytes_written = self.header.write(writer)?;
         self.data_offset = writer.stream_position()?;
@@ -157,13 +157,6 @@ impl<T: NitfSegmentHeader + Display> Display for NitfSegment<T> {
         write!(f, "{}", self.header)
     }
 }
-impl<T: NitfSegmentHeader + PartialEq> PartialEq for NitfSegment<T> {
-    fn eq(&self, other: &Self) -> bool {
-        self.header == other.header
-    }
-}
-impl<T: NitfSegmentHeader + Eq> Eq for NitfSegment<T> {}
-
 /// Standard security metadata
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Security {
