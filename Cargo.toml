@@ -1,14 +1,14 @@
 [package]
 name = "nitf-rs"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
-license = "MIT OR Apache-2.0"
+license = "MIT"
 description = "Minimal NITF interface."
 homepage = "https://github.com/holmesv3/nitf-rs"
 readme = "README-crates.md"
 
 [dependencies]
-thiserror = "^1.0"
+thiserror = "1.0"
 memmap2 = "0.5.10"
 log = "0.4"
 

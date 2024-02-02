@@ -1,6 +1,8 @@
 //! Image segment definition
 //!
-//! Need to implement data mask - which also means need to implement some kind of nicer parsing (enums, among other things)
+//! This is by far the most complicated part of the interface, and requires
+//! a lot of manual action to setup properly. Future work will hopefully be done
+//! to smooth out the process
 use std::fmt::Display;
 use std::fs::File;
 use std::str::FromStr;
@@ -8,6 +10,7 @@ use std::str::FromStr;
 use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
 use crate::{NitfError, NitfResult};
+
 /// Metadata for Image Segment subheader
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ImageHeader {
