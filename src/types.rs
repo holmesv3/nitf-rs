@@ -129,8 +129,8 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
         Ok(bytes_written)
     }
 
-    /// Read segment data from file into an immutable memory map.
-    pub fn read_data(&self, reader: &mut File) -> NitfResult<Mmap> {
+    /// Memory-map the data from this segment.
+    pub fn get_data_map(&self, reader: &mut File) -> NitfResult<Mmap> {
         if self.data_offset == 0 {
             Err(NitfError::Fatal(
                 "Data offset location is not set. Cannot read data".to_string(),

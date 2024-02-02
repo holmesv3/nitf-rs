@@ -1,12 +1,8 @@
 //! Example to read a nitf and print metadata
 
-use std::fs::File;
-
 fn usage() {
-    eprintln!("Example of writing a NITF file");
-    eprintln!("Usage: cargo run --example write -- <OUT>");
-    eprintln!(" Args: ");
-    eprintln!("\tOUT: path to write default NITF file");
+    eprintln!("Example of writing an empty NITF file with all log output");
+    eprintln!("Usage: cargo run --example write <OUT-PATH>");
 }
 
 fn main() {
@@ -24,11 +20,22 @@ fn main() {
     }
 
     let out_path = std::path::Path::new(&args[1]);
-    log::info!("Found OUT path: {}", out_path.display());
-    let mut nitf = nitf_rs::Nitf::default();
 
-    log::info!("Created NITF successfully");
-    nitf.file = Some(File::create(out_path).unwrap());
-    nitf.write_headers().unwrap();
+    let mut nitf = nitf_rs::Nitf::default();
+    log::info!("Created empty NITF successfully");
+
+    let mut img_seg = nitf_rs::ImageSegment::default();
+    img_seg.data_size = 128;
+    let image_data = Vec::from_iter(0u8..img_seg.data_size as u8);
+
+    nitf.add_im(img_seg);
+
+    let mut file = std::fs::File::create(out_path).unwrap();
+    let n_bytes = nitf.write_headers(&mut file).unwrap();
+    nitf.image_segments[0]
+        .write_data(&mut file, &image_data.as_slice())
+        .unwrap();
+
+    log::debug!("Wrote {n_bytes} bytes");
     log::info!("Successfully wrote NITF");
 }

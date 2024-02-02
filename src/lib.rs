@@ -5,42 +5,40 @@
 //! Constructing a [Nitf] object parses the file header and segment metadata.
 //! Each segment in contains a `header` field which stores the respective
 //! metadata defined in the file standard. The primary function for constructing a
-//! [Nitf] is [read_nitf()]
+//! [Nitf] is [Nitf::from_reader()]
 //! ```no_run
 //! // Read a nitf file and dump metadata to stdout
-//! let nitf_file = std::fs::File::open("example.nitf").unwrap();
-//! let nitf = nitf_rs::read_nitf(nitf_file).unwrap();
-//! println!("{nitf:?}");
+//! let mut nitf_file = std::fs::File::open("example.nitf").unwrap();
+//! let nitf = nitf_rs::Nitf::from_reader(&mut nitf_file).unwrap();
+//! println!("{nitf}");
 //! ```
 //!
-//! The main feature of the [FileHeader] is its `meta` field (see (NitfHeader)
-//! [headers::NitfHeader]).
-//! All other segments use the generic [NitfSegment] to provide header fields and
-//! a memory-map of the segment data.
+//!
+//! Aside from the `nitf_header`, all other segments use a generic [NitfSegment]
+//! to provide metadata and access to the segment data.
 //! ```no_run
 //! // Get the bytes from the first image segment
-//! let nitf_file = std::fs::File::open("example.nitf").unwrap();
-//! let nitf = nitf_rs::read_nitf(nitf_file).unwrap();
+//! let mut nitf_file = std::fs::File::open("example.nitf").unwrap();
+//! let nitf = nitf_rs::Nitf::from_reader(&mut nitf_file).unwrap();
 //! let im_seg = &nitf.image_segments[0];
+//! let im_seg_hdr = &im_seg.header;
+//! let im_seg_data = &im_seg.get_data_map(&mut nitf_file).unwrap();
 //! ```
+//!
 //! Most metadata elements are stored in a [NitfField](types::NitfField) structure.
-//! This structure hold onto the `val` which holds on to native value of the field
-//! (i.e., the bytes parsed into a u8, u16, String, enum, etc.)
+//! This structure has a `val` which holds on to native value of the field
+//! (i.e., the bytes parsed into a u8, u16, String, enum, etc.), as well as the
+//! length (in bytes) and name of the field.
 //! ```no_run
-//! // Read in a nitf and extract the...
-//! let nitf_file = std::fs::File::open("example.nitf").unwrap();
-//! let nitf = nitf_rs::read_nitf(nitf_file).unwrap();
-//! // .. File title
+//! let mut nitf_file = std::fs::File::open("example.nitf").unwrap();
+//! let nitf = nitf_rs::Nitf::from_reader(&mut nitf_file).unwrap();
 //! let file_title = nitf.nitf_header.ftitle.val;
-//! // .. Number of image segments
 //! let n_img_segments = nitf.nitf_header.numi.val;
-//! // .. and number of rows in the first image segment data
 //! let n_rows = nitf.image_segments[0].header.nrows.val;
 //! ```
 //!
 //! If there is user-defined tagged-record-extension (TRE) data within a segment,
 //! it is stored in an [ExtendedSubheader] for the user to parse accordingly.
-//!
 pub mod headers;
 pub mod types;
 
@@ -55,9 +53,9 @@ use types::NitfSegment;
 
 pub type NitfResult<T> = Result<T, NitfError>;
 
+// Crate specific errors
 #[derive(Error, Debug)]
 pub enum NitfError {
-    // Crate specific errors
     #[error("error parsing {0}")]
     ParseError(String),
     #[error("{0}")]
@@ -107,20 +105,8 @@ pub struct Nitf {
     pub reserved_extension_segments: Vec<ReservedExtensionSegment>,
 }
 
-/// Construct a [Nitf] object from a file `path`.
-///
-/// # Example
-/// ```no_run
-/// let nitf_file = std::fs::File::open("example.nitf").unwrap();
-/// let nitf = nitf_rs::read_nitf(nitf_file).unwrap();
-/// ```
-pub fn read_nitf(file: &mut File) -> NitfResult<Nitf> {
-    // Crash if failure to open file
-    Nitf::read(file)
-}
-
 impl Nitf {
-    pub fn read(reader: &mut File) -> NitfResult<Self> {
+    pub fn from_reader(reader: &mut File) -> NitfResult<Self> {
         let mut nitf = Nitf::default();
 
         debug!("Reading NITF file header");
@@ -170,7 +156,6 @@ impl Nitf {
 
     /// Write the header information for all segments to a file
     pub fn write_headers(&mut self, writer: &mut File) -> NitfResult<usize> {
-        debug!("Writing NITF file header");
         let mut bytes_written = 0;
 
         let file_length = self.length() as u64;
@@ -193,7 +178,7 @@ impl Nitf {
         }
         Ok(bytes_written)
     }
-
+    /// Get the length of the [Nitf] file in bytes
     pub fn length(&self) -> usize {
         let mut length = 0;
         length += self.nitf_header.length();
@@ -225,7 +210,11 @@ impl Nitf {
         length
     }
 
-    /// After changing something with the size or number of segments, need to update internal info
+    // After changing something with the size or number of segments, need to update internal info
+
+    /// Update internal state of file header and offsets.
+    ///
+    /// I don't think this needs to be part of the public interface..
     fn update_offsets(&mut self) {
         let mut offset = self.nitf_header.length();
         let mut trace_string = "Updated offsets: \n".to_string();
@@ -327,9 +316,15 @@ impl Nitf {
         }
         trace!("{trace_string}");
     }
+
     // I could  wrap these in an enum to match off the type and have one function,
     // but I think the more explicit funcntions makes for a cleaner interface..
-    /// Add a [ImageSegment] to the object
+
+    /// Add a [ImageSegment] to the object.
+    ///
+    /// Takes ownership of the segment to indicate that the metadata should not
+    /// be extensively modified after adding. Some fields can be changed without
+    /// adverse affect, but it should be done with moderate prejudice.
     pub fn add_im(&mut self, seg: ImageSegment) {
         let segment_type = Image;
         let subheader_size = seg.header.length() as u32;
@@ -340,7 +335,11 @@ impl Nitf {
         self.update_offsets();
         debug!("Added Image Segment to NITF");
     }
-    /// Add a [GraphicSegment] to the object
+    /// Add a [GraphicSegment] to the object.
+    ///
+    /// Takes ownership of the segment to indicate that the metadata should not
+    /// be extensively modified after adding. Some fields can be changed without
+    /// adverse affect, but it should be done with moderate prejudice.
     pub fn add_sy(&mut self, seg: GraphicSegment) {
         let segment_type = Graphic;
         let subheader_size = seg.header.length() as u32;
@@ -351,7 +350,11 @@ impl Nitf {
         self.update_offsets();
         debug!("Added Graphic Segment to NITF");
     }
-    /// Add a [TextSegment] to the object
+    /// Add a [TextSegment] to the object.
+    ///
+    /// Takes ownership of the segment to indicate that the metadata should not
+    /// be extensively modified after adding. Some fields can be changed without
+    /// adverse affect, but it should be done with moderate prejudice.
     pub fn add_te(&mut self, seg: TextSegment) {
         let segment_type = Text;
         let subheader_size = seg.header.length() as u32;
@@ -362,7 +365,11 @@ impl Nitf {
         self.update_offsets();
         debug!("Added Text Segment to NITF");
     }
-    /// Add a [DataExtensionSegment] to the object
+    /// Add a [DataExtensionSegment] to the object.
+    ///
+    /// Takes ownership of the segment to indicate that the metadata should not
+    /// be extensively modified after adding. Some fields can be changed without
+    /// adverse affect, but it should be done with moderate prejudice.
     pub fn add_de(&mut self, seg: DataExtensionSegment) {
         let segment_type = DataExtension;
         let subheader_size = seg.header.length() as u32;
@@ -373,7 +380,11 @@ impl Nitf {
         self.update_offsets();
         debug!("Added Data Extension Segment to NITF");
     }
-    /// Add a [ReservedExtensionSegment] to the object
+    /// Add a [ReservedExtensionSegment] to the object.
+    ///
+    /// Takes ownership of the segment to indicate that the metadata should not
+    /// be extensively modified after adding. Some fields can be changed without
+    /// adverse affect, but it should be done with moderate prejudice.
     pub fn add_re(&mut self, seg: ReservedExtensionSegment) {
         let segment_type = ReservedExtension;
         let subheader_size = seg.header.length() as u32;
@@ -383,7 +394,7 @@ impl Nitf {
         self.reserved_extension_segments.push(seg);
         self.update_offsets();
         debug!("Added Reserved Extension Segment to NITF");
-    }    
+    }
 }
 
 impl Display for Nitf {
@@ -410,12 +421,12 @@ impl Display for Nitf {
 }
 impl PartialEq for Nitf {
     fn eq(&self, other: &Self) -> bool {
-        self.nitf_header == other.nitf_header &&
-        self.image_segments == other.image_segments &&
-        self.graphic_segments == other.graphic_segments &&
-        self.text_segments == other.text_segments &&
-        self.data_extension_segments == other.data_extension_segments &&
-        self.reserved_extension_segments == other.reserved_extension_segments
+        self.nitf_header == other.nitf_header
+            && self.image_segments == other.image_segments
+            && self.graphic_segments == other.graphic_segments
+            && self.text_segments == other.text_segments
+            && self.data_extension_segments == other.data_extension_segments
+            && self.reserved_extension_segments == other.reserved_extension_segments
     }
 }
 impl Eq for Nitf {}
