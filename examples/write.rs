@@ -25,8 +25,8 @@ fn main() {
     log::info!("Created empty NITF successfully");
 
     let mut img_seg = nitf_rs::ImageSegment::default();
-    img_seg.data_size = 128;
-    let image_data = Vec::from_iter(0u8..img_seg.data_size as u8);
+    img_seg.data_size = 2 ^ 10; // 1 kilobyte
+    let image_data = vec![0u8; img_seg.data_size as usize];
 
     nitf.add_im(img_seg);
 

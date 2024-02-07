@@ -44,7 +44,7 @@ pub mod types;
 
 use log::{debug, trace};
 use std::fmt::Display;
-use std::fs::File;
+use std::io::{Read, Write, Seek};
 use thiserror::Error;
 
 use headers::file_hdr::Segment::*;
@@ -106,7 +106,7 @@ pub struct Nitf {
 }
 
 impl Nitf {
-    pub fn from_reader(reader: &mut File) -> NitfResult<Self> {
+    pub fn from_reader(reader: &mut (impl Read + Seek)) -> NitfResult<Self> {
         let mut nitf = Nitf::default();
 
         debug!("Reading NITF file header");
@@ -155,11 +155,10 @@ impl Nitf {
     }
 
     /// Write the header information for all segments to a file
-    pub fn write_headers(&mut self, writer: &mut File) -> NitfResult<usize> {
+    pub fn write_headers(&mut self, writer: &mut (impl Write + Seek)) -> NitfResult<usize> {
         let mut bytes_written = 0;
 
         let file_length = self.length() as u64;
-        writer.set_len(file_length)?;
         bytes_written += self.nitf_header.write_header(writer, file_length)?;
         for seg in self.image_segments.iter_mut() {
             bytes_written += seg.write_header(writer)?;

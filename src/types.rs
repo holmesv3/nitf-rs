@@ -2,7 +2,6 @@
 use log::{trace, warn};
 use memmap2::{Mmap, MmapOptions};
 use std::fmt::{Debug, Display};
-use std::fs::File;
 use std::io::{Read, Seek, Write};
 use std::ops::Deref;
 use std::str::FromStr;
@@ -37,7 +36,7 @@ where
     // Reading/Writing
 
     /// Read the specified number of bytes and parse the value of a given field
-    pub fn read(&mut self, reader: &mut File) -> NitfResult<()> {
+    pub fn read(&mut self, reader: &mut (impl Read + Seek)) -> NitfResult<()> {
         let mut bytes = vec![0; self.length];
         let string;
 
@@ -72,7 +71,7 @@ where
         Ok(())
     }
 
-    pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
+    pub fn write(&self, writer: &mut (impl Write + Seek)) -> NitfResult<usize> {
         let buf = format!("{:<1$}", self.val.to_string(), self.length);
         let offset = writer.stream_position()?;
         trace!(
@@ -108,7 +107,7 @@ pub struct NitfSegment<T: NitfSegmentHeader> {
     pub data_offset: u64,
 }
 impl<T: NitfSegmentHeader> NitfSegment<T> {
-    pub(crate) fn read(reader: &mut File, data_size: u64) -> NitfResult<Self> {
+    pub(crate) fn read(reader: &mut (impl Read + Seek), data_size: u64) -> NitfResult<Self> {
         let header_offset = reader.stream_position()?;
         let header = T::from_reader(reader)?;
         let data_offset = reader.stream_position()?;
@@ -122,7 +121,7 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
         })
     }
     /// Write segment header to file
-    pub(crate) fn write_header(&mut self, writer: &mut File) -> NitfResult<usize> {
+    pub(crate) fn write_header(&mut self, writer: &mut (impl Write + Seek)) -> NitfResult<usize> {
         writer.seek(std::io::SeekFrom::Start(self.header_offset))?;
         let bytes_written = self.header.write(writer)?;
         self.data_offset = writer.stream_position()?;
@@ -130,7 +129,7 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
     }
 
     /// Memory-map the data from this segment.
-    pub fn get_data_map(&self, reader: &mut File) -> NitfResult<Mmap> {
+    pub fn get_data_map(&self, reader: &mut std::fs::File) -> NitfResult<Mmap> {
         if self.data_offset == 0 {
             Err(NitfError::Fatal(
                 "Data offset location is not set. Cannot read data".to_string(),
@@ -144,7 +143,7 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
         }?)
     }
     /// Write segment data to file. Assumes cursor is in correct position
-    pub fn write_data(&self, writer: &mut File, data: &[u8]) -> NitfResult<usize> {
+    pub fn write_data(&self, writer: &mut (impl Write + Seek), data: &[u8]) -> NitfResult<usize> {
         writer.seek(std::io::SeekFrom::Start(self.data_offset))?;
         writer.write(data).map_err(NitfError::IOError)
     }
@@ -218,7 +217,7 @@ impl Default for Security {
 }
 
 impl Security {
-    pub fn read(&mut self, reader: &mut File) -> NitfResult<()> {
+    pub fn read(&mut self, reader: &mut (impl Read + Seek)) -> NitfResult<()> {
         self.clas.read(reader)?;
         self.clsy.read(reader)?;
         self.code.read(reader)?;
@@ -237,7 +236,7 @@ impl Security {
         self.ctln.read(reader)?;
         Ok(())
     }
-    pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
+    pub fn write(&self, writer: &mut (impl Write + Seek)) -> NitfResult<usize> {
         let mut bytes_written = 0;
         bytes_written += self.clas.write(writer)?;
         bytes_written += self.clsy.write(writer)?;
@@ -610,7 +609,7 @@ impl ExtendedSubheader {
         self.size = new_tre.len();
         self.tre = new_tre;
     }
-    pub fn read(&mut self, reader: &mut File, n_bytes: usize) -> NitfResult<()> {
+    pub fn read(&mut self, reader: &mut (impl Read + Seek), n_bytes: usize) -> NitfResult<()> {
         self.size = n_bytes;
         self.tre = vec![0; n_bytes];
         trace!("Reading: {}", self.name);
@@ -618,7 +617,7 @@ impl ExtendedSubheader {
             .read_exact(self.tre.as_mut_slice())
             .map_err(NitfError::IOError)
     }
-    pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
+    pub fn write(&self, writer: &mut (impl Write + Seek)) -> NitfResult<usize> {
         trace!("Writing: {}", self.name);
         writer
             .write(self.tre.as_slice())

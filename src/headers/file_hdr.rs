@@ -1,6 +1,6 @@
 //! File header definition
 use std::fmt::Display;
-use std::fs::File;
+use std::io::{Read, Write, Seek};
 use std::str::FromStr;
 
 use crate::headers::NitfSegmentHeader;
@@ -138,7 +138,7 @@ impl Segment {
 impl NitfHeader {
     pub(crate) fn write_header(
         &mut self,
-        writer: &mut File,
+        writer: &mut (impl Write + Seek),
         file_length: u64,
     ) -> NitfResult<usize> {
         self.hl.val = self.length() as u32;
@@ -273,7 +273,7 @@ impl Display for NitfHeader {
 }
 
 impl NitfSegmentHeader for NitfHeader {
-    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
+    fn read(&mut self, reader: &mut (impl Read + Seek)) -> NitfResult<()> {
         self.fhdr.read(reader)?;
         self.fver.read(reader)?;
         self.clevel.read(reader)?;
@@ -338,7 +338,7 @@ impl NitfSegmentHeader for NitfHeader {
         }
         Ok(())
     }
-    fn write(&self, writer: &mut File) -> NitfResult<usize> {
+    fn write(&self, writer: &mut (impl Write + Seek)) -> NitfResult<usize> {
         let mut bytes_written = self.fhdr.write(writer)?;
         bytes_written += self.fver.write(writer)?;
         bytes_written += self.clevel.write(writer)?;
@@ -456,13 +456,13 @@ impl SubHeader {
         }
     }
 
-    pub fn read(&mut self, reader: &mut File) -> NitfResult<()> {
+    pub fn read(&mut self, reader: &mut (impl Read + Seek)) -> NitfResult<()> {
         self.subheader_size.read(reader)?;
         self.item_size.read(reader)?;
         Ok(())
     }
 
-    pub fn write(&self, writer: &mut File) -> NitfResult<usize> {
+    pub fn write(&self, writer: &mut (impl Write + Seek)) -> NitfResult<usize> {
         let mut bytes_written = self.subheader_size.write(writer)?;
         bytes_written += self.item_size.write(writer)?;
         Ok(bytes_written)

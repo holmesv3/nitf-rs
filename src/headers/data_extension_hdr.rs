@@ -1,6 +1,6 @@
 //! Data Extension segment subheader definition
 use std::fmt::Display;
-use std::fs::File;
+use std::io::{Read, Write, Seek};
 use std::str::FromStr;
 
 use crate::headers::NitfSegmentHeader;
@@ -43,7 +43,7 @@ impl Default for DataExtensionHeader {
     }
 }
 impl NitfSegmentHeader for DataExtensionHeader {
-    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
+    fn read(&mut self, reader: &mut (impl Read + Seek)) -> NitfResult<()> {
         self.de.read(reader)?;
         self.desid.read(reader)?;
         self.desver.read(reader)?;
@@ -58,7 +58,7 @@ impl NitfSegmentHeader for DataExtensionHeader {
         }
         Ok(())
     }
-    fn write(&self, writer: &mut File) -> NitfResult<usize> {
+    fn write(&self, writer: &mut (impl Write + Seek)) -> NitfResult<usize> {
         let mut bytes_written = 0;
         bytes_written += self.de.write(writer)?;
         bytes_written += self.desid.write(writer)?;

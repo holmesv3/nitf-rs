@@ -4,7 +4,7 @@
 //! a lot of manual action to setup properly. Future work will hopefully be done
 //! to smooth out the process
 use std::fmt::Display;
-use std::fs::File;
+use std::io::{Read, Write, Seek};
 use std::str::FromStr;
 
 use crate::headers::NitfSegmentHeader;
@@ -365,7 +365,7 @@ pub enum Mode {
 
 // FUNCTIONS
 /// Helper function for parsing bands
-fn read_bands(reader: &mut File, n_band: u32) -> NitfResult<Vec<Band>> {
+fn read_bands(reader: &mut (impl Read + Seek), n_band: u32) -> NitfResult<Vec<Band>> {
     let mut bands: Vec<Band> = vec![Band::default(); n_band as usize];
     for band in &mut bands {
         band.irepband.read(reader)?;
@@ -385,7 +385,7 @@ fn read_bands(reader: &mut File, n_band: u32) -> NitfResult<Vec<Band>> {
     Ok(bands)
 }
 /// Helper function for writing bands
-fn write_bands(writer: &mut File, bands: &Vec<Band>) -> NitfResult<usize> {
+fn write_bands(writer: &mut (impl Write + Seek), bands: &Vec<Band>) -> NitfResult<usize> {
     let mut bytes_written = 0;
     for band in bands {
         bytes_written += band.irepband.write(writer)?;
@@ -422,7 +422,7 @@ fn is_comrat(compression: &Compression) -> bool {
 
 // TRAIT IMPLEMENTATIONS
 impl NitfSegmentHeader for ImageHeader {
-    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
+    fn read(&mut self, reader: &mut (impl Read + Seek)) -> NitfResult<()> {
         self.im.read(reader)?;
         self.iid1.read(reader)?;
         self.idatim.read(reader)?;
@@ -479,7 +479,7 @@ impl NitfSegmentHeader for ImageHeader {
         }
         Ok(())
     }
-    fn write(&self, writer: &mut File) -> NitfResult<usize> {
+    fn write(&self, writer: &mut (impl Write + Seek)) -> NitfResult<usize> {
         let mut bytes_written = 0;
         bytes_written += self.im.write(writer)?;
         bytes_written += self.iid1.write(writer)?;

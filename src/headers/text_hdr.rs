@@ -1,6 +1,6 @@
 //! Text segment definition
 use std::fmt::Display;
-use std::fs::File;
+use std::io::{Read, Write, Seek};
 
 use std::str::FromStr;
 
@@ -86,7 +86,7 @@ pub enum TextFormat {
 }
 
 impl NitfSegmentHeader for TextHeader {
-    fn read(&mut self, reader: &mut File) -> NitfResult<()> {
+    fn read(&mut self, reader: &mut (impl Read + Seek)) -> NitfResult<()> {
         self.te.read(reader)?;
         self.textid.read(reader)?;
         self.txtalvl.read(reader)?;
@@ -102,7 +102,7 @@ impl NitfSegmentHeader for TextHeader {
         }
         Ok(())
     }
-    fn write(&self, writer: &mut File) -> NitfResult<usize> {
+    fn write(&self, writer: &mut (impl Write + Seek)) -> NitfResult<usize> {
         let mut bytes_written = 0;
         bytes_written += self.te.write(writer)?;
         bytes_written += self.textid.write(writer)?;

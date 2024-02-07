@@ -1,4 +1,5 @@
 //! Example to read a nitf and print metadata
+
 fn usage() {
     eprintln!("Example of reading a NITF file");
     eprintln!("Usage: cargo run --example read -- <NITF>");
@@ -25,4 +26,6 @@ fn main() {
     log::info!("Read NITF successfully");
 
     log::info!("NITF metadata: {nitf}");
+    let data = &nitf.image_segments[0].get_data_map(&mut nitf_file).unwrap();
+    dbg!(&data[0..10]);   
 }

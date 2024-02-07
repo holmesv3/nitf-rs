@@ -1,6 +1,6 @@
 //! Header metadata definitions
 
-use std::fs::File;
+use std::io::{Read, Write, Seek};
 
 pub mod data_extension_hdr;
 pub mod file_hdr;
@@ -31,7 +31,7 @@ where
     ///
     /// reader: Stream from which to read header information
     #[allow(unused)]
-    fn read(&mut self, reader: &mut File) -> NitfResult<()>;
+    fn read(&mut self, reader: &mut (impl Read + Seek)) -> NitfResult<()>;
 
     /// Write the segment info to stream
     ///
@@ -39,13 +39,13 @@ where
     ///
     /// writer: Stream from which to write header information
     #[allow(unused)]
-    fn write(&self, writer: &mut File) -> NitfResult<usize>;
+    fn write(&self, writer: &mut (impl Write + Seek)) -> NitfResult<usize>;
 
     /// Get the length of the segment
     #[allow(unused)]
     fn length(&self) -> usize;
 
-    fn from_reader(reader: &mut File) -> NitfResult<Self> {
+    fn from_reader(reader: &mut (impl Read + Seek)) -> NitfResult<Self> {
         let mut hdr = Self::default();
         hdr.read(reader)?;
         Ok(hdr)
