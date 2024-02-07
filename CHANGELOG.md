@@ -1,11 +1,12 @@
 # Changes by version
 
-## 0.2.4 
- - Added more logging
- - Removed `read_nitf()`
- - Implementing writing
- - Added basic read and write examples
- - Segments now 'lazily' (not really) provide a memory map to the data via `get_data_map()`
+## 0.3.0
+- Writing broke prior version, so pulled
+- Added more logging
+- Removed `read_nitf()`
+- Implementing writing
+- Added basic read and write examples
+- Segments now 'lazily' (not really) provide a memory map to the data via `get_data_map()`
 
 ## 0.2.3
 - Improved error handling when parsing file
