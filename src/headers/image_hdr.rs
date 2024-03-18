@@ -166,6 +166,8 @@ impl Display for IM {
 }
 
 /// Band metadata
+/// 
+/// If there is look-up-table (LUT) data, is is stored as a `Vec<Vec<u8>>`
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Band {
     /// Band Representation
@@ -181,7 +183,7 @@ pub struct Band {
     /// Number of Look-Up-Table Entries for the Image Band
     pub nelut: NitfField<u16>,
     /// Image Band Look-Up-Tables
-    pub lutd: Vec<NitfField<u8>>,
+    pub lutd: Vec<Vec<u8>>,
 }
 impl Default for Band {
     fn default() -> Self {
@@ -206,7 +208,8 @@ impl Band {
         length += self.nluts.length;
         if self.nluts.val != 0 {
             length += self.nelut.length;
-            length += self.lutd.len(); // each element is 1 byte,
+            // Each LUT element is one byte
+            length += (self.nelut.val * self.nluts.val as u16) as usize;
         }
         length
     }
@@ -375,11 +378,18 @@ fn read_bands(reader: &mut (impl Read + Seek), n_band: u32) -> NitfResult<Vec<Ba
         band.nluts.read(reader)?;
         if band.nluts.val != 0 {
             band.nelut.read(reader)?;
-        }
-        let n_lutd = (band.nelut.val * band.nluts.val as u16) as usize;
-        band.lutd = vec![NitfField::init(1u8, "LUDT"); n_lutd];
-        for lut in band.lutd.iter_mut() {
-            lut.read(reader)?;
+            // Now we have a vector of the lut's. 
+            band.lutd = vec![
+                vec![0; band.nelut.val as usize];
+                band.nluts.val as usize
+            ];
+            for lut in band.lutd.iter_mut() {
+                // Here we have a vector which is a single LUT. Read into it.
+                // Crash if there is an error reading the bytes
+                reader
+                    .read_exact(lut)
+                    .or(Err(NitfError::ReadFatal("LUTD".to_string())))?;
+            }
         }
     }
     Ok(bands)
@@ -395,10 +405,9 @@ fn write_bands(writer: &mut (impl Write + Seek), bands: &Vec<Band>) -> NitfResul
         bytes_written += band.nluts.write(writer)?;
         if band.nluts.val != 0 {
             band.nelut.write(writer)?;
-        }
-        // Assumes luts are setup properly
-        for lut in band.lutd.iter() {
-            bytes_written += lut.write(writer)?;
+            for lut in band.lutd.iter() {
+                bytes_written += writer.write(&lut).map_err(NitfError::IOError)?
+            }
         }
     }
     Ok(bytes_written)
@@ -439,7 +448,9 @@ impl NitfSegmentHeader for ImageHeader {
         self.abpp.read(reader)?;
         self.pjust.read(reader)?;
         self.icords.read(reader)?;
-        self.igeolo.read(reader)?;
+        if self.icords.val != CoordinateRepresentation::DEFAULT {
+            self.igeolo.read(reader)?;
+        }
         self.nicom.read(reader)?;
         self.icoms = vec![NitfField::init(80u8, "ICOM"); self.nicom.val.into()];
         self.icoms.iter_mut().try_for_each(|com| com.read(reader))?;
@@ -497,7 +508,9 @@ impl NitfSegmentHeader for ImageHeader {
         bytes_written += self.abpp.write(writer)?;
         bytes_written += self.pjust.write(writer)?;
         bytes_written += self.icords.write(writer)?;
-        bytes_written += self.igeolo.write(writer)?;
+        if self.icords.val != CoordinateRepresentation::DEFAULT{
+            bytes_written += self.igeolo.write(writer)?;
+        }
         self.nicom.write(writer)?;
         for comment in &self.icoms {
             bytes_written += comment.write(writer)?;
@@ -554,7 +567,9 @@ impl NitfSegmentHeader for ImageHeader {
         length += self.abpp.length;
         length += self.pjust.length;
         length += self.icords.length;
-        length += self.igeolo.length;
+        if self.icords.val != CoordinateRepresentation::DEFAULT {
+            length += self.igeolo.length;
+        }
         length += self.nicom.length;
         for comment in &self.icoms {
             length += comment.length;
@@ -607,7 +622,9 @@ impl Display for ImageHeader {
         out_str += format!("{}, ", self.abpp).as_ref();
         out_str += format!("{}, ", self.pjust).as_ref();
         out_str += format!("{}, ", self.icords).as_ref();
-        out_str += format!("{}, ", self.igeolo).as_ref();
+        if self.icords.val != CoordinateRepresentation::DEFAULT {
+            out_str += format!("{}, ", self.igeolo).as_ref();
+        }
         out_str += format!("{}, ", self.nicom).as_ref();
         for (i_com, com) in self.icoms.iter().enumerate() {
             out_str += format!("ICOM {i_com}: {com},",).as_ref();
@@ -653,10 +670,10 @@ impl Display for Band {
         out_str += format!("{}, ", self.imflt).as_ref();
         out_str += format!("{}, ", self.nluts).as_ref();
         if self.nluts.val != 0 {
-            for i_lut in 0..self.nluts.val {
-                out_str += format!("{}, ", self.nelut).as_ref();
-                for (i_elem, lut) in self.lutd.iter().enumerate() {
-                    out_str += format!("LUT{i_lut}{i_elem}: {}", lut.val).as_ref();
+            out_str += format!("{}, ", self.nelut).as_ref();
+            for (i_lut, lut) in self.lutd.iter().enumerate() {
+                for (i_elem, elem) in lut.iter().enumerate() {
+                    out_str += format!("LUT{i_lut}{i_elem}: {elem:<3X}, ").as_ref();
                 }
             }
         }
@@ -693,7 +710,7 @@ impl FromStr for ImageRepresentation {
         match s {
             "MONO" => Ok(Self::MONO),
             "RGB" => Ok(Self::RGB),
-            "RGBLUT" => Ok(Self::RGBLUT),
+            "RGB/LUT" => Ok(Self::RGBLUT),
             "MULTI" => Ok(Self::MULTI),
             "NODISPLY" => Ok(Self::NODISPLY),
             "" => Ok(Self::NVECTOR),
@@ -709,7 +726,7 @@ impl Display for ImageRepresentation {
         match self {
             Self::MONO => write!(f, "MONO"),
             Self::RGB => write!(f, "RGB"),
-            Self::RGBLUT => write!(f, "RGBLUT"),
+            Self::RGBLUT => write!(f, "RGB/LUT"),
             Self::MULTI => write!(f, "MULTI"),
             Self::NODISPLY => write!(f, "NODISPLY"),
             Self::NVECTOR => write!(f, "NVECTOR"),

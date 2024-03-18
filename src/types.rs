@@ -75,7 +75,7 @@ where
         let buf = format!("{:<1$}", self.val.to_string(), self.length);
         let offset = writer.stream_position()?;
         trace!(
-            "Wrote {} bytes for {} at {offset}: {buf}",
+            "Wrote {} bytes for {} at offset {offset}: {buf}",
             buf.len(),
             self.name
         );
