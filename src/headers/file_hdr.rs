@@ -1,6 +1,6 @@
 //! File header definition
 use std::fmt::Display;
-use std::io::{Read, Write, Seek};
+use std::io::{Read, Seek, Write};
 use std::str::FromStr;
 
 use crate::headers::NitfSegmentHeader;

@@ -4,7 +4,7 @@
 //! a lot of manual action to setup properly. Future work will hopefully be done
 //! to smooth out the process
 use std::fmt::Display;
-use std::io::{Read, Write, Seek};
+use std::io::{Read, Seek, Write};
 use std::str::FromStr;
 
 use crate::headers::NitfSegmentHeader;
@@ -166,7 +166,7 @@ impl Display for IM {
 }
 
 /// Band metadata
-/// 
+///
 /// If there is look-up-table (LUT) data, is is stored as a `Vec<Vec<u8>>`
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Band {
@@ -378,11 +378,8 @@ fn read_bands(reader: &mut (impl Read + Seek), n_band: u32) -> NitfResult<Vec<Ba
         band.nluts.read(reader)?;
         if band.nluts.val != 0 {
             band.nelut.read(reader)?;
-            // Now we have a vector of the lut's. 
-            band.lutd = vec![
-                vec![0; band.nelut.val as usize];
-                band.nluts.val as usize
-            ];
+            // Now we have a vector of the lut's.
+            band.lutd = vec![vec![0; band.nelut.val as usize]; band.nluts.val as usize];
             for lut in band.lutd.iter_mut() {
                 // Here we have a vector which is a single LUT. Read into it.
                 // Crash if there is an error reading the bytes
@@ -406,7 +403,7 @@ fn write_bands(writer: &mut (impl Write + Seek), bands: &Vec<Band>) -> NitfResul
         if band.nluts.val != 0 {
             band.nelut.write(writer)?;
             for lut in band.lutd.iter() {
-                bytes_written += writer.write(&lut).map_err(NitfError::IOError)?
+                bytes_written += writer.write(lut).map_err(NitfError::IOError)?
             }
         }
     }
@@ -508,7 +505,7 @@ impl NitfSegmentHeader for ImageHeader {
         bytes_written += self.abpp.write(writer)?;
         bytes_written += self.pjust.write(writer)?;
         bytes_written += self.icords.write(writer)?;
-        if self.icords.val != CoordinateRepresentation::DEFAULT{
+        if self.icords.val != CoordinateRepresentation::DEFAULT {
             bytes_written += self.igeolo.write(writer)?;
         }
         self.nicom.write(writer)?;

@@ -44,7 +44,7 @@ pub mod types;
 
 use log::{debug, trace};
 use std::fmt::Display;
-use std::io::{Read, Write, Seek};
+use std::io::{Read, Seek, Write};
 use thiserror::Error;
 
 use headers::file_hdr::Segment::*;

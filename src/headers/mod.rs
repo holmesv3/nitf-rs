@@ -1,6 +1,6 @@
 //! Header metadata definitions
 
-use std::io::{Read, Write, Seek};
+use std::io::{Read, Seek, Write};
 
 pub mod data_extension_hdr;
 pub mod file_hdr;
