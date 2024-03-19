@@ -8,7 +8,7 @@ use crate::types::{ExtendedSubheader, NitfField, Security};
 use crate::{NitfError, NitfResult};
 
 /// Metadata for Data Extension Segment
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct DataExtensionHeader {
     /// File Part Type
     pub de: NitfField<DE>,
@@ -89,7 +89,7 @@ impl NitfSegmentHeader for DataExtensionHeader {
         length
     }
 }
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Default, Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub enum DE {
     #[default]
     DE,
@@ -110,7 +110,7 @@ impl Display for DE {
 }
 
 /// Selection of which header/subheader this extension corresponds to
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum OverflowedHeaderType {
     #[default]
     /// Image subheader extended subheader data overflow

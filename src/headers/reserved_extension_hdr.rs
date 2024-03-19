@@ -7,7 +7,7 @@ use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
 use crate::{NitfError, NitfResult};
 /// Metadata for Reserved Extension Segment
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct ReservedExtensionHeader {
     /// File Part Type
     pub re: NitfField<RE>,
@@ -34,7 +34,7 @@ impl Default for ReservedExtensionHeader {
         }
     }
 }
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Copy, Ord, PartialOrd)]
 pub enum RE {
     #[default]
     RE,

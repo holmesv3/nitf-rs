@@ -7,7 +7,7 @@ use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
 use crate::{NitfError, NitfResult};
 /// Header fields for Graphic Segment
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct GraphicHeader {
     /// File Part Type
     pub sy: NitfField<SY>,
@@ -67,7 +67,7 @@ impl Default for GraphicHeader {
         }
     }
 }
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Copy, Ord, PartialOrd)]
 pub enum SY {
     #[default]
     SY,
@@ -182,7 +182,7 @@ impl NitfSegmentHeader for GraphicHeader {
 }
 
 /// Graphic type. Right now standard only supports C
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Format {
     #[default]
     /// Computer graphics metafile
@@ -207,7 +207,7 @@ impl Display for Format {
 }
 
 /// Graphic bound position relative to origin of coordinate system
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub struct BoundLocation {
     pub row: i32,
     pub col: i32,
@@ -237,7 +237,7 @@ impl Display for BoundLocation {
     }
 }
 /// Color type of graphics
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Color {
     #[default]
     /// Color pieces

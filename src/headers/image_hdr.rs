@@ -12,7 +12,7 @@ use crate::types::{ExtendedSubheader, NitfField, Security};
 use crate::{NitfError, NitfResult};
 
 /// Metadata for Image Segment subheader
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct ImageHeader {
     /// File Part Type
     pub im: NitfField<IM>,
@@ -145,7 +145,7 @@ impl Default for ImageHeader {
     }
 }
 
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Copy, Ord, PartialOrd)]
 pub enum IM {
     #[default]
     IM,
@@ -168,7 +168,7 @@ impl Display for IM {
 /// Band metadata
 ///
 /// If there is look-up-table (LUT) data, is is stored as a `Vec<Vec<u8>>`
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Band {
     /// Band Representation
     pub irepband: NitfField<ImageRepresentationBand>,
@@ -216,7 +216,7 @@ impl Band {
 }
 
 /// Pixel Value type options
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum PixelValueType {
     #[default]
     /// ComplexFloat, 32 or 64 bits, real then imaginary
@@ -232,7 +232,7 @@ pub enum PixelValueType {
 }
 
 /// Image representation values
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum ImageRepresentation {
     #[default]
     /// Monochrome
@@ -255,7 +255,7 @@ pub enum ImageRepresentation {
     YCbCr601,
 }
 /// Image representation values
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum ImageRepresentationBand {
     #[default]
     /// Default spaces
@@ -275,7 +275,7 @@ pub enum ImageRepresentationBand {
     /// Chrominance Red
     Cr,
 }
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum ImageFilterCondition {
     #[default]
     /// None
@@ -283,7 +283,7 @@ pub enum ImageFilterCondition {
 }
 
 /// Pixel justification
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum PixelJustification {
     #[default]
     /// Right justified
@@ -293,7 +293,7 @@ pub enum PixelJustification {
 }
 
 /// Coordinate representation
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum CoordinateRepresentation {
     #[default]
     /// Default value, one space
@@ -313,7 +313,7 @@ pub enum CoordinateRepresentation {
 }
 
 /// Image compression values
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Compression {
     #[default]
     /// Not compressed
@@ -353,7 +353,7 @@ pub enum Compression {
 }
 
 /// Image data storage mode
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Mode {
     #[default]
     /// Band interleaved by block

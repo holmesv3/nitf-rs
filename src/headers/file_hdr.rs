@@ -7,7 +7,7 @@ use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
 use crate::{NitfError, NitfResult};
 /// Metadata for Nitf File Header
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct NitfHeader {
     /// File Profile Name
     pub fhdr: NitfField<FHDR>,
@@ -77,7 +77,7 @@ pub struct NitfHeader {
     pub xhd: ExtendedSubheader,
 }
 
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Copy, Ord, PartialOrd)]
 pub enum FHDR {
     #[default]
     NITF,
@@ -97,7 +97,7 @@ impl Display for FHDR {
     }
 }
 
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub enum FVER {
     #[default]
     V02_10,
@@ -441,7 +441,7 @@ impl NitfSegmentHeader for NitfHeader {
 /// Subheader element type
 ///
 /// Used within the NITF header to denote the subheader segments contained in the file
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct SubHeader {
     /// Bytes of header description
     pub subheader_size: NitfField<u32>,

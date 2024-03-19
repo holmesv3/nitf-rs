@@ -10,7 +10,7 @@ use crate::headers::NitfSegmentHeader;
 use crate::{NitfError, NitfResult};
 
 /// Lowest level object for file parsing
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct NitfField<V: FromStr + Debug + Default + Display> {
     /// Parsed representation of value
     pub val: V,
@@ -95,7 +95,7 @@ impl<V: FromStr + Debug + Default + Display> Display for NitfField<V> {
     }
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Copy)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Copy, Ord, PartialOrd)]
 pub struct NitfSegment<T: NitfSegmentHeader> {
     /// Header fields defined in module
     pub header: T,
@@ -157,7 +157,7 @@ impl<T: NitfSegmentHeader + Display> Display for NitfSegment<T> {
     }
 }
 /// Standard security metadata
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Security {
     /// File Security Classification
     pub clas: NitfField<Classification>,
@@ -285,7 +285,7 @@ impl Display for Security {
 }
 
 /// Classification codes
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Classification {
     #[default]
     /// Unclassified
@@ -324,7 +324,7 @@ impl Display for Classification {
     }
 }
 /// Declassification codes
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum DeclassificationType {
     #[default]
     /// Default value, two spaces
@@ -372,7 +372,7 @@ impl Display for DeclassificationType {
 }
 
 ///  Declassification exemption
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum DeclassificationExemption {
     #[default]
     /// Default value, four spaces
@@ -456,7 +456,7 @@ impl Display for DeclassificationExemption {
 }
 
 /// Downgrade classification
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Downgrade {
     #[default]
     /// Default value, two spaces
@@ -492,7 +492,7 @@ impl Display for Downgrade {
 }
 
 /// Classification authority
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum ClassificationAuthorityType {
     #[default]
     /// Default, one space
@@ -530,7 +530,7 @@ impl Display for ClassificationAuthorityType {
 }
 
 /// Reason for classification
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum ClassificationReason {
     #[default]
     /// Default value, one space
@@ -579,7 +579,7 @@ impl Display for ClassificationReason {
 }
 
 /// Extended sub-header TRE data type
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub struct ExtendedSubheader {
     /// User defined tagged record entries (TREs)
     tre: Vec<u8>,

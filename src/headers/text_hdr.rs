@@ -8,7 +8,7 @@ use crate::headers::NitfSegmentHeader;
 use crate::types::{ExtendedSubheader, NitfField, Security};
 use crate::{NitfError, NitfResult};
 /// Text Segment Metadata
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct TextHeader {
     /// File Part Type
     pub te: NitfField<TE>,
@@ -51,7 +51,7 @@ impl Default for TextHeader {
     }
 }
 
-#[derive(Default, Clone, Debug, Eq, PartialEq)]
+#[derive(Default, Clone, Debug, Eq, PartialEq, Copy, Ord, PartialOrd)]
 pub enum TE {
     #[default]
     TE,
@@ -72,7 +72,7 @@ impl Display for TE {
 }
 
 /// Formatting specification
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum TextFormat {
     #[default]
     /// USMTF formatting

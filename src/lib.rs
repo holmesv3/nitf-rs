@@ -84,7 +84,7 @@ pub type ReservedExtensionSegment = NitfSegment<ReservedExtensionHeader>;
 use types::ExtendedSubheader;
 
 /// Top level NITF interface
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Nitf {
     /// Nitf file header.
     pub nitf_header: NitfHeader,
