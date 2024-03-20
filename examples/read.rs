@@ -1,34 +1,5 @@
-use clap::{Parser, ValueEnum};
+use clap::Parser;
 use log::LevelFilter;
-
-#[derive(ValueEnum, Clone)]
-enum ArgLevel {
-    /// A level lower than all log levels.
-    Off,
-    /// Corresponds to the `Error` log level.
-    Error,
-    /// Corresponds to the `Warn` log level.
-    Warn,
-    /// Corresponds to the `Info` log level.
-    Info,
-    /// Corresponds to the `Debug` log level.
-    Debug,
-    /// Corresponds to the `Trace` log level.
-    Trace,
-}
-
-impl From<ArgLevel> for LevelFilter {
-    fn from(value: ArgLevel) -> Self {
-        match value {
-            ArgLevel::Off => Self::Off,
-            ArgLevel::Error => Self::Error,
-            ArgLevel::Warn => Self::Warn,
-            ArgLevel::Info => Self::Info,
-            ArgLevel::Debug => Self::Debug,
-            ArgLevel::Trace => Self::Trace,
-        }
-    }
-}
 
 /// Example of reading a nitf
 #[derive(Parser)]
@@ -37,13 +8,13 @@ struct Cli {
     input: std::path::PathBuf,
     /// Log level
     #[arg(long, default_value = "warn")]
-    level: ArgLevel,
+    level: LevelFilter,
 }
 
 fn main() {
     let args = Cli::parse();
     simple_logger::SimpleLogger::new()
-        .with_level(args.level.into())
+        .with_level(args.level)
         .init()
         .unwrap();
 
