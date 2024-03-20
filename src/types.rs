@@ -95,7 +95,7 @@ impl<V: FromStr + Debug + Default + Display> Display for NitfField<V> {
     }
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Copy, Ord, PartialOrd)]
+#[derive(Debug, Default, Clone, PartialEq, PartialOrd, Eq, Ord)]
 pub struct NitfSegment<T: NitfSegmentHeader> {
     /// Header fields defined in module
     pub header: T,
@@ -111,6 +111,7 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
         let header_offset = reader.stream_position()?;
         let header = T::from_reader(reader)?;
         let data_offset = reader.stream_position()?;
+
         // Seek to end of data for next segment to be read
         reader.seek(std::io::SeekFrom::Start(data_offset + data_size))?;
         Ok(Self {
@@ -120,6 +121,7 @@ impl<T: NitfSegmentHeader> NitfSegment<T> {
             data_offset,
         })
     }
+
     /// Write segment header to file
     pub(crate) fn write_header(&mut self, writer: &mut (impl Write + Seek)) -> NitfResult<usize> {
         writer.seek(std::io::SeekFrom::Start(self.header_offset))?;

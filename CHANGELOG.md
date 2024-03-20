@@ -1,6 +1,10 @@
 # Changes by version
 
-## 0.3.0
+## 0.3.1 [main branch]
+- Fix some fields which are conditional, and some enum variant bugs
+- Can now properly read data with RGB/LUT image data with look-up-tables
+
+## 0.3.0 [released]
 - Writing broke prior version, so pulled
 - Added more logging
 - Removed `read_nitf()`

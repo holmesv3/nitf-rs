@@ -23,7 +23,7 @@ use crate::NitfResult;
 /// Provide implementation for `read()`, `from_reader` defined automatically.
 pub trait NitfSegmentHeader
 where
-    Self: Sized + Default,
+    Self: Sized + Default + PartialEq + Eq + Ord + PartialOrd + Clone,
 {
     /// Read the segment info from stream
     ///
